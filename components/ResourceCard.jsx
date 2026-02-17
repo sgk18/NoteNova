@@ -1,11 +1,20 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { Download, Bookmark, BookmarkCheck } from "lucide-react";
 import StarRating from "./StarRating";
 import toast from "react-hot-toast";
 
 export default function ResourceCard({ resource, onBookmark, isBookmarked }) {
+  const router = useRouter();
+
   const handleDownload = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      toast.error("Please login to download");
+      router.push("/login");
+      return;
+    }
     try {
       const res = await fetch(`/api/resources?download=${resource._id}`);
       const data = await res.json();
