@@ -66,7 +66,6 @@ export default function UploadPage() {
             <option value="" className="bg-slate-900">Department</option>
             {["CSE","IT","ECE","EEE","MECH","CIVIL","AIDS","AIML","CSE (Cyber Security)","Biomedical","Chemical","Automobile","Common"].map(d => <option key={d} value={d} className="bg-slate-900">{d}</option>)}
           </select>
-          <input name="yearBatch" placeholder="Year / Batch" className="w-full px-4 py-3 rounded-xl glass neon-border text-white placeholder-gray-500 text-sm focus:outline-none focus:neon-glow" value={form.yearBatch} onChange={handleChange} />
         </div>
 
         <input name="tags" placeholder="Tags (comma separated, e.g. dsa, algorithms, trees)" className="w-full px-4 py-3 rounded-xl glass neon-border text-white placeholder-gray-500 text-sm focus:outline-none focus:neon-glow" value={form.tags} onChange={handleChange} />
