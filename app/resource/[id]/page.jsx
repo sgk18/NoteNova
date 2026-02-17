@@ -2,8 +2,9 @@
 
 import { useEffect, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Download, Lock, Globe, ArrowLeft, Star, Calendar, Tag, BookOpen, Building2, Send, ExternalLink, Sparkles, Eye } from "lucide-react";
+import { Download, Lock, Globe, ArrowLeft, Star, Calendar, Tag, BookOpen, Building2, Send, ExternalLink, Sparkles, Eye, RefreshCw } from "lucide-react";
 import StarRating from "@/components/StarRating";
+import SmartNotesDisplay from "@/components/SmartNotesDisplay";
 import toast from "react-hot-toast";
 
 export default function ResourceDetailPage() {
@@ -17,10 +18,11 @@ export default function ResourceDetailPage() {
   const [myRating, setMyRating] = useState(0);
   const [myReview, setMyReview] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [aiSummary, setAiSummary] = useState("");
-  const [aiLoading, setAiLoading] = useState(false);
+  const [smartNotes, setSmartNotes] = useState(null);
+  const [smartNotesLoading, setSmartNotesLoading] = useState(false);
   const [visible, setVisible] = useState(false);
   const contentRef = useRef(null);
+  const smartNotesRef = useRef(null);
 
   useEffect(() => {
     if (!id) return;
@@ -30,6 +32,10 @@ export default function ResourceDetailPage() {
   useEffect(() => {
     if (resource) {
       setTimeout(() => setVisible(true), 50);
+      // Load cached smart notes if available
+      if (resource.smartNotes) {
+        setSmartNotes(resource.smartNotes);
+      }
     }
   }, [resource]);
 
@@ -110,26 +116,28 @@ export default function ResourceDetailPage() {
     }
   };
 
-  const handleGenerateAINotes = async () => {
-    if (!resource) return;
-    setAiLoading(true);
-    setAiSummary("");
+  const handleGenerateSmartNotes = async (regenerate = false) => {
+    setSmartNotesLoading(true);
     try {
-      const res = await fetch("/api/ask-ai", {
+      const res = await fetch("/api/generate-smart-notes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question: `Generate detailed study notes for: "${resource.title}" — Subject: ${resource.subject || "General"}. Include key concepts, formulas if applicable, and exam-relevant points.` }),
+        body: JSON.stringify({ resourceId: id, regenerate }),
       });
       const data = await res.json();
       if (res.ok) {
-        setAiSummary(data.answer);
+        setSmartNotes(data.smartNotes);
+        toast.success(data.cached ? "Smart Notes loaded from cache" : "Smart Notes generated!");
+        setTimeout(() => {
+          smartNotesRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+        }, 100);
       } else {
-        toast.error(data.error || "AI generation failed");
+        toast.error(data.error || "Failed to generate Smart Notes");
       }
     } catch {
-      toast.error("Failed to generate AI notes");
+      toast.error("Failed to generate Smart Notes");
     } finally {
-      setAiLoading(false);
+      setSmartNotesLoading(false);
     }
   };
 
@@ -252,11 +260,46 @@ export default function ResourceDetailPage() {
               <ExternalLink className="h-4 w-4" /> Open in New Tab
             </a>
           )}
-          <button onClick={handleGenerateAINotes} disabled={aiLoading} className="flex-1 py-3.5 rounded-xl glass border border-purple-500/30 text-purple-300 font-semibold text-sm flex items-center justify-center gap-2 hover:bg-purple-500/10 transition-all disabled:opacity-50">
-            <Sparkles className="h-4 w-4" /> {aiLoading ? "Generating..." : "AI Notes"}
-          </button>
         </div>
       </div>
+
+      {/* Smart Notes Button */}
+      <div className="mb-8">
+        <div className="flex flex-col sm:flex-row gap-3">
+          <button
+            onClick={() => handleGenerateSmartNotes(false)}
+            disabled={smartNotesLoading}
+            className="flex-1 py-4 rounded-xl bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-500 hover:to-cyan-500 text-white font-semibold text-sm flex items-center justify-center gap-2 transition-all duration-300 disabled:opacity-50 shadow-lg shadow-purple-500/20"
+          >
+            {smartNotesLoading ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                Generating Smart Notes...
+              </>
+            ) : (
+              <>
+                <Sparkles className="h-5 w-5" /> ✨ Generate Smart Notes
+              </>
+            )}
+          </button>
+          {smartNotes && (
+            <button
+              onClick={() => handleGenerateSmartNotes(true)}
+              disabled={smartNotesLoading}
+              className="py-4 px-6 rounded-xl glass neon-border text-gray-300 font-medium text-sm flex items-center justify-center gap-2 hover:bg-white/10 transition-all disabled:opacity-50"
+            >
+              <RefreshCw className={`h-4 w-4 ${smartNotesLoading ? "animate-spin" : ""}`} /> Regenerate
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Smart Notes Display */}
+      {smartNotes && (
+        <div ref={smartNotesRef}>
+          <SmartNotesDisplay notes={smartNotes} />
+        </div>
+      )}
 
       {/* PDF Preview */}
       {resource.fileUrl && isPdf && (
@@ -270,19 +313,6 @@ export default function ResourceDetailPage() {
             className="w-full h-[600px] bg-white/5"
             title="Resource Preview"
           />
-        </div>
-      )}
-
-      {/* AI Summary */}
-      {aiSummary && (
-        <div className="glass-strong rounded-2xl neon-border overflow-hidden mb-8">
-          <div className="flex items-center gap-2 px-6 py-3 border-b border-white/10">
-            <Sparkles className="h-4 w-4 text-purple-400" />
-            <span className="text-sm font-medium text-white">AI Generated Notes</span>
-          </div>
-          <div className="px-6 py-5">
-            <div className="text-sm text-gray-300 leading-relaxed whitespace-pre-wrap">{aiSummary}</div>
-          </div>
         </div>
       )}
 

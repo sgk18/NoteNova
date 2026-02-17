@@ -18,6 +18,7 @@ const ResourceSchema = new mongoose.Schema({
   downloads: { type: Number, default: 0 },
   views: { type: Number, default: 0 },
   avgRating: { type: Number, default: 0 },
+  smartNotes: { type: Object, default: null },
   uploadedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   createdAt: { type: Date, default: Date.now },
 });
