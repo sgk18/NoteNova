@@ -61,6 +61,8 @@ export async function GET(request) {
     if (tag) query.tags = { $in: [new RegExp(tag, "i")] };
     if (userId) query.uploadedBy = new mongoose.Types.ObjectId(userId);
 
+
+
     // Access control for private resources
     let userCollege = null;
     const authHeader = request.headers.get("authorization");
