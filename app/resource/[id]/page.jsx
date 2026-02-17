@@ -35,7 +35,6 @@ export default function ResourceDetailPage() {
     }
   }, [resource]);
 
-  // Reset preview states when resource changes
   useEffect(() => {
     if (resource) {
       setPreviewLoading(true);
@@ -43,32 +42,69 @@ export default function ResourceDetailPage() {
     }
   }, [resource?.fileUrl]);
 
+  // --- URL helper functions ---
+
   const getFileExtension = (url) => {
     if (!url) return "";
     try {
       const pathname = new URL(url).pathname;
-      const ext = pathname.split(".").pop().toLowerCase();
-      return ext;
+      return pathname.split(".").pop().toLowerCase();
     } catch {
       return "";
     }
   };
 
-  // Fix Cloudinary URLs for correct resource type
-  const getPreviewUrl = (url, ext) => {
-    if (!url || !url.includes("cloudinary.com")) return url;
-    const imageExts = ["png", "jpg", "jpeg", "gif", "webp", "svg"];
-    const docExts = ["pdf", "doc", "docx", "ppt", "pptx", "xls", "xlsx"];
-    // Images should use /image/upload/ for inline display
-    if (imageExts.includes(ext) && url.includes("/raw/upload/")) {
+  const isImageExt = (ext) => ["png", "jpg", "jpeg", "gif", "webp", "svg"].includes(ext);
+  const isPdfExt = (ext) => ext === "pdf";
+  const isOfficeExt = (ext) => ["doc", "docx", "ppt", "pptx", "xls", "xlsx"].includes(ext);
+
+  // For images stored as "raw" in Cloudinary, convert to /image/upload/ for display
+  const getImageDisplayUrl = (url) => {
+    if (!url) return url;
+    if (url.includes("cloudinary.com") && url.includes("/raw/upload/")) {
       return url.replace("/raw/upload/", "/image/upload/");
-    }
-    // Docs/PDFs should use /raw/upload/ for download/viewer access
-    if (docExts.includes(ext) && url.includes("/image/upload/")) {
-      return url.replace("/image/upload/", "/raw/upload/");
     }
     return url;
   };
+
+  // Google Docs Viewer URL — works for any publicly accessible PDF/doc URL
+  const getGoogleViewerUrl = (url) => {
+    return `https://docs.google.com/gview?url=${encodeURIComponent(url)}&embedded=true`;
+  };
+
+  // Office Online Viewer URL
+  const getOfficeViewerUrl = (url) => {
+    return `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(url)}`;
+  };
+
+  // For "Open in New Tab": PDFs use Google Docs Viewer, images use direct URL
+  const getOpenInTabUrl = (url) => {
+    if (!url) return url;
+    const ext = getFileExtension(url);
+    if (isPdfExt(ext)) {
+      // Google Docs Viewer renders PDFs regardless of Cloudinary resource type
+      return `https://docs.google.com/gview?url=${encodeURIComponent(url)}`;
+    }
+    if (isOfficeExt(ext)) {
+      return `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(url)}`;
+    }
+    if (isImageExt(ext)) {
+      return getImageDisplayUrl(url);
+    }
+    return url;
+  };
+
+  // For download: use Cloudinary fl_attachment flag to force proper download
+  const getDownloadUrl = (url) => {
+    if (!url) return url;
+    if (url.includes("cloudinary.com") && url.includes("/upload/")) {
+      // Insert fl_attachment flag after /upload/ to force download with correct headers
+      return url.replace("/upload/", "/upload/fl_attachment/");
+    }
+    return url;
+  };
+
+  // --- Preview renderer ---
 
   const renderFilePreview = () => {
     const fileUrl = resource?.fileUrl;
@@ -82,19 +118,14 @@ export default function ResourceDetailPage() {
     }
 
     const ext = getFileExtension(fileUrl);
-    const imageExts = ["png", "jpg", "jpeg", "gif", "webp", "svg"];
-    const pdfExts = ["pdf"];
-    const officeExts = ["doc", "docx", "ppt", "pptx", "xls", "xlsx"];
-    const previewUrl = getPreviewUrl(fileUrl, ext);
 
-    // Show fallback with "Open in browser" when preview fails
     if (previewError) {
       return (
         <div className="flex flex-col items-center justify-center py-16 text-gray-500">
           <FileText className="h-12 w-12 mb-3 opacity-40" />
           <p className="text-sm mb-3">Preview could not be loaded</p>
           <a
-            href={previewUrl}
+            href={getOpenInTabUrl(fileUrl)}
             target="_blank"
             rel="noopener noreferrer"
             className="px-5 py-2.5 rounded-xl btn-gradient text-white text-sm font-medium flex items-center gap-2 no-underline"
@@ -105,7 +136,9 @@ export default function ResourceDetailPage() {
       );
     }
 
-    if (imageExts.includes(ext)) {
+    // Image preview — direct <img> tag
+    if (isImageExt(ext)) {
+      const displayUrl = getImageDisplayUrl(fileUrl);
       return (
         <div className="flex justify-center">
           {previewLoading && (
@@ -114,7 +147,7 @@ export default function ResourceDetailPage() {
             </div>
           )}
           <img
-            src={previewUrl}
+            src={displayUrl}
             alt={resource.title}
             className={`max-w-full max-h-[600px] rounded-xl object-contain ${previewLoading ? "hidden" : ""}`}
             onLoad={() => setPreviewLoading(false)}
@@ -124,8 +157,8 @@ export default function ResourceDetailPage() {
       );
     }
 
-    if (pdfExts.includes(ext)) {
-      const googleViewerUrl = `https://docs.google.com/gview?url=${encodeURIComponent(previewUrl)}&embedded=true`;
+    // PDF preview — Google Docs Viewer (works with ANY Cloudinary URL)
+    if (isPdfExt(ext)) {
       return (
         <div className="relative">
           {previewLoading && (
@@ -137,7 +170,7 @@ export default function ResourceDetailPage() {
             </div>
           )}
           <iframe
-            src={googleViewerUrl}
+            src={getGoogleViewerUrl(fileUrl)}
             className="w-full rounded-xl border border-white/10"
             style={{ height: "600px" }}
             frameBorder="0"
@@ -149,7 +182,7 @@ export default function ResourceDetailPage() {
           {!previewLoading && (
             <div className="mt-3 flex justify-end">
               <a
-                href={previewUrl}
+                href={getOpenInTabUrl(fileUrl)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-xs text-cyan-400 hover:text-cyan-300 flex items-center gap-1 transition-colors"
@@ -162,8 +195,8 @@ export default function ResourceDetailPage() {
       );
     }
 
-    if (officeExts.includes(ext)) {
-      const officeViewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(previewUrl)}`;
+    // Office docs — Office Online Viewer
+    if (isOfficeExt(ext)) {
       return (
         <div className="relative">
           {previewLoading && (
@@ -175,7 +208,7 @@ export default function ResourceDetailPage() {
             </div>
           )}
           <iframe
-            src={officeViewerUrl}
+            src={getOfficeViewerUrl(fileUrl)}
             className="w-full rounded-xl border border-white/10"
             style={{ height: "600px" }}
             frameBorder="0"
@@ -187,7 +220,7 @@ export default function ResourceDetailPage() {
           {!previewLoading && (
             <div className="mt-3 flex justify-end">
               <a
-                href={previewUrl}
+                href={getOpenInTabUrl(fileUrl)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-xs text-cyan-400 hover:text-cyan-300 flex items-center gap-1 transition-colors"
@@ -200,13 +233,13 @@ export default function ResourceDetailPage() {
       );
     }
 
-    // Fallback for unsupported types
+    // Fallback
     return (
       <div className="flex flex-col items-center justify-center py-16 text-gray-500">
         <FileText className="h-12 w-12 mb-3 opacity-40" />
         <p className="text-sm mb-3">Preview not available for this file type (.{ext})</p>
         <a
-          href={previewUrl}
+          href={fileUrl}
           target="_blank"
           rel="noopener noreferrer"
           className="px-5 py-2.5 rounded-xl btn-gradient text-white text-sm font-medium flex items-center gap-2 no-underline"
@@ -216,6 +249,8 @@ export default function ResourceDetailPage() {
       </div>
     );
   };
+
+  // --- Data fetching & actions ---
 
   const fetchDetail = async () => {
     setLoading(true);
@@ -255,13 +290,20 @@ export default function ResourceDetailPage() {
       return;
     }
     try {
+      // Track download count via API
       const res = await fetch(`/api/resources?download=${id}`);
       const data = await res.json();
       if (data.fileUrl) {
-        // Fix Cloudinary URL for proper browser handling
         const ext = getFileExtension(data.fileUrl);
-        const fixedUrl = getPreviewUrl(data.fileUrl, ext);
-        window.open(fixedUrl, "_blank");
+        if (isPdfExt(ext) || isOfficeExt(ext)) {
+          // For PDFs/docs: use fl_attachment to force download with correct content-type
+          const downloadUrl = getDownloadUrl(data.fileUrl);
+          window.open(downloadUrl, "_blank");
+        } else {
+          // For images: open directly (browser shows inline)
+          const displayUrl = getImageDisplayUrl(data.fileUrl);
+          window.open(displayUrl, "_blank");
+        }
         toast.success("Download started");
       } else {
         toast.error("File not available");
@@ -326,6 +368,8 @@ export default function ResourceDetailPage() {
     }
   };
 
+  // --- Render ---
+
   if (loading) {
     return (
       <div className="flex justify-center py-32">
@@ -383,7 +427,6 @@ export default function ResourceDetailPage() {
         <h1 className="text-3xl font-bold text-white mb-3">{resource.title}</h1>
         <p className="text-gray-400 mb-6">{resource.description || "No description provided"}</p>
 
-        {/* Meta */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
           {resource.semester && (
             <div className="flex items-center gap-2 text-sm text-gray-400">
@@ -405,7 +448,6 @@ export default function ResourceDetailPage() {
           </div>
         </div>
 
-        {/* Tags */}
         {resource.tags?.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-6">
             {resource.tags.map((tag) => (
@@ -416,7 +458,6 @@ export default function ResourceDetailPage() {
           </div>
         )}
 
-        {/* Uploader */}
         <div className="flex items-center justify-between glass rounded-xl p-4 border border-white/10 mb-6">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center text-white font-bold">
@@ -439,7 +480,7 @@ export default function ResourceDetailPage() {
             <Download className="h-5 w-5" /> Download
           </button>
           {resource.fileUrl && (
-            <a href={getPreviewUrl(resource.fileUrl, getFileExtension(resource.fileUrl))} target="_blank" rel="noopener noreferrer" className="flex-1 py-3.5 rounded-xl glass neon-border text-white font-semibold text-sm flex items-center justify-center gap-2 hover:bg-white/10 transition-all">
+            <a href={getOpenInTabUrl(resource.fileUrl)} target="_blank" rel="noopener noreferrer" className="flex-1 py-3.5 rounded-xl glass neon-border text-white font-semibold text-sm flex items-center justify-center gap-2 hover:bg-white/10 transition-all">
               <ExternalLink className="h-4 w-4" /> Open in New Tab
             </a>
           )}

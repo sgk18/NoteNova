@@ -30,15 +30,7 @@ export async function GET(request) {
         if (resource.uploadedBy) {
           await User.findByIdAndUpdate(resource.uploadedBy, { $inc: { points: 2 } });
         }
-        let fileUrl = resource.fileUrl;
-        // Cloudinary serves PDFs/docs incorrectly from /image/upload/ — fix to /raw/upload/
-        if (fileUrl && fileUrl.includes("cloudinary.com") && fileUrl.includes("/image/upload/")) {
-          const docExts = [".pdf", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx"];
-          if (docExts.some((ext) => fileUrl.toLowerCase().endsWith(ext))) {
-            fileUrl = fileUrl.replace("/image/upload/", "/raw/upload/");
-          }
-        }
-        return NextResponse.json({ fileUrl });
+        return NextResponse.json({ fileUrl: resource.fileUrl });
       }
       return NextResponse.json({ error: "Resource not found" }, { status: 404 });
     }
