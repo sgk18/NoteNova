@@ -31,7 +31,12 @@ export async function GET(request) {
         if (resource.uploadedBy) {
           await User.findByIdAndUpdate(resource.uploadedBy, { $inc: { points: 2 } });
         }
-        return NextResponse.json({ fileUrl: resource.fileUrl });
+        let url = resource.fileUrl;
+        // Fix URLs stored with wrong resource type path
+        if (url && url.includes("/image/upload/")) {
+          url = url.replace("/image/upload/", "/raw/upload/");
+        }
+        return NextResponse.json({ fileUrl: url });
       }
       return NextResponse.json({ error: "Resource not found" }, { status: 404 });
     }
@@ -48,21 +53,13 @@ export async function GET(request) {
     if (subject) query.subject = { $regex: subject, $options: "i" };
     if (semester) query.semester = semester;
     if (department) query.department = { $regex: department, $options: "i" };
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
     if (resourceType) query.resourceType = resourceType;
     if (yearBatch) query.yearBatch = yearBatch;
     if (isPublic !== null && isPublic !== undefined && isPublic !== "") {
       query.isPublic = isPublic === "true";
     }
     if (tag) query.tags = { $in: [new RegExp(tag, "i")] };
-    if (userId) query.uploadedBy = userId;
-=======
     if (userId) query.uploadedBy = new mongoose.Types.ObjectId(userId);
->>>>>>> Stashed changes
-=======
-    if (userId) query.uploadedBy = new mongoose.Types.ObjectId(userId);
->>>>>>> Stashed changes
 
     // Access control for private resources
     let userCollege = null;
@@ -103,11 +100,16 @@ export async function GET(request) {
     }
 
     // Filter out private resources from other colleges
+    // Resources without isPublic field are treated as public (backwards compatible)
     resources = resources.filter((r) => {
-      if (r.isPublic) return true;
-      if (!userCollege) return false;
-      const uploaderCollege = r.uploadedBy?.college || "";
-      return uploaderCollege.toLowerCase() === userCollege.toLowerCase();
+      if (r.isPublic === false) {
+        // Explicitly private — only show to same college
+        if (!userCollege) return false;
+        const uploaderCollege = r.uploadedBy?.college || "";
+        return uploaderCollege.toLowerCase() === userCollege.toLowerCase();
+      }
+      // isPublic is true, undefined, or null — treat as public
+      return true;
     });
 
     return NextResponse.json({ resources });
