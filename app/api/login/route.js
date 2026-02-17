@@ -34,6 +34,7 @@ export async function POST(request) {
         id: user._id,
         name: user.name,
         email: user.email,
+        college: user.college,
         department: user.department,
         semester: user.semester,
         points: user.points,

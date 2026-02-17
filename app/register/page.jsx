@@ -8,14 +8,14 @@ import toast from "react-hot-toast";
 
 export default function RegisterPage() {
   const router = useRouter();
-  const [form, setForm] = useState({ name: "", email: "", password: "", department: "", semester: "" });
+  const [form, setForm] = useState({ name: "", email: "", password: "", college: "", department: "", semester: "" });
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.name || !form.email || !form.password) return toast.error("Fill required fields");
+    if (!form.name || !form.email || !form.password || !form.college) return toast.error("Fill all required fields");
     setLoading(true);
     try {
       const res = await fetch("/api/register", {
@@ -50,6 +50,7 @@ export default function RegisterPage() {
           <input name="name" placeholder="Full Name *" required className="w-full px-4 py-3 rounded-xl glass neon-border text-white placeholder-gray-500 text-sm focus:outline-none focus:neon-glow" value={form.name} onChange={handleChange} />
           <input name="email" type="email" placeholder="Email *" required className="w-full px-4 py-3 rounded-xl glass neon-border text-white placeholder-gray-500 text-sm focus:outline-none focus:neon-glow" value={form.email} onChange={handleChange} />
           <input name="password" type="password" placeholder="Password *" required className="w-full px-4 py-3 rounded-xl glass neon-border text-white placeholder-gray-500 text-sm focus:outline-none focus:neon-glow" value={form.password} onChange={handleChange} />
+          <input name="college" placeholder="College / Institution *" required className="w-full px-4 py-3 rounded-xl glass neon-border text-white placeholder-gray-500 text-sm focus:outline-none focus:neon-glow" value={form.college} onChange={handleChange} />
           <select name="department" className="w-full px-4 py-3 rounded-xl glass neon-border text-white text-sm focus:outline-none focus:neon-glow bg-transparent appearance-none" value={form.department} onChange={handleChange}>
             <option value="" className="bg-slate-900">Select Department</option>
             {["CSE","IT","ECE","EEE","MECH","CIVIL","AIDS","AIML","CSE (Cyber Security)","Biomedical","Chemical","Automobile"].map(d => <option key={d} value={d} className="bg-slate-900">{d}</option>)}
