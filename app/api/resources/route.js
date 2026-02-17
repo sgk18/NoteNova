@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import mongoose from "mongoose";
 import dbConnect from "@/lib/db";
 import Resource from "@/models/Resource";
 import User from "@/models/User";
@@ -47,6 +48,8 @@ export async function GET(request) {
     if (subject) query.subject = { $regex: subject, $options: "i" };
     if (semester) query.semester = semester;
     if (department) query.department = { $regex: department, $options: "i" };
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
     if (resourceType) query.resourceType = resourceType;
     if (yearBatch) query.yearBatch = yearBatch;
     if (isPublic !== null && isPublic !== undefined && isPublic !== "") {
@@ -54,6 +57,12 @@ export async function GET(request) {
     }
     if (tag) query.tags = { $in: [new RegExp(tag, "i")] };
     if (userId) query.uploadedBy = userId;
+=======
+    if (userId) query.uploadedBy = new mongoose.Types.ObjectId(userId);
+>>>>>>> Stashed changes
+=======
+    if (userId) query.uploadedBy = new mongoose.Types.ObjectId(userId);
+>>>>>>> Stashed changes
 
     // Access control for private resources
     let userCollege = null;
@@ -77,6 +86,9 @@ export async function GET(request) {
         },
         { $sort: { score: -1 } },
         { $limit: 50 },
+        { $lookup: { from: "users", localField: "uploadedBy", foreignField: "_id", as: "uploadedBy" } },
+        { $unwind: { path: "$uploadedBy", preserveNullAndEmptyArrays: true } },
+        { $project: { "uploadedBy.password": 0 } },
       ]);
       // Populate uploadedBy manually for aggregation
       resources = await Resource.populate(resources, { path: "uploadedBy", select: "name college department" });
