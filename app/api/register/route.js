@@ -7,31 +7,26 @@ export async function POST(request) {
   try {
     await dbConnect();
     const body = await request.json();
-    const { name, email, password, department, semester } = body;
+    const { name, email, password, college, department, semester } = body;
 
-    if (!name || !email || !password) {
-      return NextResponse.json({ error: "Name, email and password are required" }, { status: 400 });
+    if (!name || !email || !password || !college) {
+      return NextResponse.json({ error: "Name, email, password, and college are required" }, { status: 400 });
     }
 
     const existing = await User.findOne({ email });
     if (existing) {
-      return NextResponse.json({ error: "Email already registered" }, { status: 400 });
+      return NextResponse.json({ error: "Email already registered" }, { status: 409 });
     }
 
     const hashed = await bcrypt.hash(password, 10);
-    const user = await User.create({
-      name,
-      email,
-      password: hashed,
-      department: department || "",
-      semester: semester || "",
-    });
+    const user = await User.create({ name, email, password: hashed, college, department, semester });
 
-    return NextResponse.json(
-      { message: "Registered successfully", userId: user._id },
-      { status: 201 }
-    );
+    return NextResponse.json({
+      message: "Registered successfully",
+      user: { id: user._id, name: user.name, email: user.email, college: user.college },
+    }, { status: 201 });
   } catch (err) {
-    return NextResponse.json({ error: "Server error" }, { status: 500 });
+    console.error("Register error:", err);
+    return NextResponse.json({ error: err.message || "Server error" }, { status: 500 });
   }
 }

@@ -43,16 +43,17 @@ export default function LeaderboardPage() {
       <div className="glass-strong rounded-2xl neon-border overflow-hidden">
         <div className="grid grid-cols-12 gap-4 px-6 py-3 border-b border-white/10 text-xs font-semibold text-gray-400 uppercase tracking-wider">
           <div className="col-span-1">Rank</div>
-          <div className="col-span-4">Name</div>
-          <div className="col-span-3">Department</div>
-          <div className="col-span-2">Badge</div>
+          <div className="col-span-3">Name</div>
+          <div className="col-span-3">College</div>
+          <div className="col-span-2">Dept</div>
+          <div className="col-span-1">Badge</div>
           <div className="col-span-2 text-right">Points</div>
         </div>
 
         {loading ? (
           [...Array(5)].map((_, i) => (
             <div key={i} className="grid grid-cols-12 gap-4 px-6 py-5 border-t border-white/5 animate-pulse">
-              {[1,4,3,2,2].map((span, j) => <div key={j} className={`col-span-${span} h-4 bg-white/5 rounded`} />)}
+              {[1,3,3,2,1,2].map((span, j) => <div key={j} className={`col-span-${span} h-4 bg-white/5 rounded`} />)}
             </div>
           ))
         ) : users.length === 0 ? (
@@ -74,12 +75,13 @@ export default function LeaderboardPage() {
                     <span className="text-sm font-medium text-gray-500">{i + 1}</span>
                   )}
                 </div>
-                <div className="col-span-4">
+                <div className="col-span-3">
                   <p className="font-semibold text-white text-sm">{u.name}</p>
                   {u.semester && <p className="text-xs text-gray-500">Sem {u.semester}</p>}
                 </div>
-                <div className="col-span-3 text-sm text-gray-400">{u.department || "—"}</div>
-                <div className="col-span-2">
+                <div className="col-span-3 text-sm text-gray-400 truncate">{u.college || "—"}</div>
+                <div className="col-span-2 text-sm text-gray-400">{u.department || "—"}</div>
+                <div className="col-span-1">
                   <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border ${badge.bg} ${badge.color}`}>
                     <Shield className="h-3 w-3" /> {badge.name}
                   </span>

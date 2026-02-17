@@ -3,41 +3,65 @@ import dbConnect from "@/lib/db";
 import Rating from "@/models/Rating";
 import Resource from "@/models/Resource";
 import User from "@/models/User";
-import { authenticate } from "@/middleware/authMiddleware";
+import { verifyToken } from "@/lib/auth";
 
 export async function POST(request) {
   try {
-    const user = await authenticate(request);
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     await dbConnect();
-    const { resourceId, rating } = await request.json();
+    const authHeader = request.headers.get("authorization");
+    if (!authHeader) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const decoded = verifyToken(authHeader.split(" ")[1]);
+    if (!decoded) return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+
+    const body = await request.json();
+    const { resourceId, rating, review } = body;
 
     if (!resourceId || !rating || rating < 1 || rating > 5) {
       return NextResponse.json({ error: "Valid resourceId and rating (1-5) required" }, { status: 400 });
     }
 
-    const existing = await Rating.findOne({ userId: user.userId, resourceId });
+    const existing = await Rating.findOne({ userId: decoded.userId, resourceId });
     if (existing) {
-      return NextResponse.json({ error: "You have already rated this resource" }, { status: 400 });
+      existing.rating = rating;
+      if (review !== undefined) existing.review = review;
+      await existing.save();
+    } else {
+      await Rating.create({ rating, review: review || "", userId: decoded.userId, resourceId });
     }
-
-    await Rating.create({ rating, userId: user.userId, resourceId });
 
     const allRatings = await Rating.find({ resourceId });
-    const avg = allRatings.reduce((sum, r) => sum + r.rating, 0) / allRatings.length;
+    const avg = allRatings.reduce((s, r) => s + r.rating, 0) / allRatings.length;
+    await Resource.findByIdAndUpdate(resourceId, { avgRating: parseFloat(avg.toFixed(1)) });
 
-    const resource = await Resource.findByIdAndUpdate(resourceId, { avgRating: Math.round(avg * 10) / 10 }, { new: true });
-
-    if (avg > 4 && resource.uploadedBy) {
-      await User.findByIdAndUpdate(resource.uploadedBy, { $inc: { points: 5 } });
+    if (rating > 4) {
+      const resource = await Resource.findById(resourceId);
+      if (resource?.uploadedBy) {
+        await User.findByIdAndUpdate(resource.uploadedBy, { $inc: { points: 5 } });
+      }
     }
 
-    return NextResponse.json({ message: "Rating submitted", avgRating: resource.avgRating });
+    return NextResponse.json({ message: existing ? "Review updated" : "Review submitted", avgRating: avg });
   } catch (err) {
-    console.error(err);
+    console.error("Rate error:", err);
+    return NextResponse.json({ error: err.message || "Server error" }, { status: 500 });
+  }
+}
+
+export async function GET(request) {
+  try {
+    await dbConnect();
+    const { searchParams } = new URL(request.url);
+    const resourceId = searchParams.get("resourceId");
+    if (!resourceId) return NextResponse.json({ error: "resourceId required" }, { status: 400 });
+
+    const reviews = await Rating.find({ resourceId })
+      .sort({ createdAt: -1 })
+      .populate("userId", "name college")
+      .lean();
+
+    return NextResponse.json({ reviews });
+  } catch (err) {
+    console.error("Get reviews error:", err);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }

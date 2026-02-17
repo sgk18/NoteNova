@@ -8,7 +8,7 @@ export async function GET() {
     const users = await User.find({})
       .sort({ points: -1 })
       .limit(50)
-      .select("name department semester points")
+      .select("name college department semester points")
       .lean();
 
     return NextResponse.json({ users });
