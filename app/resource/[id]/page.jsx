@@ -2,11 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
-<<<<<<< HEAD
 import { Download, Lock, Globe, ArrowLeft, Star, Calendar, Tag, BookOpen, Building2, Send, ExternalLink, Sparkles, Eye, FileText } from "lucide-react";
-=======
-import { Download, Lock, Globe, ArrowLeft, Star, Calendar, Tag, BookOpen, Building2, Send, ExternalLink, Sparkles, Eye } from "lucide-react";
->>>>>>> cf9160f45eb9d649a0e81ad486ed92ef3ef08b9a
 import StarRating from "@/components/StarRating";
 import toast from "react-hot-toast";
 
@@ -24,11 +20,8 @@ export default function ResourceDetailPage() {
   const [aiSummary, setAiSummary] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
   const [visible, setVisible] = useState(false);
-<<<<<<< HEAD
   const [previewLoading, setPreviewLoading] = useState(true);
   const [previewError, setPreviewError] = useState(false);
-=======
->>>>>>> cf9160f45eb9d649a0e81ad486ed92ef3ef08b9a
   const contentRef = useRef(null);
 
   useEffect(() => {
@@ -42,7 +35,6 @@ export default function ResourceDetailPage() {
     }
   }, [resource]);
 
-<<<<<<< HEAD
   // Reset preview states when resource changes
   useEffect(() => {
     if (resource) {
@@ -102,7 +94,7 @@ export default function ResourceDetailPage() {
           <FileText className="h-12 w-12 mb-3 opacity-40" />
           <p className="text-sm mb-3">Preview could not be loaded</p>
           <a
-            href={fileUrl}
+            href={previewUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="px-5 py-2.5 rounded-xl btn-gradient text-white text-sm font-medium flex items-center gap-2 no-underline"
@@ -157,7 +149,7 @@ export default function ResourceDetailPage() {
           {!previewLoading && (
             <div className="mt-3 flex justify-end">
               <a
-                href={fileUrl}
+                href={previewUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-xs text-cyan-400 hover:text-cyan-300 flex items-center gap-1 transition-colors"
@@ -195,7 +187,7 @@ export default function ResourceDetailPage() {
           {!previewLoading && (
             <div className="mt-3 flex justify-end">
               <a
-                href={fileUrl}
+                href={previewUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-xs text-cyan-400 hover:text-cyan-300 flex items-center gap-1 transition-colors"
@@ -214,7 +206,7 @@ export default function ResourceDetailPage() {
         <FileText className="h-12 w-12 mb-3 opacity-40" />
         <p className="text-sm mb-3">Preview not available for this file type (.{ext})</p>
         <a
-          href={fileUrl}
+          href={previewUrl}
           target="_blank"
           rel="noopener noreferrer"
           className="px-5 py-2.5 rounded-xl btn-gradient text-white text-sm font-medium flex items-center gap-2 no-underline"
@@ -225,8 +217,6 @@ export default function ResourceDetailPage() {
     );
   };
 
-=======
->>>>>>> cf9160f45eb9d649a0e81ad486ed92ef3ef08b9a
   const fetchDetail = async () => {
     setLoading(true);
     try {
@@ -264,7 +254,6 @@ export default function ResourceDetailPage() {
       router.push("/login");
       return;
     }
-<<<<<<< HEAD
     try {
       const res = await fetch(`/api/resources?download=${id}`);
       const data = await res.json();
@@ -279,13 +268,6 @@ export default function ResourceDetailPage() {
       }
     } catch {
       toast.error("Download failed");
-=======
-    if (resource?.fileUrl) {
-      window.open(resource.fileUrl, "_blank");
-      toast.success("Download started");
-    } else {
-      toast.error("File not available");
->>>>>>> cf9160f45eb9d649a0e81ad486ed92ef3ef08b9a
     }
   };
 
@@ -344,11 +326,6 @@ export default function ResourceDetailPage() {
     }
   };
 
-<<<<<<< HEAD
-=======
-  const isPdf = resource?.fileUrl?.toLowerCase()?.endsWith(".pdf") || resource?.fileUrl?.includes("/upload/") || resource?.fileUrl?.includes("cloudinary");
-
->>>>>>> cf9160f45eb9d649a0e81ad486ed92ef3ef08b9a
   if (loading) {
     return (
       <div className="flex justify-center py-32">
@@ -410,37 +387,21 @@ export default function ResourceDetailPage() {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
           {resource.semester && (
             <div className="flex items-center gap-2 text-sm text-gray-400">
-<<<<<<< HEAD
-              <BookOpen className="h-4 w-4 text-purple-400" /> <span>Semester {resource.semester}</span>
-=======
               <BookOpen className="h-4 w-4 text-purple-400" /> Semester {resource.semester}
->>>>>>> cf9160f45eb9d649a0e81ad486ed92ef3ef08b9a
             </div>
           )}
           {resource.department && (
             <div className="flex items-center gap-2 text-sm text-gray-400">
-<<<<<<< HEAD
-              <Building2 className="h-4 w-4 text-cyan-400" /> <span>{resource.department}</span>
-=======
               <Building2 className="h-4 w-4 text-cyan-400" /> {resource.department}
->>>>>>> cf9160f45eb9d649a0e81ad486ed92ef3ef08b9a
             </div>
           )}
           {resource.yearBatch && (
             <div className="flex items-center gap-2 text-sm text-gray-400">
-<<<<<<< HEAD
-              <Calendar className="h-4 w-4 text-green-400" /> <span>{resource.yearBatch}</span>
-            </div>
-          )}
-          <div className="flex items-center gap-2 text-sm text-gray-400">
-            <Download className="h-4 w-4 text-yellow-400" /> <span>{resource.downloads || 0} downloads</span>
-=======
               <Calendar className="h-4 w-4 text-green-400" /> {resource.yearBatch}
             </div>
           )}
           <div className="flex items-center gap-2 text-sm text-gray-400">
             <Download className="h-4 w-4 text-yellow-400" /> {resource.downloads || 0} downloads
->>>>>>> cf9160f45eb9d649a0e81ad486ed92ef3ef08b9a
           </div>
         </div>
 
@@ -478,11 +439,7 @@ export default function ResourceDetailPage() {
             <Download className="h-5 w-5" /> Download
           </button>
           {resource.fileUrl && (
-<<<<<<< HEAD
             <a href={getPreviewUrl(resource.fileUrl, getFileExtension(resource.fileUrl))} target="_blank" rel="noopener noreferrer" className="flex-1 py-3.5 rounded-xl glass neon-border text-white font-semibold text-sm flex items-center justify-center gap-2 hover:bg-white/10 transition-all">
-=======
-            <a href={resource.fileUrl} target="_blank" rel="noopener noreferrer" className="flex-1 py-3.5 rounded-xl glass neon-border text-white font-semibold text-sm flex items-center justify-center gap-2 hover:bg-white/10 transition-all">
->>>>>>> cf9160f45eb9d649a0e81ad486ed92ef3ef08b9a
               <ExternalLink className="h-4 w-4" /> Open in New Tab
             </a>
           )}
@@ -492,7 +449,6 @@ export default function ResourceDetailPage() {
         </div>
       </div>
 
-<<<<<<< HEAD
       {/* File Preview Section */}
       <div className="glass-strong rounded-2xl p-8 neon-border mb-8">
         <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
@@ -500,22 +456,6 @@ export default function ResourceDetailPage() {
         </h2>
         {renderFilePreview()}
       </div>
-=======
-      {/* PDF Preview */}
-      {resource.fileUrl && isPdf && (
-        <div className="glass-strong rounded-2xl neon-border overflow-hidden mb-8">
-          <div className="flex items-center gap-2 px-6 py-3 border-b border-white/10">
-            <Eye className="h-4 w-4 text-cyan-400" />
-            <span className="text-sm font-medium text-white">Document Preview</span>
-          </div>
-          <iframe
-            src={resource.fileUrl}
-            className="w-full h-[600px] bg-white/5"
-            title="Resource Preview"
-          />
-        </div>
-      )}
->>>>>>> cf9160f45eb9d649a0e81ad486ed92ef3ef08b9a
 
       {/* AI Summary */}
       {aiSummary && (

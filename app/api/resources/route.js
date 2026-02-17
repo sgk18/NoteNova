@@ -61,11 +61,7 @@ export async function GET(request) {
       query.isPublic = isPublic === "true";
     }
     if (tag) query.tags = { $in: [new RegExp(tag, "i")] };
-<<<<<<< HEAD
-    if (userId) query.uploadedBy = new mongoose.Types.ObjectId(userId);
-=======
     if (userId) query.uploadedBy = userId;
->>>>>>> cf9160f45eb9d649a0e81ad486ed92ef3ef08b9a
 
     // Access control for private resources
     let userCollege = null;

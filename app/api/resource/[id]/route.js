@@ -38,13 +38,8 @@ export async function GET(request, { params }) {
       }
     }
 
-<<<<<<< HEAD
-    // Increment view count (fire and forget)
-    Resource.updateOne({ _id: id }, { $inc: { views: 1 } }).catch(() => { });
-=======
     // Increment view count
-    Resource.updateOne({ _id: id }, { $inc: { views: 1 } }).catch(() => {});
->>>>>>> cf9160f45eb9d649a0e81ad486ed92ef3ef08b9a
+    Resource.updateOne({ _id: id }, { $inc: { views: 1 } }).catch(() => { });
 
     // Fetch reviews
     const reviews = await Rating.find({ resourceId: id })
