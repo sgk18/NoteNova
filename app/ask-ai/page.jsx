@@ -1,8 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Sparkles, Send, Copy, Check, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
+
+const MAX_CHARS = 500;
+
+const SUGGESTIONS = [
+  "Explain Binary Search with time complexity",
+  "What is an Operating System? Explain its types",
+  "Explain Fourier Transform with applications",
+];
 
 export default function AskAIPage() {
   const [question, setQuestion] = useState("");
@@ -10,17 +18,36 @@ export default function AskAIPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
+  const [visible, setVisible] = useState(false);
+  const answerRef = useRef(null);
+
+  // Auto-scroll & fade-in when answer appears
+  useEffect(() => {
+    if (answer) {
+      setVisible(false);
+      const t = setTimeout(() => {
+        setVisible(true);
+        answerRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 50);
+      return () => clearTimeout(t);
+    }
+  }, [answer]);
 
   const handleAsk = async () => {
-    if (!question.trim()) return toast.error("Please enter a question");
+    const trimmed = question.trim();
+    if (!trimmed) return toast.error("Please enter a question");
+    if (trimmed.length > MAX_CHARS) return toast.error(`Question must be under ${MAX_CHARS} characters`);
+
     setLoading(true);
     setAnswer("");
     setError("");
+    setVisible(false);
+
     try {
       const res = await fetch("/api/ask-ai", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question: question.trim() }),
+        body: JSON.stringify({ question: trimmed }),
       });
       const data = await res.json();
       if (res.ok) {
@@ -49,6 +76,9 @@ export default function AskAIPage() {
     }
   };
 
+  const charCount = question.length;
+  const isOverLimit = charCount > MAX_CHARS;
+
   return (
     <div className="max-w-3xl mx-auto px-4 py-10 relative">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[400px] rounded-full bg-purple-600/10 blur-[120px] -z-10" />
@@ -64,20 +94,26 @@ export default function AskAIPage() {
         </div>
       </div>
 
-      {/* Input Area */}
+      {/* Input */}
       <div className="glass-strong rounded-2xl p-6 neon-border mb-6">
-        <textarea
-          rows={4}
-          placeholder="Ask any academic question... e.g. 'Explain binary search trees with examples'"
-          value={question}
-          onChange={(e) => setQuestion(e.target.value)}
-          onKeyDown={handleKeyDown}
-          className="w-full px-4 py-3 rounded-xl glass neon-border text-white placeholder-gray-500 text-sm focus:outline-none focus:neon-glow resize-none mb-4"
-        />
+        <div className="relative">
+          <textarea
+            rows={4}
+            maxLength={MAX_CHARS + 50}
+            placeholder="Ask any academic question... e.g. 'Explain binary search trees with examples'"
+            value={question}
+            onChange={(e) => setQuestion(e.target.value)}
+            onKeyDown={handleKeyDown}
+            className="w-full px-4 py-3 rounded-xl glass neon-border text-white placeholder-gray-500 text-sm focus:outline-none focus:neon-glow resize-none"
+          />
+          <span className={`absolute bottom-3 right-3 text-xs ${isOverLimit ? "text-red-400" : "text-gray-600"}`}>
+            {charCount}/{MAX_CHARS}
+          </span>
+        </div>
         <button
           onClick={handleAsk}
-          disabled={loading}
-          className="w-full py-3.5 rounded-xl btn-gradient text-white font-semibold text-sm flex items-center justify-center gap-2 disabled:opacity-50 shadow-lg shadow-purple-500/20 hover:shadow-purple-500/30 transition-shadow"
+          disabled={loading || isOverLimit}
+          className="w-full mt-4 py-3.5 rounded-xl btn-gradient text-white font-semibold text-sm flex items-center justify-center gap-2 disabled:opacity-50 shadow-lg shadow-purple-500/20 hover:shadow-purple-500/40 transition-all"
         >
           {loading ? (
             <>
@@ -101,7 +137,10 @@ export default function AskAIPage() {
 
       {/* Answer */}
       {answer && (
-        <div className="glass-strong rounded-2xl neon-border overflow-hidden">
+        <div
+          ref={answerRef}
+          className={`glass-strong rounded-2xl neon-border overflow-hidden mb-8 transition-all duration-500 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+        >
           <div className="flex items-center justify-between px-6 py-3 border-b border-white/10">
             <div className="flex items-center gap-2">
               <Sparkles className="h-4 w-4 text-cyan-400" />
@@ -121,16 +160,12 @@ export default function AskAIPage() {
         </div>
       )}
 
-      {/* Tips */}
+      {/* Suggestions */}
       {!answer && !loading && (
         <div className="glass rounded-xl p-5 neon-border">
           <p className="text-sm font-medium text-white mb-3">💡 Try asking:</p>
           <div className="space-y-2">
-            {[
-              "Explain binary search trees with time complexity",
-              "What are the differences between TCP and UDP?",
-              "Explain normalization in DBMS with examples",
-            ].map((tip) => (
+            {SUGGESTIONS.map((tip) => (
               <button
                 key={tip}
                 onClick={() => setQuestion(tip)}
