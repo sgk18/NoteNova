@@ -51,7 +51,10 @@ export default function UploadPage() {
             <option value="" className="bg-slate-900">Semester</option>
             {[1,2,3,4,5,6,7,8].map(s => <option key={s} value={s} className="bg-slate-900">{s}</option>)}
           </select>
-          <input name="department" placeholder="Department" className="w-full px-4 py-3 rounded-xl glass neon-border text-white placeholder-gray-500 text-sm focus:outline-none focus:neon-glow" value={form.department} onChange={handleChange} />
+          <select name="department" className="w-full px-4 py-3 rounded-xl glass neon-border text-white text-sm focus:outline-none focus:neon-glow bg-transparent appearance-none" value={form.department} onChange={handleChange}>
+            <option value="" className="bg-slate-900">Department</option>
+            {["CSE","IT","ECE","EEE","MECH","CIVIL","AIDS","AIML","CSE (Cyber Security)","Biomedical","Chemical","Automobile","Common"].map(d => <option key={d} value={d} className="bg-slate-900">{d}</option>)}
+          </select>
         </div>
         <div className="border-2 border-dashed border-purple-500/30 rounded-2xl p-8 text-center hover:border-purple-500/50 transition-colors group">
           <Upload className="h-8 w-8 mx-auto text-purple-400 mb-3 group-hover:scale-110 transition-transform" />

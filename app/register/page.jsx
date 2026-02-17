@@ -50,7 +50,10 @@ export default function RegisterPage() {
           <input name="name" placeholder="Full Name *" required className="w-full px-4 py-3 rounded-xl glass neon-border text-white placeholder-gray-500 text-sm focus:outline-none focus:neon-glow" value={form.name} onChange={handleChange} />
           <input name="email" type="email" placeholder="Email *" required className="w-full px-4 py-3 rounded-xl glass neon-border text-white placeholder-gray-500 text-sm focus:outline-none focus:neon-glow" value={form.email} onChange={handleChange} />
           <input name="password" type="password" placeholder="Password *" required className="w-full px-4 py-3 rounded-xl glass neon-border text-white placeholder-gray-500 text-sm focus:outline-none focus:neon-glow" value={form.password} onChange={handleChange} />
-          <input name="department" placeholder="Department" className="w-full px-4 py-3 rounded-xl glass neon-border text-white placeholder-gray-500 text-sm focus:outline-none focus:neon-glow" value={form.department} onChange={handleChange} />
+          <select name="department" className="w-full px-4 py-3 rounded-xl glass neon-border text-white text-sm focus:outline-none focus:neon-glow bg-transparent appearance-none" value={form.department} onChange={handleChange}>
+            <option value="" className="bg-slate-900">Select Department</option>
+            {["CSE","IT","ECE","EEE","MECH","CIVIL","AIDS","AIML","CSE (Cyber Security)","Biomedical","Chemical","Automobile"].map(d => <option key={d} value={d} className="bg-slate-900">{d}</option>)}
+          </select>
           <select name="semester" className="w-full px-4 py-3 rounded-xl glass neon-border text-white text-sm focus:outline-none focus:neon-glow bg-transparent appearance-none" value={form.semester} onChange={handleChange}>
             <option value="" className="bg-slate-900">Select Semester</option>
             {[1,2,3,4,5,6,7,8].map(s => <option key={s} value={s} className="bg-slate-900">Semester {s}</option>)}
