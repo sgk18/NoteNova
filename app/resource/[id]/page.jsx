@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Download, Lock, Globe, ArrowLeft, Star, Calendar, Tag, BookOpen, Building2, Send } from "lucide-react";
+import { Download, Lock, Globe, ArrowLeft, Star, Calendar, Tag, BookOpen, Building2, Send, Eye, FileText } from "lucide-react";
 import StarRating from "@/components/StarRating";
 import toast from "react-hot-toast";
 
@@ -15,6 +15,173 @@ export default function ResourceDetailPage() {
   const [myRating, setMyRating] = useState(0);
   const [myReview, setMyReview] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [previewLoading, setPreviewLoading] = useState(true);
+  const [previewError, setPreviewError] = useState(false);
+
+  // Reset preview states when resource changes
+  useEffect(() => {
+    if (resource) {
+      setPreviewLoading(true);
+      setPreviewError(false);
+    }
+  }, [resource?.fileUrl]);
+
+  const getFileExtension = (url) => {
+    if (!url) return "";
+    try {
+      const pathname = new URL(url).pathname;
+      const ext = pathname.split(".").pop().toLowerCase();
+      return ext;
+    } catch {
+      return "";
+    }
+  };
+
+  const renderFilePreview = () => {
+    const fileUrl = resource?.fileUrl;
+    if (!fileUrl) {
+      return (
+        <div className="flex flex-col items-center justify-center py-16 text-gray-500">
+          <FileText className="h-12 w-12 mb-3 opacity-40" />
+          <p className="text-sm">No file attached to this resource</p>
+        </div>
+      );
+    }
+
+    const ext = getFileExtension(fileUrl);
+    const imageExts = ["png", "jpg", "jpeg", "gif", "webp", "svg"];
+    const pdfExts = ["pdf"];
+    const officeExts = ["doc", "docx", "ppt", "pptx", "xls", "xlsx"];
+
+    // Show fallback with "Open in browser" when preview fails
+    if (previewError) {
+      return (
+        <div className="flex flex-col items-center justify-center py-16 text-gray-500">
+          <FileText className="h-12 w-12 mb-3 opacity-40" />
+          <p className="text-sm mb-3">Preview could not be loaded</p>
+          <a
+            href={fileUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-5 py-2.5 rounded-xl btn-gradient text-white text-sm font-medium flex items-center gap-2 no-underline"
+          >
+            <Eye className="h-4 w-4" /> Open File in Browser
+          </a>
+        </div>
+      );
+    }
+
+    if (imageExts.includes(ext)) {
+      return (
+        <div className="flex justify-center">
+          {previewLoading && (
+            <div className="flex items-center justify-center py-16">
+              <div className="w-8 h-8 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" />
+            </div>
+          )}
+          <img
+            src={fileUrl}
+            alt={resource.title}
+            className={`max-w-full max-h-[600px] rounded-xl object-contain ${previewLoading ? "hidden" : ""}`}
+            onLoad={() => setPreviewLoading(false)}
+            onError={() => { setPreviewLoading(false); setPreviewError(true); }}
+          />
+        </div>
+      );
+    }
+
+    if (pdfExts.includes(ext)) {
+      const googleViewerUrl = `https://docs.google.com/gview?url=${encodeURIComponent(fileUrl)}&embedded=true`;
+      return (
+        <div className="relative">
+          {previewLoading && (
+            <div className="absolute inset-0 flex items-center justify-center z-10">
+              <div className="flex flex-col items-center gap-3">
+                <div className="w-8 h-8 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" />
+                <p className="text-xs text-gray-500">Loading PDF preview...</p>
+              </div>
+            </div>
+          )}
+          <iframe
+            src={googleViewerUrl}
+            className="w-full rounded-xl border border-white/10"
+            style={{ height: "600px" }}
+            frameBorder="0"
+            allow="autoplay"
+            onLoad={() => setPreviewLoading(false)}
+            onError={() => { setPreviewLoading(false); setPreviewError(true); }}
+            title="PDF Preview"
+          />
+          {!previewLoading && (
+            <div className="mt-3 flex justify-end">
+              <a
+                href={fileUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-cyan-400 hover:text-cyan-300 flex items-center gap-1 transition-colors"
+              >
+                <Eye className="h-3 w-3" /> Open in new tab
+              </a>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    if (officeExts.includes(ext)) {
+      const officeViewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(fileUrl)}`;
+      return (
+        <div className="relative">
+          {previewLoading && (
+            <div className="absolute inset-0 flex items-center justify-center z-10">
+              <div className="flex flex-col items-center gap-3">
+                <div className="w-8 h-8 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" />
+                <p className="text-xs text-gray-500">Loading document preview...</p>
+              </div>
+            </div>
+          )}
+          <iframe
+            src={officeViewerUrl}
+            className="w-full rounded-xl border border-white/10"
+            style={{ height: "600px" }}
+            frameBorder="0"
+            allow="autoplay"
+            onLoad={() => setPreviewLoading(false)}
+            onError={() => { setPreviewLoading(false); setPreviewError(true); }}
+            title="Document Preview"
+          />
+          {!previewLoading && (
+            <div className="mt-3 flex justify-end">
+              <a
+                href={fileUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-cyan-400 hover:text-cyan-300 flex items-center gap-1 transition-colors"
+              >
+                <Eye className="h-3 w-3" /> Open in new tab
+              </a>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // Fallback for unsupported types — still allow opening
+    return (
+      <div className="flex flex-col items-center justify-center py-16 text-gray-500">
+        <FileText className="h-12 w-12 mb-3 opacity-40" />
+        <p className="text-sm mb-3">Preview not available for this file type (.{ext})</p>
+        <a
+          href={fileUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="px-5 py-2.5 rounded-xl btn-gradient text-white text-sm font-medium flex items-center gap-2 no-underline"
+        >
+          <Eye className="h-4 w-4" /> Open File in Browser
+        </a>
+      </div>
+    );
+  };
 
   useEffect(() => {
     if (!id) return;
@@ -196,6 +363,14 @@ export default function ResourceDetailPage() {
         <button onClick={handleDownload} className="w-full mt-6 py-3.5 rounded-xl btn-gradient text-white font-semibold text-sm flex items-center justify-center gap-2">
           <Download className="h-5 w-5" /> Download Resource
         </button>
+      </div>
+
+      {/* File Preview Section */}
+      <div className="glass-strong rounded-2xl p-8 neon-border mb-8">
+        <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+          <Eye className="h-5 w-5 text-cyan-400" /> File Preview
+        </h2>
+        {renderFilePreview()}
       </div>
 
       {/* Reviews Section */}

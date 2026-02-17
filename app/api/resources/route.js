@@ -53,15 +53,12 @@ export async function GET(request) {
     if (subject) query.subject = { $regex: subject, $options: "i" };
     if (semester) query.semester = semester;
     if (department) query.department = { $regex: department, $options: "i" };
-<<<<<<< Updated upstream
     if (resourceType) query.resourceType = resourceType;
     if (yearBatch) query.yearBatch = yearBatch;
     if (isPublic !== null && isPublic !== undefined && isPublic !== "") {
       query.isPublic = isPublic === "true";
     }
     if (tag) query.tags = { $in: [new RegExp(tag, "i")] };
-=======
->>>>>>> Stashed changes
     if (userId) query.uploadedBy = new mongoose.Types.ObjectId(userId);
 
     // Access control for private resources
