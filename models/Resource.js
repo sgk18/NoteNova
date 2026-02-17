@@ -16,6 +16,10 @@ const ResourceSchema = new mongoose.Schema({
   isPublic: { type: Boolean, default: true },
   fileUrl: { type: String, default: "" },
   downloads: { type: Number, default: 0 },
+<<<<<<< HEAD
+=======
+  views: { type: Number, default: 0 },
+>>>>>>> 20e1cd558b63141784a903ec708d98775e66730e
   avgRating: { type: Number, default: 0 },
   uploadedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   createdAt: { type: Date, default: Date.now },

@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Download, Lock, Globe, ArrowLeft, Star, Calendar, Tag, BookOpen, Building2, Send, Eye, FileText } from "lucide-react";
+import { Download, Lock, Globe, ArrowLeft, Star, Calendar, Tag, BookOpen, Building2, Send, ExternalLink, Sparkles, Eye, FileText } from "lucide-react";
 import StarRating from "@/components/StarRating";
 import toast from "react-hot-toast";
 
@@ -11,12 +11,29 @@ export default function ResourceDetailPage() {
   const router = useRouter();
   const [resource, setResource] = useState(null);
   const [reviews, setReviews] = useState([]);
+  const [avgRating, setAvgRating] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [accessDenied, setAccessDenied] = useState(false);
   const [myRating, setMyRating] = useState(0);
   const [myReview, setMyReview] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [aiSummary, setAiSummary] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+  const [visible, setVisible] = useState(false);
   const [previewLoading, setPreviewLoading] = useState(true);
   const [previewError, setPreviewError] = useState(false);
+  const contentRef = useRef(null);
+
+  useEffect(() => {
+    if (!id) return;
+    fetchDetail();
+  }, [id]);
+
+  useEffect(() => {
+    if (resource) {
+      setTimeout(() => setVisible(true), 50);
+    }
+  }, [resource]);
 
   // Reset preview states when resource changes
   useEffect(() => {
@@ -166,7 +183,7 @@ export default function ResourceDetailPage() {
       );
     }
 
-    // Fallback for unsupported types — still allow opening
+    // Fallback for unsupported types
     return (
       <div className="flex flex-col items-center justify-center py-16 text-gray-500">
         <FileText className="h-12 w-12 mb-3 opacity-40" />
@@ -183,19 +200,26 @@ export default function ResourceDetailPage() {
     );
   };
 
-  useEffect(() => {
-    if (!id) return;
-    fetchDetail();
-  }, [id]);
-
   const fetchDetail = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/resource/${id}`);
+      const token = localStorage.getItem("token");
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      const res = await fetch(`/api/resource/${id}`, { headers });
+
+      if (res.status === 403) {
+        const data = await res.json();
+        setAccessDenied(true);
+        toast.error(data.error || "Access denied");
+        setLoading(false);
+        return;
+      }
+
       const data = await res.json();
       if (res.ok) {
         setResource(data.resource);
         setReviews(data.reviews || []);
+        setAvgRating(data.avgRating || 0);
       } else {
         toast.error(data.error || "Resource not found");
       }
@@ -259,10 +283,44 @@ export default function ResourceDetailPage() {
     }
   };
 
+  const handleGenerateAINotes = async () => {
+    if (!resource) return;
+    setAiLoading(true);
+    setAiSummary("");
+    try {
+      const res = await fetch("/api/ask-ai", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question: `Generate detailed study notes for: "${resource.title}" — Subject: ${resource.subject || "General"}. Include key concepts, formulas if applicable, and exam-relevant points.` }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setAiSummary(data.answer);
+      } else {
+        toast.error(data.error || "AI generation failed");
+      }
+    } catch {
+      toast.error("Failed to generate AI notes");
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center py-32">
         <div className="w-10 h-10 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (accessDenied) {
+    return (
+      <div className="text-center py-32 max-w-md mx-auto">
+        <Lock className="h-12 w-12 text-orange-400 mx-auto mb-4" />
+        <h2 className="text-xl font-bold text-white mb-2">Access Restricted</h2>
+        <p className="text-gray-400 text-sm mb-6">This resource is private and only available to students from the same college.</p>
+        <button onClick={() => router.push("/")} className="text-cyan-400 hover:text-cyan-300 text-sm">← Back to Home</button>
       </div>
     );
   }
@@ -277,13 +335,13 @@ export default function ResourceDetailPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-10">
+    <div className={`max-w-4xl mx-auto px-4 py-10 transition-all duration-500 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
       <button onClick={() => router.back()} className="flex items-center gap-1 text-sm text-gray-400 hover:text-white mb-6 transition-colors">
         <ArrowLeft className="h-4 w-4" /> Back
       </button>
 
       {/* Resource Header */}
-      <div className="glass-strong rounded-2xl p-8 neon-border mb-8">
+      <div ref={contentRef} className="glass-strong rounded-2xl p-8 neon-border mb-8">
         <div className="flex flex-wrap gap-2 mb-4">
           <span className="px-3 py-1 rounded-full text-xs font-semibold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
             {resource.resourceType || "Notes"}
@@ -305,29 +363,25 @@ export default function ResourceDetailPage() {
         <h1 className="text-3xl font-bold text-white mb-3">{resource.title}</h1>
         <p className="text-gray-400 mb-6">{resource.description || "No description provided"}</p>
 
-        {/* Meta info */}
+        {/* Meta */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
           {resource.semester && (
             <div className="flex items-center gap-2 text-sm text-gray-400">
-              <BookOpen className="h-4 w-4 text-purple-400" />
-              <span>Semester {resource.semester}</span>
+              <BookOpen className="h-4 w-4 text-purple-400" /> <span>Semester {resource.semester}</span>
             </div>
           )}
           {resource.department && (
             <div className="flex items-center gap-2 text-sm text-gray-400">
-              <Building2 className="h-4 w-4 text-cyan-400" />
-              <span>{resource.department}</span>
+              <Building2 className="h-4 w-4 text-cyan-400" /> <span>{resource.department}</span>
             </div>
           )}
           {resource.yearBatch && (
             <div className="flex items-center gap-2 text-sm text-gray-400">
-              <Calendar className="h-4 w-4 text-green-400" />
-              <span>{resource.yearBatch}</span>
+              <Calendar className="h-4 w-4 text-green-400" /> <span>{resource.yearBatch}</span>
             </div>
           )}
           <div className="flex items-center gap-2 text-sm text-gray-400">
-            <Download className="h-4 w-4 text-yellow-400" />
-            <span>{resource.downloads || 0} downloads</span>
+            <Download className="h-4 w-4 text-yellow-400" /> <span>{resource.downloads || 0} downloads</span>
           </div>
         </div>
 
@@ -343,7 +397,7 @@ export default function ResourceDetailPage() {
         )}
 
         {/* Uploader */}
-        <div className="flex items-center justify-between glass rounded-xl p-4 border border-white/10">
+        <div className="flex items-center justify-between glass rounded-xl p-4 border border-white/10 mb-6">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center text-white font-bold">
               {resource.uploadedBy?.name?.[0] || "?"}
@@ -354,15 +408,25 @@ export default function ResourceDetailPage() {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <StarRating rating={resource.avgRating} size={18} />
-            <span className="text-sm text-gray-400">({resource.avgRating?.toFixed(1)})</span>
+            <StarRating rating={avgRating} size={18} />
+            <span className="text-sm text-gray-400">({avgRating})</span>
           </div>
         </div>
 
-        {/* Download Button */}
-        <button onClick={handleDownload} className="w-full mt-6 py-3.5 rounded-xl btn-gradient text-white font-semibold text-sm flex items-center justify-center gap-2">
-          <Download className="h-5 w-5" /> Download Resource
-        </button>
+        {/* Action Buttons */}
+        <div className="flex flex-col sm:flex-row gap-3">
+          <button onClick={handleDownload} className="flex-1 py-3.5 rounded-xl btn-gradient text-white font-semibold text-sm flex items-center justify-center gap-2">
+            <Download className="h-5 w-5" /> Download
+          </button>
+          {resource.fileUrl && (
+            <a href={resource.fileUrl} target="_blank" rel="noopener noreferrer" className="flex-1 py-3.5 rounded-xl glass neon-border text-white font-semibold text-sm flex items-center justify-center gap-2 hover:bg-white/10 transition-all">
+              <ExternalLink className="h-4 w-4" /> Open in New Tab
+            </a>
+          )}
+          <button onClick={handleGenerateAINotes} disabled={aiLoading} className="flex-1 py-3.5 rounded-xl glass border border-purple-500/30 text-purple-300 font-semibold text-sm flex items-center justify-center gap-2 hover:bg-purple-500/10 transition-all disabled:opacity-50">
+            <Sparkles className="h-4 w-4" /> {aiLoading ? "Generating..." : "AI Notes"}
+          </button>
+        </div>
       </div>
 
       {/* File Preview Section */}
@@ -373,7 +437,20 @@ export default function ResourceDetailPage() {
         {renderFilePreview()}
       </div>
 
-      {/* Reviews Section */}
+      {/* AI Summary */}
+      {aiSummary && (
+        <div className="glass-strong rounded-2xl neon-border overflow-hidden mb-8">
+          <div className="flex items-center gap-2 px-6 py-3 border-b border-white/10">
+            <Sparkles className="h-4 w-4 text-purple-400" />
+            <span className="text-sm font-medium text-white">AI Generated Notes</span>
+          </div>
+          <div className="px-6 py-5">
+            <div className="text-sm text-gray-300 leading-relaxed whitespace-pre-wrap">{aiSummary}</div>
+          </div>
+        </div>
+      )}
+
+      {/* Reviews */}
       <div className="glass-strong rounded-2xl p-8 neon-border mb-8">
         <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
           <Star className="h-5 w-5 text-yellow-400" /> Reviews ({reviews.length})
