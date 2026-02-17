@@ -49,6 +49,7 @@ export async function GET(request) {
     if (semester) query.semester = semester;
     if (department) query.department = { $regex: department, $options: "i" };
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     if (resourceType) query.resourceType = resourceType;
     if (yearBatch) query.yearBatch = yearBatch;
     if (isPublic !== null && isPublic !== undefined && isPublic !== "") {
@@ -56,6 +57,9 @@ export async function GET(request) {
     }
     if (tag) query.tags = { $in: [new RegExp(tag, "i")] };
     if (userId) query.uploadedBy = userId;
+=======
+    if (userId) query.uploadedBy = new mongoose.Types.ObjectId(userId);
+>>>>>>> Stashed changes
 =======
     if (userId) query.uploadedBy = new mongoose.Types.ObjectId(userId);
 >>>>>>> Stashed changes
