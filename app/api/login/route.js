@@ -3,10 +3,12 @@ import bcrypt from "bcryptjs";
 import dbConnect from "@/lib/db";
 import User from "@/models/User";
 import { signToken } from "@/lib/auth";
+import { runSeed } from "@/lib/seed";
 
 export async function POST(request) {
   try {
     await dbConnect();
+    await runSeed();
     const body = await request.json();
     const { email, password } = body;
 
@@ -39,6 +41,7 @@ export async function POST(request) {
       },
     });
   } catch (err) {
-    return NextResponse.json({ error: "Server error" }, { status: 500 });
+    console.error("Login error:", err);
+    return NextResponse.json({ error: err.message || "Server error" }, { status: 500 });
   }
 }
