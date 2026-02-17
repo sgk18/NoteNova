@@ -4,12 +4,9 @@ import ClientProviders from "@/components/ClientProviders";
 export const metadata = {
   title: "NoteNova — Campus Resource Sharing",
   description: "Share, access, and collaborate on academic resources. Powered by knowledge, fueled by collaboration.",
-<<<<<<< HEAD
   icons: {
     icon: '/logo.png',
   },
-=======
->>>>>>> 20e1cd558b63141784a903ec708d98775e66730e
 };
 
 export default function RootLayout({ children }) {
