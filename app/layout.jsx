@@ -5,6 +5,9 @@ import { Toaster } from "react-hot-toast";
 export const metadata = {
   title: "NoteNova — Campus Resource Sharing",
   description: "Share, access, and collaborate on academic resources. Powered by knowledge, fueled by collaboration.",
+  icons: {
+    icon: '/logo.png',
+  },
 };
 
 export default function RootLayout({ children }) {
