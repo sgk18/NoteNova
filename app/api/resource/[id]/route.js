@@ -2,20 +2,12 @@ import { NextResponse } from "next/server";
 import dbConnect from "@/lib/db";
 import Resource from "@/models/Resource";
 import Rating from "@/models/Rating";
-<<<<<<< HEAD
-=======
 import jwt from "jsonwebtoken";
->>>>>>> 20e1cd558b63141784a903ec708d98775e66730e
 
 export async function GET(request, { params }) {
   try {
     await dbConnect();
     const { id } = await params;
-<<<<<<< HEAD
-    const resource = await Resource.findById(id).populate("uploadedBy", "name college department").lean();
-    if (!resource) return NextResponse.json({ error: "Not found" }, { status: 404 });
-
-=======
     const resource = await Resource.findById(id)
       .populate("uploadedBy", "name college department")
       .lean();
@@ -46,11 +38,10 @@ export async function GET(request, { params }) {
       }
     }
 
-    // Increment view count (fire and forget)
+    // Increment view count
     Resource.updateOne({ _id: id }, { $inc: { views: 1 } }).catch(() => {});
 
     // Fetch reviews
->>>>>>> 20e1cd558b63141784a903ec708d98775e66730e
     const reviews = await Rating.find({ resourceId: id })
       .sort({ createdAt: -1 })
       .populate("userId", "name college")
