@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import ResourceCard from "@/components/ResourceCard";
-import { User, BookOpen, Calendar, Award } from "lucide-react";
+import { User, BookOpen, Calendar, Award, Sparkles } from "lucide-react";
 import toast from "react-hot-toast";
 
 export default function ProfilePage() {
@@ -65,30 +65,55 @@ export default function ProfilePage() {
   const displayResources = tab === "uploads" ? resources : bookmarked;
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-10">
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-8">
-        <div className="bg-indigo-600 h-28" />
+    <div className="max-w-5xl mx-auto px-4 py-10 relative">
+      <div className="absolute top-0 right-0 w-[400px] h-[400px] rounded-full bg-cyan-500/5 blur-[120px] -z-10" />
+
+      <div className="glass-strong rounded-2xl neon-border overflow-hidden mb-8">
+        <div className="h-28 bg-gradient-to-r from-purple-600/30 via-cyan-500/20 to-purple-600/30 relative">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(0,212,255,0.15),transparent_60%)]" />
+        </div>
         <div className="px-6 pb-6 -mt-10">
           <div className="flex items-end gap-4">
-            <div className="h-20 w-20 rounded-full bg-white shadow flex items-center justify-center border-4 border-white">
-              <User className="h-10 w-10 text-gray-400" />
+            <div className="h-20 w-20 rounded-full glass-strong neon-border flex items-center justify-center shadow-lg">
+              <User className="h-10 w-10 text-cyan-400" />
             </div>
             <div className="pb-1">
-              <h1 className="text-xl font-bold text-gray-900">{user.name}</h1>
-              <p className="text-sm text-gray-500">{user.email}</p>
+              <h1 className="text-xl font-bold text-white">{user.name}</h1>
+              <p className="text-sm text-gray-400">{user.email}</p>
             </div>
           </div>
-          <div className="mt-4 flex flex-wrap gap-4 text-sm text-gray-600">
-            {user.department && <span className="flex items-center gap-1"><BookOpen className="h-4 w-4" /> {user.department}</span>}
-            {user.semester && <span className="flex items-center gap-1"><Calendar className="h-4 w-4" /> Semester {user.semester}</span>}
-            <span className="flex items-center gap-1"><Award className="h-4 w-4 text-indigo-600" /> {user.points || 0} points</span>
+          <div className="mt-4 flex flex-wrap gap-4 text-sm text-gray-400">
+            {user.department && (
+              <span className="flex items-center gap-1.5">
+                <BookOpen className="h-4 w-4 text-purple-400" /> {user.department}
+              </span>
+            )}
+            {user.semester && (
+              <span className="flex items-center gap-1.5">
+                <Calendar className="h-4 w-4 text-purple-400" /> Semester {user.semester}
+              </span>
+            )}
+            <span className="flex items-center gap-1.5">
+              <Award className="h-4 w-4 text-cyan-400" />
+              <span className="font-semibold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
+                {user.points || 0} points
+              </span>
+            </span>
           </div>
         </div>
       </div>
 
-      <div className="flex gap-4 mb-6 border-b">
+      <div className="flex gap-1 mb-6 glass rounded-xl p-1 neon-border w-fit">
         {["uploads", "bookmarks"].map((t) => (
-          <button key={t} onClick={() => setTab(t)} className={`pb-2 px-1 text-sm font-medium capitalize transition-colors ${tab === t ? "text-indigo-600 border-b-2 border-indigo-600" : "text-gray-500 hover:text-gray-700"}`}>
+          <button
+            key={t}
+            onClick={() => setTab(t)}
+            className={`px-5 py-2 rounded-lg text-sm font-medium capitalize transition-all ${
+              tab === t
+                ? "bg-white/10 text-cyan-400 neon-glow"
+                : "text-gray-400 hover:text-white hover:bg-white/5"
+            }`}
+          >
             {t === "uploads" ? `My Uploads (${resources.length})` : `Bookmarks (${bookmarked.length})`}
           </button>
         ))}
@@ -96,13 +121,18 @@ export default function ProfilePage() {
 
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[1,2,3].map(i => <div key={i} className="bg-white rounded-xl p-5 h-56 animate-pulse shadow-sm" />)}
+          {[1,2,3].map(i => <div key={i} className="glass rounded-2xl neon-border p-5 h-56 animate-pulse" />)}
         </div>
       ) : displayResources.length === 0 ? (
-        <p className="text-center text-gray-500 py-12">Nothing here yet.</p>
+        <div className="text-center py-16 glass rounded-2xl neon-border">
+          <Sparkles className="h-10 w-10 text-purple-400 mx-auto mb-3" />
+          <p className="text-gray-400">Nothing here yet.</p>
+        </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {displayResources.map((r) => <ResourceCard key={r._id} resource={r} onBookmark={handleBookmark} isBookmarked={bookmarkIds.includes(r._id)} />)}
+          {displayResources.map((r) => (
+            <ResourceCard key={r._id} resource={r} onBookmark={handleBookmark} isBookmarked={bookmarkIds.includes(r._id)} />
+          ))}
         </div>
       )}
     </div>

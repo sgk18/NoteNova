@@ -2,10 +2,12 @@ import { NextResponse } from "next/server";
 import dbConnect from "@/lib/db";
 import Resource from "@/models/Resource";
 import User from "@/models/User";
+import { runSeed } from "@/lib/seed";
 
 export async function GET(request) {
   try {
     await dbConnect();
+    await runSeed();
     const { searchParams } = new URL(request.url);
     const search = searchParams.get("search") || "";
     const subject = searchParams.get("subject") || "";

@@ -1,13 +1,11 @@
 "use client";
 
-import Link from "next/link";
 import { Download, Bookmark, BookmarkCheck } from "lucide-react";
 import StarRating from "./StarRating";
 import toast from "react-hot-toast";
 
 export default function ResourceCard({ resource, onBookmark, isBookmarked }) {
   const handleDownload = async () => {
-    const token = localStorage.getItem("token");
     try {
       const res = await fetch(`/api/resources?download=${resource._id}`);
       const data = await res.json();
@@ -32,11 +30,8 @@ export default function ResourceCard({ resource, onBookmark, isBookmarked }) {
         body: JSON.stringify({ resourceId: resource._id, rating }),
       });
       const data = await res.json();
-      if (res.ok) {
-        toast.success(`Rated ${rating} ★`);
-      } else {
-        toast.error(data.error || "Rating failed");
-      }
+      if (res.ok) toast.success(`Rated ${rating} ★`);
+      else toast.error(data.error || "Rating failed");
     } catch {
       toast.error("Rating failed");
     }
@@ -49,25 +44,41 @@ export default function ResourceCard({ resource, onBookmark, isBookmarked }) {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition-shadow flex flex-col">
-      <div className="flex justify-between items-start mb-2">
-        <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-700">
+    <div className="glass rounded-2xl p-5 neon-border hover:neon-glow-strong transition-all duration-300 flex flex-col group">
+      <div className="flex justify-between items-start mb-3">
+        <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-purple-500/20 text-purple-300 border border-purple-500/30">
           {resource.subject || "General"}
         </span>
-        <span className="text-xs text-gray-400">{resource.semester || "—"}</span>
+        <span className="text-xs text-gray-500">{resource.semester ? `Sem ${resource.semester}` : "—"}</span>
       </div>
-      <h3 className="text-lg font-semibold text-gray-900 mb-1 line-clamp-1">{resource.title}</h3>
-      <p className="text-sm text-gray-500 mb-3 line-clamp-2 flex-grow">{resource.description || "No description"}</p>
-      <div className="flex items-center justify-between mb-3">
+      <h3 className="text-lg font-semibold text-white mb-1.5 line-clamp-1 group-hover:text-cyan-300 transition-colors">
+        {resource.title}
+      </h3>
+      <p className="text-sm text-gray-400 mb-4 line-clamp-2 flex-grow">
+        {resource.description || "No description"}
+      </p>
+      <div className="flex items-center justify-between mb-4">
         <StarRating rating={resource.avgRating} onRate={handleRate} size={16} />
-        <span className="text-xs text-gray-400">{resource.downloads || 0} downloads</span>
+        <span className="text-xs text-gray-500 flex items-center gap-1">
+          <Download className="h-3.5 w-3.5" /> {resource.downloads || 0}
+        </span>
       </div>
       <div className="flex gap-2">
-        <button onClick={handleDownload} className="flex-1 flex items-center justify-center gap-1 py-2 px-3 text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 transition-colors">
+        <button
+          onClick={handleDownload}
+          className="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 text-sm font-medium rounded-xl text-white btn-gradient"
+        >
           <Download className="h-4 w-4" /> Download
         </button>
-        <button onClick={handleBookmark} className="p-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
-          {isBookmarked ? <BookmarkCheck className="h-5 w-5 text-indigo-600" /> : <Bookmark className="h-5 w-5 text-gray-400" />}
+        <button
+          onClick={handleBookmark}
+          className="p-2.5 rounded-xl glass border border-white/10 hover:border-purple-500/40 hover:bg-white/10 transition-all"
+        >
+          {isBookmarked ? (
+            <BookmarkCheck className="h-5 w-5 text-cyan-400 drop-shadow-[0_0_6px_rgba(0,212,255,0.6)]" />
+          ) : (
+            <Bookmark className="h-5 w-5 text-gray-500" />
+          )}
         </button>
       </div>
     </div>
