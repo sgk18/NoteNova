@@ -1,9 +1,14 @@
 "use client";
 
 import Link from "next/link";
+<<<<<<< HEAD
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { BookOpen, Menu, X, LogOut } from "lucide-react";
+=======
+import { useState, useEffect } from "react";
+import { BookOpen, Menu, X, LogOut, Sparkles } from "lucide-react";
+>>>>>>> 20e1cd558b63141784a903ec708d98775e66730e
 import { usePathname, useRouter } from "next/navigation";
 
 export default function Navbar() {
@@ -26,6 +31,7 @@ export default function Navbar() {
 
   const links = user
     ? [
+<<<<<<< HEAD
       { name: "Home", href: "/" },
       { name: "Dashboard", href: "/dashboard" },
       { name: "Upload", href: "/upload" },
@@ -40,6 +46,22 @@ export default function Navbar() {
       { name: "Login", href: "/login" },
       { name: "Register", href: "/register" },
     ];
+=======
+        { name: "Home", href: "/" },
+        { name: "Dashboard", href: "/dashboard" },
+        { name: "Upload", href: "/upload" },
+        { name: "Ask AI", href: "/ask-ai" },
+        { name: "Leaderboard", href: "/leaderboard" },
+        { name: "Profile", href: "/profile" },
+      ]
+    : [
+        { name: "Home", href: "/" },
+        { name: "Ask AI", href: "/ask-ai" },
+        { name: "Leaderboard", href: "/leaderboard" },
+        { name: "Login", href: "/login" },
+        { name: "Register", href: "/register" },
+      ];
+>>>>>>> 20e1cd558b63141784a903ec708d98775e66730e
 
   return (
     <nav className="sticky top-0 z-50 bg-[#0B1F3A]/95 backdrop-blur-xl border-b border-white/10 shadow-lg shadow-black/20">
@@ -47,6 +69,7 @@ export default function Navbar() {
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <Link href="/" className="flex items-center gap-2 group">
+<<<<<<< HEAD
               <div className="relative w-8 h-8">
                 <Image
                   src="/logo.png"
@@ -54,6 +77,11 @@ export default function Navbar() {
                   fill
                   className="object-contain"
                 />
+=======
+              <div className="relative">
+                <Sparkles className="h-7 w-7 text-cyan-400 group-hover:text-cyan-300 transition-colors" />
+                <div className="absolute inset-0 bg-cyan-400/20 blur-lg rounded-full group-hover:bg-cyan-300/30 transition-colors" />
+>>>>>>> 20e1cd558b63141784a903ec708d98775e66730e
               </div>
               <span className="text-xl font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
                 NoteNova
@@ -64,10 +92,18 @@ export default function Navbar() {
                 <Link
                   key={l.href}
                   href={l.href}
+<<<<<<< HEAD
                   className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${pathname === l.href
                     ? "text-cyan-400 bg-white/10 neon-glow"
                     : "text-gray-300 hover:text-white hover:bg-white/5"
                     }`}
+=======
+                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                    pathname === l.href
+                      ? "text-cyan-400 bg-white/10 neon-glow"
+                      : "text-gray-300 hover:text-white hover:bg-white/5"
+                  }`}
+>>>>>>> 20e1cd558b63141784a903ec708d98775e66730e
                 >
                   {l.name}
                 </Link>
