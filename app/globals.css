@@ -1,6 +1,103 @@
 @import "tailwindcss";
 
+@layer base {
+  :root {
+    --bg-primary: #0B1F3A;
+    --bg-secondary: #0f2847;
+    --accent-purple: #7c3aed;
+    --accent-blue: #3b82f6;
+    --neon-blue: #00d4ff;
+    --neon-purple: #a855f7;
+    --glass-bg: rgba(255, 255, 255, 0.05);
+    --glass-border: rgba(255, 255, 255, 0.1);
+  }
+}
+
+@layer utilities {
+  .bg-galaxy {
+    background: linear-gradient(135deg, #0B1F3A 0%, #1a1147 30%, #0d2952 60%, #0B1F3A 100%);
+  }
+
+  .glass {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .glass-strong {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+  }
+
+  .neon-border {
+    border: 1px solid rgba(124, 58, 237, 0.3);
+    box-shadow: 0 0 15px rgba(124, 58, 237, 0.1), inset 0 0 15px rgba(124, 58, 237, 0.05);
+  }
+
+  .neon-glow {
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.15), 0 0 40px rgba(124, 58, 237, 0.1);
+  }
+
+  .neon-glow-strong {
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.3), 0 0 60px rgba(124, 58, 237, 0.2);
+  }
+
+  .text-glow {
+    text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+  }
+
+  .btn-gradient {
+    background: linear-gradient(135deg, #7c3aed, #3b82f6);
+    transition: all 0.3s ease;
+  }
+
+  .btn-gradient:hover {
+    background: linear-gradient(135deg, #6d28d9, #2563eb);
+    box-shadow: 0 0 25px rgba(124, 58, 237, 0.4);
+    transform: translateY(-1px);
+  }
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(124, 58, 237, 0.3) transparent;
+}
+
 body {
-  font-family: "Inter", sans-serif;
-  background: #f8fafc;
+  font-family: "Inter", system-ui, sans-serif;
+  background: linear-gradient(135deg, #0B1F3A 0%, #1a1147 30%, #0d2952 60%, #0B1F3A 100%);
+  background-attachment: fixed;
+  color: #e2e8f0;
+  min-height: 100vh;
+}
+
+@keyframes nova-pulse {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.05); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.animate-nova-pulse {
+  animation: nova-pulse 4s ease-in-out infinite;
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  background-size: 200% auto;
+  animation: shimmer 3s linear infinite;
 }
