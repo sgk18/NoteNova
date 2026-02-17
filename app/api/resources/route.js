@@ -31,12 +31,7 @@ export async function GET(request) {
         if (resource.uploadedBy) {
           await User.findByIdAndUpdate(resource.uploadedBy, { $inc: { points: 2 } });
         }
-        let url = resource.fileUrl;
-        // Fix URLs stored with wrong resource type path
-        if (url && url.includes("/image/upload/")) {
-          url = url.replace("/image/upload/", "/raw/upload/");
-        }
-        return NextResponse.json({ fileUrl: url });
+        return NextResponse.json({ fileUrl: resource.fileUrl });
       }
       return NextResponse.json({ error: "Resource not found" }, { status: 404 });
     }

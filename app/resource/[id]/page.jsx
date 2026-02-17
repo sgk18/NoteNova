@@ -54,6 +54,22 @@ export default function ResourceDetailPage() {
     }
   };
 
+  // Fix Cloudinary URLs for correct resource type
+  const getPreviewUrl = (url, ext) => {
+    if (!url || !url.includes("cloudinary.com")) return url;
+    const imageExts = ["png", "jpg", "jpeg", "gif", "webp", "svg"];
+    const docExts = ["pdf", "doc", "docx", "ppt", "pptx", "xls", "xlsx"];
+    // Images should use /image/upload/ for inline display
+    if (imageExts.includes(ext) && url.includes("/raw/upload/")) {
+      return url.replace("/raw/upload/", "/image/upload/");
+    }
+    // Docs/PDFs should use /raw/upload/ for download/viewer access
+    if (docExts.includes(ext) && url.includes("/image/upload/")) {
+      return url.replace("/image/upload/", "/raw/upload/");
+    }
+    return url;
+  };
+
   const renderFilePreview = () => {
     const fileUrl = resource?.fileUrl;
     if (!fileUrl) {
@@ -69,6 +85,7 @@ export default function ResourceDetailPage() {
     const imageExts = ["png", "jpg", "jpeg", "gif", "webp", "svg"];
     const pdfExts = ["pdf"];
     const officeExts = ["doc", "docx", "ppt", "pptx", "xls", "xlsx"];
+    const previewUrl = getPreviewUrl(fileUrl, ext);
 
     // Show fallback with "Open in browser" when preview fails
     if (previewError) {
@@ -97,7 +114,7 @@ export default function ResourceDetailPage() {
             </div>
           )}
           <img
-            src={fileUrl}
+            src={previewUrl}
             alt={resource.title}
             className={`max-w-full max-h-[600px] rounded-xl object-contain ${previewLoading ? "hidden" : ""}`}
             onLoad={() => setPreviewLoading(false)}
@@ -108,7 +125,7 @@ export default function ResourceDetailPage() {
     }
 
     if (pdfExts.includes(ext)) {
-      const googleViewerUrl = `https://docs.google.com/gview?url=${encodeURIComponent(fileUrl)}&embedded=true`;
+      const googleViewerUrl = `https://docs.google.com/gview?url=${encodeURIComponent(previewUrl)}&embedded=true`;
       return (
         <div className="relative">
           {previewLoading && (
@@ -146,7 +163,7 @@ export default function ResourceDetailPage() {
     }
 
     if (officeExts.includes(ext)) {
-      const officeViewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(fileUrl)}`;
+      const officeViewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(previewUrl)}`;
       return (
         <div className="relative">
           {previewLoading && (

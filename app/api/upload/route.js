@@ -40,7 +40,7 @@ export async function POST(request) {
       const buffer = Buffer.from(bytes);
       const result = await new Promise((resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(
-          { resource_type: "raw", folder: "notenova" },
+          { resource_type: "auto", folder: "notenova" },
           (err, result) => (err ? reject(err) : resolve(result))
         );
         stream.end(buffer);
