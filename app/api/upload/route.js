@@ -38,9 +38,13 @@ export async function POST(request) {
     if (file && file.size > 0) {
       const bytes = await file.arrayBuffer();
       const buffer = Buffer.from(bytes);
+      // Use "raw" for documents so Cloudinary serves them with correct content-type
+      const fileName = file.name?.toLowerCase() || "";
+      const docExts = [".pdf", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".csv", ".zip", ".rar"];
+      const isDoc = docExts.some((ext) => fileName.endsWith(ext));
       const result = await new Promise((resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(
-          { resource_type: "auto", folder: "notenova" },
+          { resource_type: isDoc ? "raw" : "auto", folder: "notenova" },
           (err, result) => (err ? reject(err) : resolve(result))
         );
         stream.end(buffer);

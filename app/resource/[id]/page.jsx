@@ -258,7 +258,10 @@ export default function ResourceDetailPage() {
       const res = await fetch(`/api/resources?download=${id}`);
       const data = await res.json();
       if (data.fileUrl) {
-        window.open(data.fileUrl, "_blank");
+        // Fix Cloudinary URL for proper browser handling
+        const ext = getFileExtension(data.fileUrl);
+        const fixedUrl = getPreviewUrl(data.fileUrl, ext);
+        window.open(fixedUrl, "_blank");
         toast.success("Download started");
       } else {
         toast.error("File not available");
@@ -436,7 +439,7 @@ export default function ResourceDetailPage() {
             <Download className="h-5 w-5" /> Download
           </button>
           {resource.fileUrl && (
-            <a href={resource.fileUrl} target="_blank" rel="noopener noreferrer" className="flex-1 py-3.5 rounded-xl glass neon-border text-white font-semibold text-sm flex items-center justify-center gap-2 hover:bg-white/10 transition-all">
+            <a href={getPreviewUrl(resource.fileUrl, getFileExtension(resource.fileUrl))} target="_blank" rel="noopener noreferrer" className="flex-1 py-3.5 rounded-xl glass neon-border text-white font-semibold text-sm flex items-center justify-center gap-2 hover:bg-white/10 transition-all">
               <ExternalLink className="h-4 w-4" /> Open in New Tab
             </a>
           )}
