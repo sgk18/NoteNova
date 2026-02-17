@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import mongoose from "mongoose";
 import dbConnect from "@/lib/db";
 import Resource from "@/models/Resource";
 import User from "@/models/User";
@@ -62,7 +61,11 @@ export async function GET(request) {
       query.isPublic = isPublic === "true";
     }
     if (tag) query.tags = { $in: [new RegExp(tag, "i")] };
+<<<<<<< HEAD
     if (userId) query.uploadedBy = new mongoose.Types.ObjectId(userId);
+=======
+    if (userId) query.uploadedBy = userId;
+>>>>>>> cf9160f45eb9d649a0e81ad486ed92ef3ef08b9a
 
     // Access control for private resources
     let userCollege = null;
@@ -86,9 +89,6 @@ export async function GET(request) {
         },
         { $sort: { score: -1 } },
         { $limit: 50 },
-        { $lookup: { from: "users", localField: "uploadedBy", foreignField: "_id", as: "uploadedBy" } },
-        { $unwind: { path: "$uploadedBy", preserveNullAndEmptyArrays: true } },
-        { $project: { "uploadedBy.password": 0 } },
       ]);
       // Populate uploadedBy manually for aggregation
       resources = await Resource.populate(resources, { path: "uploadedBy", select: "name college department" });

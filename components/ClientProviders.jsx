@@ -3,6 +3,10 @@
 import { ThemeProvider } from "@/context/ThemeContext";
 import { Toaster } from "react-hot-toast";
 import Navbar from "@/components/Navbar";
+<<<<<<< HEAD
+=======
+import Footer from "@/components/Footer";
+>>>>>>> cf9160f45eb9d649a0e81ad486ed92ef3ef08b9a
 
 export default function ClientProviders({ children }) {
   return (
@@ -20,6 +24,10 @@ export default function ClientProviders({ children }) {
       />
       <Navbar />
       <main className="flex-grow">{children}</main>
+<<<<<<< HEAD
+=======
+      <Footer />
+>>>>>>> cf9160f45eb9d649a0e81ad486ed92ef3ef08b9a
     </ThemeProvider>
   );
 }

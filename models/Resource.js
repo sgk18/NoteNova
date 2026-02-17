@@ -17,9 +17,13 @@ const ResourceSchema = new mongoose.Schema({
   fileUrl: { type: String, default: "" },
   downloads: { type: Number, default: 0 },
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   views: { type: Number, default: 0 },
 >>>>>>> 20e1cd558b63141784a903ec708d98775e66730e
+=======
+  views: { type: Number, default: 0 },
+>>>>>>> cf9160f45eb9d649a0e81ad486ed92ef3ef08b9a
   avgRating: { type: Number, default: 0 },
   uploadedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   createdAt: { type: Date, default: Date.now },

@@ -9,8 +9,13 @@
     --accent-2: #3b82f6;
     --neon-1: #00d4ff;
     --neon-2: #a855f7;
+<<<<<<< HEAD
     --glass-bg: rgba(255, 255, 255, 0.05);
     --glass-bg-strong: rgba(255, 255, 255, 0.08);
+=======
+    --glass-bg: rgba(11, 31, 58, 0.75);
+    --glass-bg-strong: rgba(11, 31, 58, 0.92);
+>>>>>>> cf9160f45eb9d649a0e81ad486ed92ef3ef08b9a
     --glass-border: rgba(255, 255, 255, 0.1);
     --glass-border-strong: rgba(255, 255, 255, 0.15);
     --border-accent: rgba(124, 58, 237, 0.3);
@@ -31,8 +36,13 @@
     --accent-2: #3b82f6;
     --neon-1: #60a5fa;
     --neon-2: #3b82f6;
+<<<<<<< HEAD
     --glass-bg: rgba(30, 41, 59, 0.7);
     --glass-bg-strong: rgba(30, 41, 59, 0.85);
+=======
+    --glass-bg: rgba(30, 41, 59, 0.8);
+    --glass-bg-strong: rgba(15, 23, 42, 0.95);
+>>>>>>> cf9160f45eb9d649a0e81ad486ed92ef3ef08b9a
     --glass-border: rgba(51, 65, 85, 0.6);
     --glass-border-strong: rgba(71, 85, 105, 0.5);
     --border-accent: rgba(59, 130, 246, 0.25);
@@ -54,8 +64,13 @@
     --accent-2: #3b82f6;
     --neon-1: #00d4ff;
     --neon-2: #a855f7;
+<<<<<<< HEAD
     --glass-bg: rgba(255, 255, 255, 0.05);
     --glass-bg-strong: rgba(255, 255, 255, 0.08);
+=======
+    --glass-bg: rgba(11, 31, 58, 0.75);
+    --glass-bg-strong: rgba(11, 31, 58, 0.92);
+>>>>>>> cf9160f45eb9d649a0e81ad486ed92ef3ef08b9a
     --glass-border: rgba(255, 255, 255, 0.1);
     --glass-border-strong: rgba(255, 255, 255, 0.15);
     --border-accent: rgba(124, 58, 237, 0.3);
