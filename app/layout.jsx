@@ -1,5 +1,6 @@
 import "./globals.css";
 import ClientProviders from "@/components/ClientProviders";
+import StatusBarFix from "@/components/StatusBarFix";
 
 export const viewport = {
   width: "device-width",
@@ -31,7 +32,10 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body className="white-theme min-h-screen flex flex-col antialiased">
-        <ClientProviders>{children}</ClientProviders>
+        <ClientProviders>
+          <StatusBarFix />
+          {children}
+        </ClientProviders>
       </body>
     </html>
   );
