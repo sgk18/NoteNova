@@ -31,7 +31,7 @@ export default function RootLayout({ children }) {
           rel="stylesheet"
         />
       </head>
-      <body className="white-theme min-h-screen flex flex-col antialiased">
+      <body className="min-h-screen flex flex-col antialiased">
         <ClientProviders>
           <StatusBarFix />
           {children}

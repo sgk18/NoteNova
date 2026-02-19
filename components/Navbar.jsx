@@ -20,7 +20,8 @@ export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const { theme, setTheme } = useTheme();
-  const dropdownRef = useRef(null);
+  const desktopDropdownRef = useRef(null);
+  const mobileDropdownRef = useRef(null);
 
   const currentTheme = THEMES.find((t) => t.value === theme) || THEMES[0];
 
@@ -32,7 +33,9 @@ export default function Navbar() {
   // Close dropdown on outside click
   useEffect(() => {
     const handleClick = (e) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+      const inDesktop = desktopDropdownRef.current && desktopDropdownRef.current.contains(e.target);
+      const inMobile = mobileDropdownRef.current && mobileDropdownRef.current.contains(e.target);
+      if (!inDesktop && !inMobile) {
         setThemeOpen(false);
       }
     };
@@ -112,7 +115,7 @@ export default function Navbar() {
           {/* Right: Theme Dropdown + Logout */}
           <div className="hidden md:flex items-center gap-2">
             {/* Theme Dropdown */}
-            <div ref={dropdownRef} className="relative">
+            <div ref={desktopDropdownRef} className="relative">
               <button
                 onClick={() => setThemeOpen(!themeOpen)}
                 className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
@@ -172,7 +175,7 @@ export default function Navbar() {
           {/* Mobile: Theme + Hamburger */}
           <div className="md:hidden flex items-center gap-1">
             {/* Mobile theme selector */}
-            <div ref={dropdownRef} className="relative">
+            <div ref={mobileDropdownRef} className="relative">
               <button
                 onClick={() => setThemeOpen(!themeOpen)}
                 className={`p-2 rounded-lg ${isWhite ? "text-gray-600" : "text-gray-300"}`}

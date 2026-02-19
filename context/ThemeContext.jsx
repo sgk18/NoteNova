@@ -10,26 +10,29 @@ const ThemeContext = createContext({
 const VALID_THEMES = ["ion", "galaxy", "white"];
 
 export function ThemeProvider({ children }) {
-  const [theme, setThemeRaw] = useState(
-    typeof window !== "undefined"
-      ? localStorage.getItem("theme") || "white"
-      : "white"
-  );
+  const [theme, setThemeRaw] = useState("white");
   const [mounted, setMounted] = useState(false);
 
   const setTheme = (t) => {
     if (VALID_THEMES.includes(t)) setThemeRaw(t);
   };
 
+  // Read saved theme from localStorage on mount
   useEffect(() => {
+    const saved = localStorage.getItem("theme");
+    if (saved && VALID_THEMES.includes(saved)) {
+      setThemeRaw(saved);
+    }
     setMounted(true);
   }, []);
 
+  // Apply theme class to body whenever theme changes
   useEffect(() => {
+    if (!mounted) return;
     document.body.classList.remove("ion-theme", "galaxy-theme", "white-theme");
     document.body.classList.add(`${theme}-theme`);
     localStorage.setItem("theme", theme);
-  }, [theme]);
+  }, [theme, mounted]);
 
   // Prevent flash of wrong theme
   if (!mounted) {
@@ -46,3 +49,4 @@ export function ThemeProvider({ children }) {
 export function useTheme() {
   return useContext(ThemeContext);
 }
+

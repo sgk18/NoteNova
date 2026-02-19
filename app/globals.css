@@ -213,10 +213,9 @@ body.white-theme {
   background: #F8FAFC;
 }
 
-/* Default (before JS) */
+/* Default (before JS) — matches white default */
 body:not(.galaxy-theme):not(.ion-theme):not(.white-theme) {
-  background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
-  background-attachment: fixed;
+  background: #F8FAFC;
 }
 
 /* ===== ION DRIFT OVERRIDES ===== */
