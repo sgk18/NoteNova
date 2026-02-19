@@ -178,7 +178,7 @@ export default function ResourceDetailPage() {
       </button>
 
       {/* Resource Header */}
-      <div ref={contentRef} className="glass-strong rounded-2xl p-8 neon-border mb-8">
+      <div ref={contentRef} className="glass-strong rounded-2xl p-5 sm:p-8 neon-border mb-8">
         <div className="flex flex-wrap gap-2 mb-4">
           <span className="px-3 py-1 rounded-full text-xs font-semibold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
             {resource.resourceType || "Notes"}
@@ -197,7 +197,7 @@ export default function ResourceDetailPage() {
           )}
         </div>
 
-        <h1 className="text-3xl font-bold text-white mb-3">{resource.title}</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-white mb-3">{resource.title}</h1>
         <p className="text-gray-400 mb-6">{resource.description || "No description provided"}</p>
 
         {/* Meta */}
@@ -234,17 +234,17 @@ export default function ResourceDetailPage() {
         )}
 
         {/* Uploader */}
-        <div className="flex items-center justify-between glass rounded-xl p-4 border border-white/10 mb-6">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center text-white font-bold">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 glass rounded-xl p-4 border border-white/10 mb-6">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center text-white font-bold flex-shrink-0">
               {resource.uploadedBy?.name?.[0] || "?"}
             </div>
-            <div>
-              <p className="text-white font-semibold text-sm">{resource.uploadedBy?.name || "Unknown"}</p>
-              <p className="text-xs text-gray-500">{resource.uploadedBy?.college} • {resource.uploadedBy?.department}</p>
+            <div className="min-w-0">
+              <p className="text-white font-semibold text-sm truncate">{resource.uploadedBy?.name || "Unknown"}</p>
+              <p className="text-xs text-gray-500 truncate">{resource.uploadedBy?.college} • {resource.uploadedBy?.department}</p>
             </div>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-shrink-0">
             <StarRating rating={avgRating} size={18} />
             <span className="text-sm text-gray-400">({avgRating})</span>
           </div>
@@ -310,14 +310,14 @@ export default function ResourceDetailPage() {
           </div>
           <iframe
             src={resource.fileUrl}
-            className="w-full h-[600px] bg-white/5"
+            className="w-full h-[350px] sm:h-[500px] lg:h-[600px] bg-white/5"
             title="Resource Preview"
           />
         </div>
       )}
 
       {/* Reviews */}
-      <div className="glass-strong rounded-2xl p-8 neon-border mb-8">
+      <div className="glass-strong rounded-2xl p-5 sm:p-8 neon-border mb-8">
         <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
           <Star className="h-5 w-5 text-yellow-400" /> Reviews ({reviews.length})
         </h2>
@@ -340,17 +340,17 @@ export default function ResourceDetailPage() {
           <div className="space-y-4">
             {reviews.map((r) => (
               <div key={r._id} className="glass rounded-xl p-4 border border-white/10">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-500 to-purple-500 flex items-center justify-center text-white font-bold text-xs">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-2">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-500 to-purple-500 flex items-center justify-center text-white font-bold text-xs flex-shrink-0">
                       {r.userId?.name?.[0] || "?"}
                     </div>
-                    <div>
-                      <p className="text-white font-medium text-sm">{r.userId?.name || "Anonymous"}</p>
-                      <p className="text-xs text-gray-500">{r.userId?.college || ""}</p>
+                    <div className="min-w-0">
+                      <p className="text-white font-medium text-sm truncate">{r.userId?.name || "Anonymous"}</p>
+                      <p className="text-xs text-gray-500 truncate">{r.userId?.college || ""}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1.5 flex-shrink-0">
                     <StarRating rating={r.rating} size={14} />
                     <span className="text-xs text-gray-500">{new Date(r.createdAt).toLocaleDateString()}</span>
                   </div>

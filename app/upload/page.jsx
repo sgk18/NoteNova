@@ -45,7 +45,7 @@ export default function UploadPage() {
     <div className="max-w-2xl mx-auto px-4 py-10 relative">
       <div className="absolute top-0 right-0 w-[400px] h-[400px] rounded-full bg-purple-600/10 blur-[120px] -z-10" />
       <h1 className="text-2xl font-bold text-white mb-6">Upload Resource</h1>
-      <form onSubmit={handleSubmit} className="glass-strong rounded-2xl p-8 neon-border space-y-5">
+      <form onSubmit={handleSubmit} className="glass-strong rounded-2xl p-5 sm:p-8 neon-border space-y-5">
         <input name="title" placeholder="Title *" required className="w-full px-4 py-3 rounded-xl glass neon-border text-white placeholder-gray-500 text-sm focus:outline-none focus:neon-glow" value={form.title} onChange={handleChange} />
         <textarea name="description" placeholder="Description" rows={3} className="w-full px-4 py-3 rounded-xl glass neon-border text-white placeholder-gray-500 text-sm focus:outline-none focus:neon-glow resize-none" value={form.description} onChange={handleChange} />
 
@@ -57,7 +57,7 @@ export default function UploadPage() {
           </select>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <select name="semester" className="w-full px-4 py-3 rounded-xl glass neon-border text-white text-sm focus:outline-none focus:neon-glow bg-transparent appearance-none" value={form.semester} onChange={handleChange}>
             <option value="" className="bg-slate-900">Semester</option>
             {[1,2,3,4,5,6,7,8].map(s => <option key={s} value={s} className="bg-slate-900">{s}</option>)}

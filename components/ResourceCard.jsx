@@ -96,7 +96,7 @@ export default function ResourceCard({ resource, onBookmark, isBookmarked, showE
           <Download className="h-3.5 w-3.5" /> {resource.downloads || 0}
         </span>
       </div>
-      <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
+      <div className="flex flex-wrap gap-2" onClick={(e) => e.stopPropagation()}>
         <button onClick={handleDownload} className="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 text-sm font-medium rounded-xl text-white btn-gradient">
           <Download className="h-4 w-4" /> Download
         </button>

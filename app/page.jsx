@@ -76,7 +76,7 @@ export default function HomePage() {
           <div className="absolute top-1/4 right-1/4 w-[300px] h-[300px] rounded-full bg-cyan-500/10 blur-[100px] animate-float" />
         </div>
         <div className="relative text-center">
-          <h1 className="text-5xl sm:text-6xl md:text-7xl font-black mb-6 leading-tight">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black mb-6 leading-tight">
             <span className="text-white">Turn Your Notes</span>
             <br />
             <span className="bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">Into a Nova</span>
@@ -125,7 +125,7 @@ export default function HomePage() {
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
             <TrendingUp className="h-5 w-5 text-cyan-400" /> Resources
           </h2>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             <select value={filters.sort} onChange={(e) => setFilters({ ...filters, sort: e.target.value })} className="px-3 py-2 rounded-lg glass neon-border text-white text-xs bg-transparent appearance-none cursor-pointer focus:outline-none">
               {SORT_OPTIONS.map(s => <option key={s.value} value={s.value} className="bg-slate-900">{s.label}</option>)}
             </select>

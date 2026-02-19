@@ -32,35 +32,45 @@ export default function Footer() {
   const { theme } = useTheme();
   const [visible, setVisible] = useState(false);
   const isGalaxy = theme === "galaxy";
+  const isWhite = theme === "white";
 
   useEffect(() => {
     const t = setTimeout(() => setVisible(true), 100);
     return () => clearTimeout(t);
   }, []);
 
-  const linkClass = isGalaxy
-    ? "text-slate-400 hover:text-cyan-400 transition-all duration-300"
-    : "text-slate-500 hover:text-blue-400 hover:underline transition-all duration-300";
+  const linkClass = isWhite
+    ? "text-gray-500 hover:text-blue-600 hover:underline transition-all duration-300"
+    : isGalaxy
+      ? "text-slate-400 hover:text-cyan-400 transition-all duration-300"
+      : "text-slate-500 hover:text-cyan-400 hover:underline transition-all duration-300";
 
-  const headingClass = isGalaxy
-    ? "text-white font-semibold text-sm mb-4"
-    : "text-slate-300 font-semibold text-sm mb-4";
+  const headingClass = isWhite
+    ? "text-gray-900 font-semibold text-sm mb-4"
+    : isGalaxy
+      ? "text-white font-semibold text-sm mb-4"
+      : "text-slate-300 font-semibold text-sm mb-4";
 
   return (
     <footer
       className={`relative mt-auto transition-all duration-500 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
     >
-      {/* Animated top border — Galaxy only */}
+      {/* Top border */}
+      {isWhite && <div className="h-px w-full bg-gray-200" />}
       {isGalaxy && (
         <div className="h-px w-full bg-gradient-to-r from-transparent via-purple-500 to-transparent animate-shimmer" />
       )}
-      {!isGalaxy && <div className="h-px w-full bg-slate-700/50" />}
+      {!isGalaxy && !isWhite && (
+        <div className="h-px w-full bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent" />
+      )}
 
       <div
         className={`relative overflow-hidden ${
-          isGalaxy
-            ? "bg-gradient-to-b from-[#0d1b3e]/90 to-[#1a1147]/90 backdrop-blur-xl"
-            : "bg-slate-900"
+          isWhite
+            ? "bg-white"
+            : isGalaxy
+              ? "bg-gradient-to-b from-[#0d1b3e]/90 to-[#1a1147]/90 backdrop-blur-xl"
+              : "bg-[#0F172A]/95 backdrop-blur-xl"
         }`}
       >
         {/* Floating stars — Galaxy only */}
@@ -86,15 +96,21 @@ export default function Footer() {
             {/* Brand */}
             <div>
               <div className="flex items-center gap-2 mb-3">
-                <Sparkles className={`h-5 w-5 ${isGalaxy ? "text-cyan-400" : "text-blue-400"}`} />
-                <span className={`text-lg font-bold ${isGalaxy ? "bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent" : "text-white"}`}>
+                <Sparkles className={`h-5 w-5 ${isWhite ? "text-blue-600" : "text-cyan-400"}`} />
+                <span className={`text-lg font-bold ${
+                  isWhite
+                    ? "text-gray-900"
+                    : isGalaxy
+                      ? "bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent"
+                      : "text-white"
+                }`}>
                   NoteNova
                 </span>
               </div>
-              <p className={`text-sm font-medium mb-2 ${isGalaxy ? "text-slate-300" : "text-slate-400"}`}>
+              <p className={`text-sm font-medium mb-2 ${isWhite ? "text-gray-600" : isGalaxy ? "text-slate-300" : "text-slate-400"}`}>
                 Turn your notes into impact.
               </p>
-              <p className={`text-xs leading-relaxed ${isGalaxy ? "text-slate-500" : "text-slate-600"}`}>
+              <p className={`text-xs leading-relaxed ${isWhite ? "text-gray-400" : isGalaxy ? "text-slate-500" : "text-slate-600"}`}>
                 Collaborative academic platform powered by AI.
               </p>
             </div>
@@ -138,9 +154,9 @@ export default function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className={`border-t ${isGalaxy ? "border-purple-500/20" : "border-slate-700/50"}`}>
+        <div className={`border-t ${isWhite ? "border-gray-200" : isGalaxy ? "border-purple-500/20" : "border-slate-700/50"}`}>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p className={`text-xs ${isGalaxy ? "text-slate-500" : "text-slate-600"}`}>
+            <p className={`text-xs ${isWhite ? "text-gray-400" : isGalaxy ? "text-slate-500" : "text-slate-600"}`}>
               © 2026 NoteNova. Built for collaborative learning.
             </p>
             <div className="flex items-center gap-4">
@@ -156,9 +172,11 @@ export default function Footer() {
                   rel="noopener noreferrer"
                   aria-label={label}
                   className={`p-2 rounded-lg transition-all duration-300 ${
-                    isGalaxy
-                      ? "text-slate-500 hover:text-cyan-400 hover:bg-cyan-400/10 hover:shadow-[0_0_12px_rgba(0,212,255,0.2)]"
-                      : "text-slate-500 hover:text-blue-400 hover:bg-blue-400/5"
+                    isWhite
+                      ? "text-gray-400 hover:text-blue-600 hover:bg-blue-50"
+                      : isGalaxy
+                        ? "text-slate-500 hover:text-cyan-400 hover:bg-cyan-400/10 hover:shadow-[0_0_12px_rgba(0,212,255,0.2)]"
+                        : "text-slate-500 hover:text-cyan-400 hover:bg-cyan-400/5"
                   }`}
                 >
                   <Icon className="h-4 w-4" />
