@@ -25,6 +25,7 @@ const ResourceSchema = new mongoose.Schema({
   views: { type: Number, default: 0 },
 >>>>>>> cf9160f45eb9d649a0e81ad486ed92ef3ef08b9a
   avgRating: { type: Number, default: 0 },
+  smartNotes: { type: Object, default: null },
   uploadedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   createdAt: { type: Date, default: Date.now },
 });

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import mongoose from "mongoose";
 import dbConnect from "@/lib/db";
 import Resource from "@/models/Resource";
 import User from "@/models/User";
@@ -53,7 +54,13 @@ export async function GET(request) {
       query.isPublic = isPublic === "true";
     }
     if (tag) query.tags = { $in: [new RegExp(tag, "i")] };
-    if (userId) query.uploadedBy = userId;
+    if (userId) {
+      try {
+        query.uploadedBy = new mongoose.Types.ObjectId(userId);
+      } catch {
+        query.uploadedBy = userId;
+      }
+    }
 
     // Access control for private resources
     let userCollege = null;
@@ -91,6 +98,7 @@ export async function GET(request) {
     }
 
     // Filter out private resources from other colleges
+<<<<<<< HEAD
     // Resources without isPublic field are treated as public (backwards compatible)
     resources = resources.filter((r) => {
       if (r.isPublic === false) {
@@ -101,6 +109,19 @@ export async function GET(request) {
       }
       // isPublic is true, undefined, or null — treat as public
       return true;
+=======
+    // But always show user's own uploads (dashboard case)
+    resources = resources.filter((r) => {
+      if (r.isPublic) return true;
+      // If querying own uploads, always include
+      if (userId) {
+        const uploaderId = r.uploadedBy?._id?.toString() || r.uploadedBy?.toString() || "";
+        if (uploaderId === userId) return true;
+      }
+      if (!userCollege) return false;
+      const uploaderCollege = r.uploadedBy?.college || "";
+      return uploaderCollege.toLowerCase() === userCollege.toLowerCase();
+>>>>>>> 9ae88875f5bb33d36a4ee8d66ea51a25b67a474f
     });
 
     return NextResponse.json({ resources });

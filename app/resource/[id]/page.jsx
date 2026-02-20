@@ -2,8 +2,13 @@
 
 import { useEffect, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
+<<<<<<< HEAD
 import { Download, Lock, Globe, ArrowLeft, Star, Calendar, Tag, BookOpen, Building2, Send, ExternalLink, Sparkles, Eye, FileText } from "lucide-react";
+=======
+import { Download, Lock, Globe, ArrowLeft, Star, Calendar, Tag, BookOpen, Building2, Send, ExternalLink, Sparkles, Eye, RefreshCw } from "lucide-react";
+>>>>>>> 9ae88875f5bb33d36a4ee8d66ea51a25b67a474f
 import StarRating from "@/components/StarRating";
+import SmartNotesDisplay from "@/components/SmartNotesDisplay";
 import toast from "react-hot-toast";
 
 export default function ResourceDetailPage() {
@@ -17,12 +22,13 @@ export default function ResourceDetailPage() {
   const [myRating, setMyRating] = useState(0);
   const [myReview, setMyReview] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [aiSummary, setAiSummary] = useState("");
-  const [aiLoading, setAiLoading] = useState(false);
+  const [smartNotes, setSmartNotes] = useState(null);
+  const [smartNotesLoading, setSmartNotesLoading] = useState(false);
   const [visible, setVisible] = useState(false);
   const [previewLoading, setPreviewLoading] = useState(true);
   const [previewError, setPreviewError] = useState(false);
   const contentRef = useRef(null);
+  const smartNotesRef = useRef(null);
 
   useEffect(() => {
     if (!id) return;
@@ -32,6 +38,10 @@ export default function ResourceDetailPage() {
   useEffect(() => {
     if (resource) {
       setTimeout(() => setVisible(true), 50);
+      // Load cached smart notes if available
+      if (resource.smartNotes) {
+        setSmartNotes(resource.smartNotes);
+      }
     }
   }, [resource]);
 
@@ -345,26 +355,28 @@ export default function ResourceDetailPage() {
     }
   };
 
-  const handleGenerateAINotes = async () => {
-    if (!resource) return;
-    setAiLoading(true);
-    setAiSummary("");
+  const handleGenerateSmartNotes = async (regenerate = false) => {
+    setSmartNotesLoading(true);
     try {
-      const res = await fetch("/api/ask-ai", {
+      const res = await fetch("/api/generate-smart-notes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question: `Generate detailed study notes for: "${resource.title}" — Subject: ${resource.subject || "General"}. Include key concepts, formulas if applicable, and exam-relevant points.` }),
+        body: JSON.stringify({ resourceId: id, regenerate }),
       });
       const data = await res.json();
       if (res.ok) {
-        setAiSummary(data.answer);
+        setSmartNotes(data.smartNotes);
+        toast.success(data.cached ? "Smart Notes loaded from cache" : "Smart Notes generated!");
+        setTimeout(() => {
+          smartNotesRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+        }, 100);
       } else {
-        toast.error(data.error || "AI generation failed");
+        toast.error(data.error || "Failed to generate Smart Notes");
       }
     } catch {
-      toast.error("Failed to generate AI notes");
+      toast.error("Failed to generate Smart Notes");
     } finally {
-      setAiLoading(false);
+      setSmartNotesLoading(false);
     }
   };
 
@@ -405,7 +417,7 @@ export default function ResourceDetailPage() {
       </button>
 
       {/* Resource Header */}
-      <div ref={contentRef} className="glass-strong rounded-2xl p-8 neon-border mb-8">
+      <div ref={contentRef} className="glass-strong rounded-2xl p-5 sm:p-8 neon-border mb-8">
         <div className="flex flex-wrap gap-2 mb-4">
           <span className="px-3 py-1 rounded-full text-xs font-semibold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
             {resource.resourceType || "Notes"}
@@ -424,7 +436,7 @@ export default function ResourceDetailPage() {
           )}
         </div>
 
-        <h1 className="text-3xl font-bold text-white mb-3">{resource.title}</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-white mb-3">{resource.title}</h1>
         <p className="text-gray-400 mb-6">{resource.description || "No description provided"}</p>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
@@ -458,17 +470,24 @@ export default function ResourceDetailPage() {
           </div>
         )}
 
+<<<<<<< HEAD
         <div className="flex items-center justify-between glass rounded-xl p-4 border border-white/10 mb-6">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center text-white font-bold">
+=======
+        {/* Uploader */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 glass rounded-xl p-4 border border-white/10 mb-6">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center text-white font-bold flex-shrink-0">
+>>>>>>> 9ae88875f5bb33d36a4ee8d66ea51a25b67a474f
               {resource.uploadedBy?.name?.[0] || "?"}
             </div>
-            <div>
-              <p className="text-white font-semibold text-sm">{resource.uploadedBy?.name || "Unknown"}</p>
-              <p className="text-xs text-gray-500">{resource.uploadedBy?.college} • {resource.uploadedBy?.department}</p>
+            <div className="min-w-0">
+              <p className="text-white font-semibold text-sm truncate">{resource.uploadedBy?.name || "Unknown"}</p>
+              <p className="text-xs text-gray-500 truncate">{resource.uploadedBy?.college} • {resource.uploadedBy?.department}</p>
             </div>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-shrink-0">
             <StarRating rating={avgRating} size={18} />
             <span className="text-sm text-gray-400">({avgRating})</span>
           </div>
@@ -484,12 +503,10 @@ export default function ResourceDetailPage() {
               <ExternalLink className="h-4 w-4" /> Open in New Tab
             </a>
           )}
-          <button onClick={handleGenerateAINotes} disabled={aiLoading} className="flex-1 py-3.5 rounded-xl glass border border-purple-500/30 text-purple-300 font-semibold text-sm flex items-center justify-center gap-2 hover:bg-purple-500/10 transition-all disabled:opacity-50">
-            <Sparkles className="h-4 w-4" /> {aiLoading ? "Generating..." : "AI Notes"}
-          </button>
         </div>
       </div>
 
+<<<<<<< HEAD
       {/* File Preview Section */}
       <div className="glass-strong rounded-2xl p-8 neon-border mb-8">
         <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
@@ -497,22 +514,63 @@ export default function ResourceDetailPage() {
         </h2>
         {renderFilePreview()}
       </div>
+=======
+      {/* Smart Notes Button */}
+      <div className="mb-8">
+        <div className="flex flex-col sm:flex-row gap-3">
+          <button
+            onClick={() => handleGenerateSmartNotes(false)}
+            disabled={smartNotesLoading}
+            className="flex-1 py-4 rounded-xl bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-500 hover:to-cyan-500 text-white font-semibold text-sm flex items-center justify-center gap-2 transition-all duration-300 disabled:opacity-50 shadow-lg shadow-purple-500/20"
+          >
+            {smartNotesLoading ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                Generating Smart Notes...
+              </>
+            ) : (
+              <>
+                <Sparkles className="h-5 w-5" /> ✨ Generate Smart Notes
+              </>
+            )}
+          </button>
+          {smartNotes && (
+            <button
+              onClick={() => handleGenerateSmartNotes(true)}
+              disabled={smartNotesLoading}
+              className="py-4 px-6 rounded-xl glass neon-border text-gray-300 font-medium text-sm flex items-center justify-center gap-2 hover:bg-white/10 transition-all disabled:opacity-50"
+            >
+              <RefreshCw className={`h-4 w-4 ${smartNotesLoading ? "animate-spin" : ""}`} /> Regenerate
+            </button>
+          )}
+        </div>
+      </div>
 
-      {/* AI Summary */}
-      {aiSummary && (
-        <div className="glass-strong rounded-2xl neon-border overflow-hidden mb-8">
-          <div className="flex items-center gap-2 px-6 py-3 border-b border-white/10">
-            <Sparkles className="h-4 w-4 text-purple-400" />
-            <span className="text-sm font-medium text-white">AI Generated Notes</span>
-          </div>
-          <div className="px-6 py-5">
-            <div className="text-sm text-gray-300 leading-relaxed whitespace-pre-wrap">{aiSummary}</div>
-          </div>
+      {/* Smart Notes Display */}
+      {smartNotes && (
+        <div ref={smartNotesRef}>
+          <SmartNotesDisplay notes={smartNotes} />
         </div>
       )}
 
+      {/* PDF Preview */}
+      {resource.fileUrl && isPdf && (
+        <div className="glass-strong rounded-2xl neon-border overflow-hidden mb-8">
+          <div className="flex items-center gap-2 px-6 py-3 border-b border-white/10">
+            <Eye className="h-4 w-4 text-cyan-400" />
+            <span className="text-sm font-medium text-white">Document Preview</span>
+          </div>
+          <iframe
+            src={resource.fileUrl}
+            className="w-full h-[350px] sm:h-[500px] lg:h-[600px] bg-white/5"
+            title="Resource Preview"
+          />
+        </div>
+      )}
+>>>>>>> 9ae88875f5bb33d36a4ee8d66ea51a25b67a474f
+
       {/* Reviews */}
-      <div className="glass-strong rounded-2xl p-8 neon-border mb-8">
+      <div className="glass-strong rounded-2xl p-5 sm:p-8 neon-border mb-8">
         <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
           <Star className="h-5 w-5 text-yellow-400" /> Reviews ({reviews.length})
         </h2>
@@ -535,17 +593,17 @@ export default function ResourceDetailPage() {
           <div className="space-y-4">
             {reviews.map((r) => (
               <div key={r._id} className="glass rounded-xl p-4 border border-white/10">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-500 to-purple-500 flex items-center justify-center text-white font-bold text-xs">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-2">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-500 to-purple-500 flex items-center justify-center text-white font-bold text-xs flex-shrink-0">
                       {r.userId?.name?.[0] || "?"}
                     </div>
-                    <div>
-                      <p className="text-white font-medium text-sm">{r.userId?.name || "Anonymous"}</p>
-                      <p className="text-xs text-gray-500">{r.userId?.college || ""}</p>
+                    <div className="min-w-0">
+                      <p className="text-white font-medium text-sm truncate">{r.userId?.name || "Anonymous"}</p>
+                      <p className="text-xs text-gray-500 truncate">{r.userId?.college || ""}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1.5 flex-shrink-0">
                     <StarRating rating={r.rating} size={14} />
                     <span className="text-xs text-gray-500">{new Date(r.createdAt).toLocaleDateString()}</span>
                   </div>
