@@ -2,30 +2,37 @@
 
 import { createContext, useContext, useState, useEffect } from "react";
 
-const ThemeContext = createContext({ theme: "galaxy", toggleTheme: () => {} });
+const ThemeContext = createContext({
+  theme: "white",
+  setTheme: () => {},
+});
+
+const VALID_THEMES = ["ion", "galaxy", "white"];
 
 export function ThemeProvider({ children }) {
-  const [theme, setTheme] = useState("galaxy");
+  const [theme, setThemeRaw] = useState("white");
   const [mounted, setMounted] = useState(false);
 
+  const setTheme = (t) => {
+    if (VALID_THEMES.includes(t)) setThemeRaw(t);
+  };
+
+  // Read saved theme from localStorage on mount
   useEffect(() => {
-    const saved = localStorage.getItem("notenova-theme");
-    if (saved === "executive" || saved === "galaxy") {
-      setTheme(saved);
+    const saved = localStorage.getItem("theme");
+    if (saved && VALID_THEMES.includes(saved)) {
+      setThemeRaw(saved);
     }
     setMounted(true);
   }, []);
 
+  // Apply theme class to body whenever theme changes
   useEffect(() => {
     if (!mounted) return;
-    document.body.classList.remove("galaxy", "executive");
-    document.body.classList.add(theme);
-    localStorage.setItem("notenova-theme", theme);
+    document.body.classList.remove("ion-theme", "galaxy-theme", "white-theme");
+    document.body.classList.add(`${theme}-theme`);
+    localStorage.setItem("theme", theme);
   }, [theme, mounted]);
-
-  const toggleTheme = () => {
-    setTheme((prev) => (prev === "galaxy" ? "executive" : "galaxy"));
-  };
 
   // Prevent flash of wrong theme
   if (!mounted) {
@@ -33,7 +40,7 @@ export function ThemeProvider({ children }) {
   }
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+    <ThemeContext.Provider value={{ theme, setTheme }}>
       {children}
     </ThemeContext.Provider>
   );
@@ -42,3 +49,4 @@ export function ThemeProvider({ children }) {
 export function useTheme() {
   return useContext(ThemeContext);
 }
+

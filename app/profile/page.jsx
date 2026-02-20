@@ -44,13 +44,13 @@ export default function ProfilePage() {
       {/* Profile Header */}
       <div className="glass-strong rounded-2xl neon-border overflow-hidden mb-8">
         <div className="h-32 bg-gradient-to-r from-purple-600/30 via-cyan-500/20 to-pink-500/30 relative">
-          <div className="absolute -bottom-10 left-8">
+          <div className="absolute -bottom-10 left-4 sm:left-8">
             <div className="w-20 h-20 rounded-full bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center text-white text-3xl font-bold ring-4 ring-[#0B1F3A] shadow-xl">
               {user.name?.[0]}
             </div>
           </div>
         </div>
-        <div className="pt-14 pb-6 px-8">
+        <div className="pt-14 pb-6 px-4 sm:px-8">
           <h1 className="text-2xl font-bold text-white">{user.name}</h1>
           <p className="text-sm text-gray-400">{user.email}</p>
           <div className="flex flex-wrap gap-4 mt-4">
@@ -77,7 +77,7 @@ export default function ProfilePage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 mb-6">
+      <div className="flex gap-2 mb-6 overflow-x-auto">
         <button onClick={() => setTab("uploads")} className={`px-5 py-2.5 rounded-xl text-sm font-medium transition-all ${tab === "uploads" ? "btn-gradient text-white" : "glass neon-border text-gray-400 hover:text-white"}`}>
           My Uploads ({resources.length})
         </button>

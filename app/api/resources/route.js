@@ -1,8 +1,5 @@
 import { NextResponse } from "next/server";
-<<<<<<< HEAD
 import mongoose from "mongoose";
-=======
->>>>>>> 20e1cd558b63141784a903ec708d98775e66730e
 import dbConnect from "@/lib/db";
 import Resource from "@/models/Resource";
 import User from "@/models/User";
@@ -57,12 +54,13 @@ export async function GET(request) {
       query.isPublic = isPublic === "true";
     }
     if (tag) query.tags = { $in: [new RegExp(tag, "i")] };
-<<<<<<< HEAD
-    if (userId) query.uploadedBy = new mongoose.Types.ObjectId(userId);
-
-=======
-    if (userId) query.uploadedBy = userId;
->>>>>>> 20e1cd558b63141784a903ec708d98775e66730e
+    if (userId) {
+      try {
+        query.uploadedBy = new mongoose.Types.ObjectId(userId);
+      } catch {
+        query.uploadedBy = userId;
+      }
+    }
 
     // Access control for private resources
     let userCollege = null;
@@ -86,12 +84,6 @@ export async function GET(request) {
         },
         { $sort: { score: -1 } },
         { $limit: 50 },
-<<<<<<< HEAD
-        { $lookup: { from: "users", localField: "uploadedBy", foreignField: "_id", as: "uploadedBy" } },
-        { $unwind: { path: "$uploadedBy", preserveNullAndEmptyArrays: true } },
-        { $project: { "uploadedBy.password": 0 } },
-=======
->>>>>>> 20e1cd558b63141784a903ec708d98775e66730e
       ]);
       // Populate uploadedBy manually for aggregation
       resources = await Resource.populate(resources, { path: "uploadedBy", select: "name college department" });
@@ -106,8 +98,14 @@ export async function GET(request) {
     }
 
     // Filter out private resources from other colleges
+    // But always show user's own uploads (dashboard case)
     resources = resources.filter((r) => {
       if (r.isPublic) return true;
+      // If querying own uploads, always include
+      if (userId) {
+        const uploaderId = r.uploadedBy?._id?.toString() || r.uploadedBy?.toString() || "";
+        if (uploaderId === userId) return true;
+      }
       if (!userCollege) return false;
       const uploaderCollege = r.uploadedBy?.college || "";
       return uploaderCollege.toLowerCase() === userCollege.toLowerCase();

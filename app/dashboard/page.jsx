@@ -124,7 +124,7 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <h2 className="text-xl font-bold text-white">My Resources</h2>
         <button onClick={() => router.push("/upload")} className="px-4 py-2 rounded-xl btn-gradient text-white text-sm font-medium flex items-center gap-1.5">
           <UploadCloud className="h-4 w-4" /> Upload
@@ -147,7 +147,7 @@ export default function DashboardPage() {
       {/* Edit Modal */}
       {editModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="w-full max-w-lg glass-strong rounded-2xl p-8 neon-border relative max-h-[90vh] overflow-y-auto">
+          <div className="w-full max-w-lg glass-strong rounded-2xl p-5 sm:p-8 neon-border relative max-h-[90vh] overflow-y-auto">
             <button onClick={() => setEditModal(null)} className="absolute top-4 right-4 text-gray-400 hover:text-white">
               <X className="h-5 w-5" />
             </button>
@@ -155,7 +155,7 @@ export default function DashboardPage() {
             <form onSubmit={handleEditSubmit} className="space-y-4">
               <input name="title" placeholder="Title" className="w-full px-4 py-3 rounded-xl glass neon-border text-white placeholder-gray-500 text-sm focus:outline-none" value={editForm.title} onChange={(e) => setEditForm({ ...editForm, title: e.target.value })} />
               <textarea name="description" placeholder="Description" rows={2} className="w-full px-4 py-3 rounded-xl glass neon-border text-white placeholder-gray-500 text-sm focus:outline-none resize-none" value={editForm.description} onChange={(e) => setEditForm({ ...editForm, description: e.target.value })} />
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <input name="subject" placeholder="Subject" className="px-4 py-3 rounded-xl glass neon-border text-white placeholder-gray-500 text-sm focus:outline-none" value={editForm.subject} onChange={(e) => setEditForm({ ...editForm, subject: e.target.value })} />
                 <select name="resourceType" className="px-4 py-3 rounded-xl glass neon-border text-white text-sm bg-transparent appearance-none focus:outline-none" value={editForm.resourceType} onChange={(e) => setEditForm({ ...editForm, resourceType: e.target.value })}>
                   {["Notes","Question Papers","Solutions","Project Reports","Study Material"].map(t => <option key={t} value={t} className="bg-slate-900">{t}</option>)}
