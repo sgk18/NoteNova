@@ -98,30 +98,21 @@ export async function GET(request) {
     }
 
     // Filter out private resources from other colleges
-<<<<<<< HEAD
-    // Resources without isPublic field are treated as public (backwards compatible)
+    // Filter out private resources from other colleges, but always show user's own uploads
     resources = resources.filter((r) => {
-      if (r.isPublic === false) {
-        // Explicitly private — only show to same college
-        if (!userCollege) return false;
-        const uploaderCollege = r.uploadedBy?.college || "";
-        return uploaderCollege.toLowerCase() === userCollege.toLowerCase();
-      }
       // isPublic is true, undefined, or null — treat as public
-      return true;
-=======
-    // But always show user's own uploads (dashboard case)
-    resources = resources.filter((r) => {
-      if (r.isPublic) return true;
+      if (r.isPublic !== false) return true;
+
       // If querying own uploads, always include
       if (userId) {
         const uploaderId = r.uploadedBy?._id?.toString() || r.uploadedBy?.toString() || "";
         if (uploaderId === userId) return true;
       }
+
+      // Explicitly private — only show to same college
       if (!userCollege) return false;
       const uploaderCollege = r.uploadedBy?.college || "";
       return uploaderCollege.toLowerCase() === userCollege.toLowerCase();
->>>>>>> 9ae88875f5bb33d36a4ee8d66ea51a25b67a474f
     });
 
     return NextResponse.json({ resources });

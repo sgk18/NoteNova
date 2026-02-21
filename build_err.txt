@@ -1,0 +1,29 @@
+[1m[38;2;173;127;168m▲ Next.js 16.1.6[39m[22m (Turbopack)
+
+[37m[1m [22m[39m Creating an optimized production build ...
+
+
+> Build error occurred
+Error: Turbopack build failed with 1 errors:
+./components/StatusBarFix.jsx:4:1
+[1m[31mModule not found[39m[22m: Can't resolve [32m'@capacitor/status-bar'[39m
+[0m [90m 2 |[39m
+ [90m 3 |[39m [36mimport[39m { useEffect } [36mfrom[39m [32m"react"[39m[33m;[39m
+[31m[1m>[22m[39m[90m 4 |[39m [36mimport[39m { [33mStatusBar[39m } [36mfrom[39m [32m"@capacitor/status-bar"[39m[33m;[39m
+ [90m   |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 5 |[39m
+ [90m 6 |[39m [36mexport[39m [36mdefault[39m [36mfunction[39m [33mStatusBarFix[39m() {
+ [90m 7 |[39m   useEffect(() [33m=>[39m {[0m
+
+
+
+Import trace:
+  Server Component:
+    ./components/StatusBarFix.jsx
+    ./app/layout.jsx
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+    at <unknown> (./components/StatusBarFix.jsx:4:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)

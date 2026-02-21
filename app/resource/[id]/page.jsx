@@ -2,11 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
-<<<<<<< HEAD
-import { Download, Lock, Globe, ArrowLeft, Star, Calendar, Tag, BookOpen, Building2, Send, ExternalLink, Sparkles, Eye, FileText } from "lucide-react";
-=======
-import { Download, Lock, Globe, ArrowLeft, Star, Calendar, Tag, BookOpen, Building2, Send, ExternalLink, Sparkles, Eye, RefreshCw } from "lucide-react";
->>>>>>> 9ae88875f5bb33d36a4ee8d66ea51a25b67a474f
+import { Download, Lock, Globe, ArrowLeft, Star, Calendar, Tag, BookOpen, Building2, Send, ExternalLink, Sparkles, Eye, FileText, RefreshCw } from "lucide-react";
 import StarRating from "@/components/StarRating";
 import SmartNotesDisplay from "@/components/SmartNotesDisplay";
 import toast from "react-hot-toast";
@@ -470,16 +466,10 @@ export default function ResourceDetailPage() {
           </div>
         )}
 
-<<<<<<< HEAD
-        <div className="flex items-center justify-between glass rounded-xl p-4 border border-white/10 mb-6">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center text-white font-bold">
-=======
         {/* Uploader */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 glass rounded-xl p-4 border border-white/10 mb-6">
           <div className="flex items-center gap-3 min-w-0">
             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center text-white font-bold flex-shrink-0">
->>>>>>> 9ae88875f5bb33d36a4ee8d66ea51a25b67a474f
               {resource.uploadedBy?.name?.[0] || "?"}
             </div>
             <div className="min-w-0">
@@ -506,7 +496,6 @@ export default function ResourceDetailPage() {
         </div>
       </div>
 
-<<<<<<< HEAD
       {/* File Preview Section */}
       <div className="glass-strong rounded-2xl p-8 neon-border mb-8">
         <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
@@ -514,7 +503,7 @@ export default function ResourceDetailPage() {
         </h2>
         {renderFilePreview()}
       </div>
-=======
+
       {/* Smart Notes Button */}
       <div className="mb-8">
         <div className="flex flex-col sm:flex-row gap-3">
@@ -552,22 +541,6 @@ export default function ResourceDetailPage() {
           <SmartNotesDisplay notes={smartNotes} />
         </div>
       )}
-
-      {/* PDF Preview */}
-      {resource.fileUrl && isPdf && (
-        <div className="glass-strong rounded-2xl neon-border overflow-hidden mb-8">
-          <div className="flex items-center gap-2 px-6 py-3 border-b border-white/10">
-            <Eye className="h-4 w-4 text-cyan-400" />
-            <span className="text-sm font-medium text-white">Document Preview</span>
-          </div>
-          <iframe
-            src={resource.fileUrl}
-            className="w-full h-[350px] sm:h-[500px] lg:h-[600px] bg-white/5"
-            title="Resource Preview"
-          />
-        </div>
-      )}
->>>>>>> 9ae88875f5bb33d36a4ee8d66ea51a25b67a474f
 
       {/* Reviews */}
       <div className="glass-strong rounded-2xl p-5 sm:p-8 neon-border mb-8">
