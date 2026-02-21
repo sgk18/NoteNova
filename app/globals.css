@@ -2,6 +2,7 @@
 
 /* ===== THEME VARIABLES ===== */
 @layer base {
+<<<<<<< Updated upstream
 
   /* === ION DRIFT THEME (Default) === */
   body.ion-theme {
@@ -33,6 +34,50 @@
     --input-bg: rgba(30, 41, 59, 0.6);
     --hover-bg: rgba(255, 255, 255, 0.05);
     color-scheme: dark;
+=======
+  body.galaxy {
+    --bg-primary: #0B1F3A;
+    --bg-secondary: #0f2847;
+    --accent-1: #7c3aed;
+    --accent-2: #3b82f6;
+    --neon-1: #00d4ff;
+    --neon-2: #a855f7;
+    --glass-bg: rgba(11, 31, 58, 0.75);
+    --glass-bg-strong: rgba(11, 31, 58, 0.92);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-border-strong: rgba(255, 255, 255, 0.15);
+    --border-accent: rgba(124, 58, 237, 0.3);
+    --shadow-accent: rgba(124, 58, 237, 0.1);
+    --shadow-neon: rgba(0, 212, 255, 0.15);
+    --btn-from: #7c3aed;
+    --btn-to: #3b82f6;
+    --btn-hover-from: #6d28d9;
+    --btn-hover-to: #2563eb;
+    --btn-shadow: rgba(124, 58, 237, 0.4);
+    --scrollbar-color: rgba(124, 58, 237, 0.3);
+  }
+
+  body.executive {
+    --bg-primary: #0f172a;
+    --bg-secondary: #1e293b;
+    --accent-1: #3b82f6;
+    --accent-2: #3b82f6;
+    --neon-1: #60a5fa;
+    --neon-2: #3b82f6;
+    --glass-bg: rgba(30, 41, 59, 0.8);
+    --glass-bg-strong: rgba(15, 23, 42, 0.95);
+    --glass-border: rgba(51, 65, 85, 0.6);
+    --glass-border-strong: rgba(71, 85, 105, 0.5);
+    --border-accent: rgba(59, 130, 246, 0.25);
+    --shadow-accent: rgba(59, 130, 246, 0.08);
+    --shadow-neon: rgba(59, 130, 246, 0.1);
+    --btn-from: #3b82f6;
+    --btn-to: #3b82f6;
+    --btn-hover-from: #2563eb;
+    --btn-hover-to: #2563eb;
+    --btn-shadow: rgba(59, 130, 246, 0.3);
+    --scrollbar-color: rgba(59, 130, 246, 0.3);
+>>>>>>> Stashed changes
   }
 
   /* === GALAXY THEME === */

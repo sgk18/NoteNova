@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-<<<<<<< HEAD
 import Image from "next/image";
 <<<<<<< HEAD
 import { useState, useEffect } from "react";
+<<<<<<< Updated upstream
 <<<<<<< HEAD
 import { BookOpen, Menu, X, LogOut } from "lucide-react";
 =======
@@ -18,6 +18,9 @@ import { BookOpen, Menu, X, LogOut, Moon, Sun } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { BookOpen, Menu, X, LogOut, ChevronDown, Zap, Sparkles, Sun } from "lucide-react";
 >>>>>>> 9ae88875f5bb33d36a4ee8d66ea51a25b67a474f
+=======
+import { Menu, X, LogOut, Moon, Sun } from "lucide-react";
+>>>>>>> Stashed changes
 import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "@/context/ThemeContext";
 
@@ -66,8 +69,6 @@ export default function Navbar() {
 
   const links = user
     ? [
-<<<<<<< HEAD
-<<<<<<< HEAD
       { name: "Home", href: "/" },
       { name: "Dashboard", href: "/dashboard" },
       { name: "Upload", href: "/upload" },
@@ -82,35 +83,6 @@ export default function Navbar() {
       { name: "Login", href: "/login" },
       { name: "Register", href: "/register" },
     ];
-=======
-        { name: "Home", href: "/" },
-        { name: "Dashboard", href: "/dashboard" },
-        { name: "Upload", href: "/upload" },
-        { name: "Ask AI", href: "/ask-ai" },
-        { name: "Leaderboard", href: "/leaderboard" },
-        { name: "Profile", href: "/profile" },
-      ]
-    : [
-=======
-        { name: "Home", href: "/" },
-        { name: "Dashboard", href: "/dashboard" },
-        { name: "Upload", href: "/upload" },
-        { name: "Ask AI", href: "/ask-ai" },
-        { name: "Leaderboard", href: "/leaderboard" },
-        { name: "Profile", href: "/profile" },
-      ]
-    : [
->>>>>>> cf9160f45eb9d649a0e81ad486ed92ef3ef08b9a
-        { name: "Home", href: "/" },
-        { name: "Ask AI", href: "/ask-ai" },
-        { name: "Leaderboard", href: "/leaderboard" },
-        { name: "Login", href: "/login" },
-        { name: "Register", href: "/register" },
-      ];
-<<<<<<< HEAD
->>>>>>> 20e1cd558b63141784a903ec708d98775e66730e
-=======
->>>>>>> cf9160f45eb9d649a0e81ad486ed92ef3ef08b9a
 
   const isWhite = theme === "white";
 
@@ -125,7 +97,6 @@ export default function Navbar() {
           {/* Left: Logo + Links */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center gap-2 group">
-<<<<<<< HEAD
               <div className="relative w-8 h-8">
 <<<<<<< HEAD
                 <Image
@@ -134,6 +105,7 @@ export default function Navbar() {
                   fill
                   className="object-contain"
                 />
+<<<<<<< Updated upstream
 =======
               <div className="relative">
                 <Sparkles className="h-7 w-7 text-cyan-400 group-hover:text-cyan-300 transition-colors" />
@@ -142,6 +114,8 @@ export default function Navbar() {
 =======
                 <Image src="/logo.png" alt="NoteNova Logo" fill className="object-contain" />
 >>>>>>> 9ae88875f5bb33d36a4ee8d66ea51a25b67a474f
+=======
+>>>>>>> Stashed changes
               </div>
               <span className={`text-xl font-bold ${
                 isWhite
@@ -156,6 +130,7 @@ export default function Navbar() {
                 <Link
                   key={l.href}
                   href={l.href}
+<<<<<<< Updated upstream
 <<<<<<< HEAD
 <<<<<<< HEAD
                   className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${pathname === l.href
@@ -179,6 +154,12 @@ export default function Navbar() {
 >>>>>>> 20e1cd558b63141784a903ec708d98775e66730e
 =======
 >>>>>>> cf9160f45eb9d649a0e81ad486ed92ef3ef08b9a
+=======
+                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${pathname === l.href
+                      ? "text-cyan-400 bg-white/10 neon-glow"
+                      : "text-gray-300 hover:text-white hover:bg-white/5"
+                    }`}
+>>>>>>> Stashed changes
                 >
                   {l.name}
                 </Link>

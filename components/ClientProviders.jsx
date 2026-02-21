@@ -22,6 +22,10 @@ export default function ClientProviders({ children }) {
       <Navbar />
       <main className="flex-grow">{children}</main>
       <Footer />
+<<<<<<< Updated upstream
     </ThemeProvider >
+=======
+    </ThemeProvider>
+>>>>>>> Stashed changes
   );
 }
