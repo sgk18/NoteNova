@@ -90,18 +90,21 @@ export default function Navbar() {
                 NoteNova
               </span>
             </Link>
-            <div className="hidden md:flex ml-8 gap-1">
+            <div className="hidden md:flex ml-8 gap-1 items-center">
               {links.map((l) => (
                 <Link
                   key={l.href}
                   href={l.href}
-                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${pathname === l.href
-                    ? isWhite
-                      ? "text-blue-600 bg-blue-50 font-semibold"
-                      : "text-cyan-400 bg-white/10 neon-glow"
-                    : isWhite
-                      ? "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-                      : "text-gray-300 hover:text-white hover:bg-white/5"
+                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
+                    l.name === "Login" || l.name === "Register"
+                    ? isWhite ? "bg-neutral-900 text-white hover:bg-neutral-800 ml-1" : "btn-gradient text-white neon-glow ml-1"
+                    : pathname === l.href
+                      ? isWhite
+                        ? "text-blue-600 bg-blue-50 font-semibold"
+                        : "text-cyan-400 bg-white/10 neon-glow"
+                      : isWhite
+                        ? "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                        : "text-gray-300 hover:text-white hover:bg-white/5"
                     }`}
                 >
                   {l.name}
@@ -212,7 +215,12 @@ export default function Navbar() {
               <Link
                 key={l.href}
                 href={l.href}
-                className={`block px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${isWhite
+                className={`block px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                  l.name === "Login" || l.name === "Register"
+                  ? isWhite ? "bg-neutral-900 text-white mt-1" : "btn-gradient text-white mt-1"
+                  : pathname === l.href
+                  ? isWhite ? "text-blue-600 bg-blue-50 font-semibold" : "text-cyan-400 bg-white/10 font-semibold"
+                  : isWhite
                   ? "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
                   : "text-gray-300 hover:text-white hover:bg-white/10"
                   }`}

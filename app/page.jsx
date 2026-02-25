@@ -102,10 +102,10 @@ export default function HomePage() {
               }`}
             />
           </div>
-          <button type="submit" className={`px-5 py-2.5 rounded-lg text-sm font-medium border transition-colors ${
+          <button type="submit" className={`px-5 py-2.5 rounded-lg text-sm font-medium transition-colors ${
             isWhite
-              ? "bg-white border-neutral-900 text-neutral-900 hover:bg-neutral-50"
-              : "bg-transparent border-white text-white hover:bg-white/10"
+              ? "bg-neutral-900 text-white hover:bg-neutral-800"
+              : "btn-gradient text-white neon-glow"
           }`}>
             Search
           </button>
