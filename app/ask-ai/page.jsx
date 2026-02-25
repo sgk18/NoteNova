@@ -126,10 +126,6 @@ export default function AskAIPage() {
           <div className={`flex items-center justify-between px-4 py-2.5 border-b ${isWhite ? "border-neutral-100 bg-neutral-50" : "border-[var(--glass-border)] bg-white/5"}`}>
             <span className={`text-xs font-medium ${headingText}`}>AI Response</span>
             <div className="flex gap-2 items-center">
-              <button onClick={handleGenerateAudio} disabled={audioLoading} className={`flex items-center gap-1 px-2.5 py-1 rounded text-[11px] font-medium border transition-colors ${isWhite ? "border-neutral-200 text-neutral-500 hover:bg-neutral-100" : "border-[var(--glass-border)] text-neutral-400 hover:bg-white/5"}`}>
-                {audioLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Volume2 className="h-3 w-3" />}
-                {audioLoading ? "Generating..." : (audioUrl ? "Play Audio" : "Listen")}
-              </button>
               <button onClick={handleCopy} className={`flex items-center gap-1 px-2.5 py-1 rounded text-[11px] font-medium border transition-colors ${isWhite ? "border-neutral-200 text-neutral-500 hover:bg-neutral-100" : "border-[var(--glass-border)] text-neutral-400 hover:bg-white/5"}`}>
                 {copied ? <Check className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3" />}
                 {copied ? "Copied" : "Copy"}
@@ -138,6 +134,12 @@ export default function AskAIPage() {
           </div>
           <div className="px-4 py-4">
             <div className={`text-sm leading-relaxed whitespace-pre-wrap ${bodyText}`}>{answer}</div>
+          </div>
+          <div className={`px-4 py-3 border-t flex justify-end ${isWhite ? "border-neutral-100 bg-neutral-50" : "border-[var(--glass-border)] bg-white/5"}`}>
+            <button onClick={handleGenerateAudio} disabled={audioLoading} className="py-2 px-4 rounded-lg btn-gradient text-white text-xs font-medium flex items-center gap-2 neon-glow transition-all">
+                {audioLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Volume2 className="h-4 w-4" />}
+                {audioLoading ? "Generating Audio..." : (audioUrl ? "Replay Audio" : "Listen to Response")}
+            </button>
           </div>
         </div>
       )}

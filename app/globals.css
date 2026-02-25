@@ -201,10 +201,6 @@ body.white-theme .btn-gradient:hover {
   box-shadow: 0 2px 8px var(--btn-shadow);
 }
 
-body.white-theme .text-white {
-  color: var(--text-primary);
-}
-
 body.white-theme .text-gray-300,
 body.white-theme .text-gray-400 {
   color: var(--text-secondary);
