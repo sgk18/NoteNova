@@ -422,7 +422,7 @@ export default function ResourceDetailPage() {
 
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-2">
-          <button onClick={handleDownload} className="flex-1 py-2.5 rounded-lg btn-gradient text-white text-sm font-medium flex items-center justify-center gap-2">
+          <button onClick={handleDownload} className="flex-1 py-2.5 rounded-lg btn-gradient text-white text-sm font-medium flex items-center justify-center gap-2 neon-glow">
             <Download className="h-4 w-4" /> Download
           </button>
           {resource.fileUrl && (

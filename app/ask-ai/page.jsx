@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Send, Copy, Check, Loader2 } from "lucide-react";
+import { Send, Copy, Check, Loader2, Volume2 } from "lucide-react";
 import toast from "react-hot-toast";
 import { useTheme } from "@/context/ThemeContext";
 
@@ -20,6 +20,8 @@ export default function AskAIPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
+  const [audioUrl, setAudioUrl] = useState("");
+  const [audioLoading, setAudioLoading] = useState(false);
   const answerRef = useRef(null);
 
   useEffect(() => {
@@ -30,7 +32,7 @@ export default function AskAIPage() {
     const trimmed = question.trim();
     if (!trimmed) return toast.error("Please enter a question");
     if (trimmed.length > MAX_CHARS) return toast.error(`Max ${MAX_CHARS} characters`);
-    setLoading(true); setAnswer(""); setError("");
+    setLoading(true); setAnswer(""); setError(""); setAudioUrl("");
     try {
       const res = await fetch("/api/ask-ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ question: trimmed }) });
       const data = await res.json();
@@ -38,6 +40,43 @@ export default function AskAIPage() {
       else setError(data.error || "Something went wrong");
     } catch { setError("Failed to connect to AI"); }
     finally { setLoading(false); }
+  };
+
+  const handleGenerateAudio = async () => {
+    if (!answer) return;
+    if (audioUrl) {
+      const audio = new Audio(audioUrl);
+      audio.play();
+      return;
+    }
+    setAudioLoading(true);
+    try {
+      const res = await fetch("/api/text-to-speech", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: answer.slice(0, 500) })
+      });
+      const result = await res.json();
+      if (res.ok && result.data) {
+        let finalUrl = "";
+        if (Array.isArray(result.data)) {
+          const arr = new Uint8Array(result.data);
+          const blob = new Blob([arr], { type: "audio/wav" });
+          finalUrl = URL.createObjectURL(blob);
+        } else if (typeof result.data === 'string') {
+           finalUrl = result.data.startsWith('http') ? result.data : `data:audio/wav;base64,${result.data}`;
+        }
+        setAudioUrl(finalUrl);
+        const audio = new Audio(finalUrl);
+        audio.play();
+      } else {
+        toast.error(result.error || "Failed to generate audio");
+      }
+    } catch {
+      toast.error("Failed to connect to audio service");
+    } finally {
+      setAudioLoading(false);
+    }
   };
 
   const handleCopy = () => { navigator.clipboard.writeText(answer); setCopied(true); toast.success("Copied"); setTimeout(() => setCopied(false), 2000); };
@@ -86,10 +125,16 @@ export default function AskAIPage() {
         <div ref={answerRef} className={`rounded-lg overflow-hidden mb-5 ${isWhite ? "bg-white border border-neutral-200" : "bg-[var(--card-bg)] border border-[var(--card-border)]"}`}>
           <div className={`flex items-center justify-between px-4 py-2.5 border-b ${isWhite ? "border-neutral-100 bg-neutral-50" : "border-[var(--glass-border)] bg-white/5"}`}>
             <span className={`text-xs font-medium ${headingText}`}>AI Response</span>
-            <button onClick={handleCopy} className={`flex items-center gap-1 px-2.5 py-1 rounded text-[11px] font-medium border transition-colors ${isWhite ? "border-neutral-200 text-neutral-500 hover:bg-neutral-100" : "border-[var(--glass-border)] text-neutral-400 hover:bg-white/5"}`}>
-              {copied ? <Check className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3" />}
-              {copied ? "Copied" : "Copy"}
-            </button>
+            <div className="flex gap-2 items-center">
+              <button onClick={handleGenerateAudio} disabled={audioLoading} className={`flex items-center gap-1 px-2.5 py-1 rounded text-[11px] font-medium border transition-colors ${isWhite ? "border-neutral-200 text-neutral-500 hover:bg-neutral-100" : "border-[var(--glass-border)] text-neutral-400 hover:bg-white/5"}`}>
+                {audioLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Volume2 className="h-3 w-3" />}
+                {audioLoading ? "Generating..." : (audioUrl ? "Play Audio" : "Listen")}
+              </button>
+              <button onClick={handleCopy} className={`flex items-center gap-1 px-2.5 py-1 rounded text-[11px] font-medium border transition-colors ${isWhite ? "border-neutral-200 text-neutral-500 hover:bg-neutral-100" : "border-[var(--glass-border)] text-neutral-400 hover:bg-white/5"}`}>
+                {copied ? <Check className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3" />}
+                {copied ? "Copied" : "Copy"}
+              </button>
+            </div>
           </div>
           <div className="px-4 py-4">
             <div className={`text-sm leading-relaxed whitespace-pre-wrap ${bodyText}`}>{answer}</div>
