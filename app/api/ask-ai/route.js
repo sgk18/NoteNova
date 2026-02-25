@@ -1,4 +1,7 @@
+import Bytez from "bytez.js";
 import { NextResponse } from "next/server";
+
+const sdk = new Bytez(process.env.BYTEZ_API_KEY);
 
 const SYSTEM_PROMPT = `You are an academic assistant.
 Respond in this format:
@@ -32,12 +35,6 @@ export async function POST(request) {
       return NextResponse.json({ error: "Too many requests. Please wait a moment." }, { status: 429 });
     }
 
-    // API key check
-    const apiKey = process.env.GROQ_API_KEY;
-    if (!apiKey) {
-      return NextResponse.json({ error: "Groq API key is not configured" }, { status: 503 });
-    }
-
     // Input validation
     const body = await request.json();
     const { question } = body;
@@ -50,34 +47,19 @@ export async function POST(request) {
       return NextResponse.json({ error: "Question must be under 500 characters" }, { status: 400 });
     }
 
-    // Groq API call (OpenAI-compatible endpoint)
-    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: "llama-3.1-8b-instant",
-        messages: [
-          { role: "system", content: SYSTEM_PROMPT },
-          { role: "user", content: question.trim() },
-        ],
-        temperature: 0.7,
-        max_tokens: 1024,
-      }),
-    });
+    // Connect to Meta Llama 3 using Bytez SDK
+    const model = sdk.model("meta-llama/Meta-Llama-3-8B-Instruct");
 
-    if (!response.ok) {
-      const errData = await response.json().catch(() => ({}));
-      console.error("Groq API error:", response.status, errData?.error?.message || "Unknown");
+    const fullPrompt = `${SYSTEM_PROMPT}\n\nUser Question: ${question.trim()}`;
+
+    const { error, output } = await model.run(fullPrompt);
+
+    if (error) {
+      console.error("Bytez API error:", error);
       return NextResponse.json({ error: "AI request failed" }, { status: 502 });
     }
 
-    const data = await response.json();
-    const answer = data.choices?.[0]?.message?.content || "No response from AI.";
-
-    return NextResponse.json({ answer });
+    return NextResponse.json({ answer: output || "No response from AI." });
   } catch (err) {
     console.error("Ask AI error:", err.message);
     return NextResponse.json({ error: "AI request failed" }, { status: 500 });
