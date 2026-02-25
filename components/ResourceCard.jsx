@@ -110,7 +110,7 @@ export default function ResourceCard({ resource, onBookmark, isBookmarked, showE
         </span>
       </div>
       <div className="flex flex-wrap gap-2" onClick={(e) => e.stopPropagation()}>
-        <button onClick={handleDownload} className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 text-xs font-medium rounded-lg text-white btn-gradient">
+        <button onClick={handleDownload} className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 text-xs font-medium rounded-lg text-white btn-gradient neon-glow">
           <Download className="h-3.5 w-3.5" /> Download
         </button>
         <button onClick={handleBookmark} className={`p-2 rounded-lg transition-colors ${
