@@ -2,11 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
-<<<<<<< Updated upstream
 import { Download, Lock, Globe, ArrowLeft, Star, Calendar, Tag, BookOpen, Building2, Send, ExternalLink, Sparkles, Eye, FileText, RefreshCw } from "lucide-react";
-=======
-import { Download, Lock, Globe, ArrowLeft, Star, Calendar, Tag, BookOpen, Building2, Send, ExternalLink, Eye, RefreshCw } from "lucide-react";
->>>>>>> Stashed changes
 import StarRating from "@/components/StarRating";
 import SmartNotesDisplay from "@/components/SmartNotesDisplay";
 import StudyModePanel from "@/components/StudyModePanel";
@@ -28,13 +24,10 @@ export default function ResourceDetailPage() {
   const [submitting, setSubmitting] = useState(false);
   const [smartNotes, setSmartNotes] = useState(null);
   const [smartNotesLoading, setSmartNotesLoading] = useState(false);
-<<<<<<< Updated upstream
   const [visible, setVisible] = useState(false);
   const [previewLoading, setPreviewLoading] = useState(true);
   const [previewError, setPreviewError] = useState(false);
   const contentRef = useRef(null);
-=======
->>>>>>> Stashed changes
   const smartNotesRef = useRef(null);
 
   useEffect(() => { if (id) fetchDetail(); }, [id]);
@@ -273,7 +266,6 @@ export default function ResourceDetailPage() {
 
   const handleDownload = async () => {
     const token = localStorage.getItem("token");
-<<<<<<< Updated upstream
     if (!token) {
       toast.error("Please login to download");
       router.push("/login");
@@ -301,11 +293,6 @@ export default function ResourceDetailPage() {
     } catch {
       toast.error("Download failed");
     }
-=======
-    if (!token) { toast.error("Please login to download"); router.push("/login"); return; }
-    if (resource?.fileUrl) { window.open(resource.fileUrl, "_blank"); toast.success("Download started"); }
-    else toast.error("File not available");
->>>>>>> Stashed changes
   };
 
   const handleSubmitReview = async (e) => {
@@ -385,7 +372,6 @@ export default function ResourceDetailPage() {
         <h1 className={`text-xl sm:text-2xl font-bold mb-2 ${headingText}`}>{resource.title}</h1>
         <p className={`text-sm mb-5 ${bodyText}`}>{resource.description || "No description provided"}</p>
 
-<<<<<<< Updated upstream
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
           {resource.semester && (
             <div className="flex items-center gap-2 text-sm text-gray-400">
@@ -405,14 +391,6 @@ export default function ResourceDetailPage() {
           <div className="flex items-center gap-2 text-sm text-gray-400">
             <Download className="h-4 w-4 text-yellow-400" /> {resource.downloads || 0} downloads
           </div>
-=======
-        {/* Meta */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
-          {resource.semester && <span className={`flex items-center gap-1.5 text-xs ${mutedText}`}><BookOpen className="h-3.5 w-3.5" /> Semester {resource.semester}</span>}
-          {resource.department && <span className={`flex items-center gap-1.5 text-xs ${mutedText}`}><Building2 className="h-3.5 w-3.5" /> {resource.department}</span>}
-          {resource.yearBatch && <span className={`flex items-center gap-1.5 text-xs ${mutedText}`}><Calendar className="h-3.5 w-3.5" /> {resource.yearBatch}</span>}
-          <span className={`flex items-center gap-1.5 text-xs ${mutedText}`}><Download className="h-3.5 w-3.5" /> {resource.downloads || 0} downloads</span>
->>>>>>> Stashed changes
         </div>
 
         {resource.tags?.length > 0 && (
@@ -448,13 +426,8 @@ export default function ResourceDetailPage() {
             <Download className="h-4 w-4" /> Download
           </button>
           {resource.fileUrl && (
-<<<<<<< Updated upstream
             <a href={getOpenInTabUrl(resource.fileUrl)} target="_blank" rel="noopener noreferrer" className="flex-1 py-3.5 rounded-xl glass neon-border text-white font-semibold text-sm flex items-center justify-center gap-2 hover:bg-white/10 transition-all">
               <ExternalLink className="h-4 w-4" /> Open in New Tab
-=======
-            <a href={resource.fileUrl} target="_blank" rel="noopener noreferrer" className={`flex-1 py-2.5 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-colors ${isWhite ? "border border-neutral-200 text-neutral-600 hover:bg-neutral-50" : "border border-[var(--glass-border)] text-neutral-300 hover:bg-white/5"}`}>
-              <ExternalLink className="h-3.5 w-3.5" /> Open in New Tab
->>>>>>> Stashed changes
             </a>
           )}
         </div>
@@ -486,20 +459,6 @@ export default function ResourceDetailPage() {
       {/* AI Study Mode */}
       <StudyModePanel resourceId={id} resourceTitle={resource.title} />
 
-<<<<<<< Updated upstream
-=======
-      {/* PDF Preview */}
-      {resource.fileUrl && isPdf && (
-        <div className={`rounded-lg overflow-hidden mb-6 ${isWhite ? "border border-neutral-200" : "border border-[var(--card-border)]"}`}>
-          <div className={`flex items-center gap-2 px-4 py-2.5 border-b ${isWhite ? "border-neutral-200 bg-neutral-50" : "border-[var(--glass-border)] bg-white/5"}`}>
-            <Eye className={`h-3.5 w-3.5 ${mutedText}`} />
-            <span className={`text-xs font-medium ${headingText}`}>Document Preview</span>
-          </div>
-          <iframe src={resource.fileUrl} className="w-full h-[350px] sm:h-[500px] lg:h-[600px]" title="Resource Preview" />
-        </div>
-      )}
-
->>>>>>> Stashed changes
       {/* Reviews */}
       <div className={card}>
         <h2 className={`text-base font-semibold mb-5 flex items-center gap-2 ${headingText}`}>
