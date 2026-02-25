@@ -7,32 +7,19 @@ import { useTheme } from "@/context/ThemeContext";
 function FlashCard({ q, a }) {
   const [flipped, setFlipped] = useState(false);
   const { theme } = useTheme();
-  const isGalaxy = theme === "galaxy";
   const isWhite = theme === "white";
 
   return (
     <div
       onClick={() => setFlipped(!flipped)}
-      className={`cursor-pointer rounded-xl p-5 min-h-[120px] flex flex-col justify-center transition-all duration-300 border ${
+      className={`cursor-pointer rounded-lg p-4 min-h-[100px] flex flex-col justify-center transition-colors border ${
         flipped
-          ? isWhite
-            ? "bg-blue-50 border-blue-200"
-            : isGalaxy
-              ? "bg-purple-500/10 border-purple-500/30"
-              : "bg-cyan-500/10 border-cyan-500/30"
-          : isWhite
-            ? "bg-gray-50 border-gray-200 hover:border-blue-300"
-            : isGalaxy
-              ? "bg-white/5 border-white/10 hover:border-purple-500/30"
-              : "bg-white/5 border-white/10 hover:border-cyan-500/30"
+          ? isWhite ? "bg-neutral-50 border-neutral-300" : "bg-white/10 border-neutral-600"
+          : isWhite ? "bg-white border-neutral-200 hover:border-neutral-300" : "bg-white/5 border-[var(--glass-border)] hover:border-neutral-500"
       }`}
     >
-      <p className={`text-xs mb-2 ${isWhite ? "text-gray-400" : "text-gray-500"}`}>{flipped ? "Answer" : "Question"} • Click to flip</p>
-      <p className={`text-sm leading-relaxed ${
-        flipped
-          ? isWhite ? "text-blue-700" : isGalaxy ? "text-purple-200" : "text-cyan-200"
-          : isWhite ? "text-gray-800" : "text-white"
-      }`}>
+      <p className={`text-[11px] mb-1.5 ${isWhite ? "text-neutral-400" : "text-neutral-500"}`}>{flipped ? "Answer" : "Question"} · Click to flip</p>
+      <p className={`text-sm leading-relaxed ${flipped ? (isWhite ? "text-neutral-700" : "text-neutral-200") : (isWhite ? "text-neutral-800" : "text-white")}`}>
         {flipped ? a : q}
       </p>
     </div>
@@ -46,46 +33,35 @@ function MCQCard({ q, options, answer }) {
   const answered = selected !== null;
 
   return (
-    <div className={`rounded-xl p-5 border transition-all duration-300 ${
-      isWhite ? "bg-gray-50 border-gray-200" : "bg-white/5 border-white/10"
-    }`}>
-      <p className={`text-sm font-medium mb-3 ${isWhite ? "text-gray-800" : "text-white"}`}>{q}</p>
-      <div className="space-y-2">
+    <div className={`rounded-lg p-4 border ${isWhite ? "bg-neutral-50 border-neutral-200" : "bg-white/5 border-[var(--glass-border)]"}`}>
+      <p className={`text-sm font-medium mb-3 ${isWhite ? "text-neutral-800" : "text-white"}`}>{q}</p>
+      <div className="space-y-1.5">
         {options.map((opt, i) => {
           const isCorrect = opt === answer;
           const isSelected = selected === i;
           let optClass = isWhite
-            ? "bg-white border-gray-200 text-gray-700 hover:border-blue-300"
-            : "bg-white/5 border-white/10 text-gray-300 hover:border-cyan-500/30";
+            ? "bg-white border-neutral-200 text-neutral-700 hover:border-neutral-300"
+            : "bg-white/5 border-[var(--glass-border)] text-neutral-300 hover:border-neutral-500";
 
           if (answered) {
             if (isCorrect) {
-              optClass = isWhite
-                ? "bg-green-50 border-green-300 text-green-700"
-                : "bg-green-500/15 border-green-500/40 text-green-300";
+              optClass = isWhite ? "bg-green-50 border-green-300 text-green-700" : "bg-green-500/10 border-green-500/30 text-green-300";
             } else if (isSelected && !isCorrect) {
-              optClass = isWhite
-                ? "bg-red-50 border-red-300 text-red-700"
-                : "bg-red-500/15 border-red-500/40 text-red-300";
+              optClass = isWhite ? "bg-red-50 border-red-300 text-red-700" : "bg-red-500/10 border-red-500/30 text-red-300";
             }
           }
 
           return (
-            <button
-              key={i}
-              onClick={() => !answered && setSelected(i)}
-              disabled={answered}
-              className={`w-full text-left px-4 py-2.5 rounded-lg text-sm border transition-all duration-200 ${optClass} ${answered ? "cursor-default" : "cursor-pointer"}`}
-            >
-              <span className="font-medium mr-2">{String.fromCharCode(65 + i)}.</span>
-              {opt}
+            <button key={i} onClick={() => !answered && setSelected(i)} disabled={answered}
+              className={`w-full text-left px-3 py-2 rounded-lg text-sm border transition-colors ${optClass} ${answered ? "cursor-default" : "cursor-pointer"}`}>
+              <span className="font-medium mr-2">{String.fromCharCode(65 + i)}.</span>{opt}
             </button>
           );
         })}
       </div>
       {answered && (
-        <p className={`text-xs mt-3 ${selected !== null && options[selected] === answer ? "text-green-400" : "text-red-400"}`}>
-          {options[selected] === answer ? "✓ Correct!" : `✗ Correct answer: ${answer}`}
+        <p className={`text-xs mt-2.5 ${options[selected] === answer ? "text-green-500" : "text-red-500"}`}>
+          {options[selected] === answer ? "Correct!" : `Correct answer: ${answer}`}
         </p>
       )}
     </div>
@@ -94,40 +70,39 @@ function MCQCard({ q, options, answer }) {
 
 export default function SmartNotesDisplay({ notes }) {
   const { theme } = useTheme();
-  const isGalaxy = theme === "galaxy";
   const isWhite = theme === "white";
 
   if (!notes) return null;
 
-  const iconColor = isWhite ? "text-blue-600" : isGalaxy ? "text-cyan-400" : "text-cyan-400";
+  const headingText = isWhite ? "text-neutral-900" : "text-white";
+  const bodyText = isWhite ? "text-neutral-600" : "text-neutral-300";
+  const mutedText = isWhite ? "text-neutral-400" : "text-neutral-500";
+  const iconColor = isWhite ? "text-neutral-500" : "text-neutral-400";
+  const card = `rounded-lg p-5 mb-4 border ${isWhite ? "bg-white border-neutral-200" : "bg-[var(--card-bg)] border-[var(--card-border)]"}`;
 
   const sectionHeader = (icon, title) => (
-    <div className="flex items-center gap-2 mb-4">
+    <div className="flex items-center gap-2 mb-3">
       {icon}
-      <h3 className={`text-lg font-bold ${isWhite ? "text-gray-900" : "text-white"}`}>{title}</h3>
+      <h3 className={`text-sm font-semibold ${headingText}`}>{title}</h3>
     </div>
   );
 
-  const sectionCard = `glass-strong rounded-2xl p-6 neon-border mb-6 transition-all duration-300`;
-
   return (
-    <div className="space-y-2 animate-fade-in">
-      {/* Summary */}
+    <div className="space-y-1">
       {notes.summary && (
-        <div className={sectionCard}>
-          {sectionHeader(<BookOpen className={`h-5 w-5 ${iconColor}`} />, "📌 Summary")}
-          <p className={`text-sm leading-relaxed ${isWhite ? "text-gray-600" : "text-gray-300"}`}>{notes.summary}</p>
+        <div className={card}>
+          {sectionHeader(<BookOpen className={`h-4 w-4 ${iconColor}`} />, "Summary")}
+          <p className={`text-sm leading-relaxed ${bodyText}`}>{notes.summary}</p>
         </div>
       )}
 
-      {/* Key Concepts */}
       {notes.keyConcepts?.length > 0 && (
-        <div className={sectionCard}>
-          {sectionHeader(<Brain className={`h-5 w-5 ${isWhite ? "text-blue-600" : isGalaxy ? "text-purple-400" : "text-cyan-400"}`} />, "🧠 Key Concepts")}
-          <ul className="space-y-2">
+        <div className={card}>
+          {sectionHeader(<Brain className={`h-4 w-4 ${iconColor}`} />, "Key Concepts")}
+          <ul className="space-y-1.5">
             {notes.keyConcepts.map((c, i) => (
-              <li key={i} className={`flex items-start gap-2 text-sm ${isWhite ? "text-gray-600" : "text-gray-300"}`}>
-                <ChevronRight className={`h-4 w-4 mt-0.5 flex-shrink-0 ${iconColor}`} />
+              <li key={i} className={`flex items-start gap-2 text-sm ${bodyText}`}>
+                <ChevronRight className={`h-3.5 w-3.5 mt-0.5 flex-shrink-0 ${iconColor}`} />
                 <span>{c}</span>
               </li>
             ))}
@@ -135,42 +110,33 @@ export default function SmartNotesDisplay({ notes }) {
         </div>
       )}
 
-      {/* Flashcards */}
       {notes.flashcards?.length > 0 && (
-        <div className={sectionCard}>
-          {sectionHeader(<Layers className={`h-5 w-5 ${isWhite ? "text-amber-600" : isGalaxy ? "text-yellow-400" : "text-teal-400"}`} />, "🎴 Flashcards")}
-          <p className={`text-xs mb-4 ${isWhite ? "text-gray-400" : "text-gray-500"}`}>Click a card to reveal the answer</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {notes.flashcards.map((f, i) => (
-              <FlashCard key={i} q={f.question} a={f.answer} />
-            ))}
+        <div className={card}>
+          {sectionHeader(<Layers className={`h-4 w-4 ${iconColor}`} />, "Flashcards")}
+          <p className={`text-[11px] mb-3 ${mutedText}`}>Click a card to reveal the answer</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {notes.flashcards.map((f, i) => <FlashCard key={i} q={f.question} a={f.answer} />)}
           </div>
         </div>
       )}
 
-      {/* MCQs */}
       {notes.mcqs?.length > 0 && (
-        <div className={sectionCard}>
-          {sectionHeader(<HelpCircle className={`h-5 w-5 ${isWhite ? "text-emerald-600" : isGalaxy ? "text-green-400" : "text-emerald-400"}`} />, "❓ Multiple Choice Questions")}
-          <p className={`text-xs mb-4 ${isWhite ? "text-gray-400" : "text-gray-500"}`}>Select an answer to check</p>
-          <div className="space-y-4">
-            {notes.mcqs.map((m, i) => (
-              <MCQCard key={i} q={`${i + 1}. ${m.question}`} options={m.options} answer={m.answer} />
-            ))}
+        <div className={card}>
+          {sectionHeader(<HelpCircle className={`h-4 w-4 ${iconColor}`} />, "Multiple Choice Questions")}
+          <p className={`text-[11px] mb-3 ${mutedText}`}>Select an answer to check</p>
+          <div className="space-y-3">
+            {notes.mcqs.map((m, i) => <MCQCard key={i} q={`${i + 1}. ${m.question}`} options={m.options} answer={m.answer} />)}
           </div>
         </div>
       )}
 
-      {/* Exam Questions */}
       {notes.examQuestions?.length > 0 && (
-        <div className={sectionCard}>
-          {sectionHeader(<GraduationCap className={`h-5 w-5 ${isWhite ? "text-orange-600" : isGalaxy ? "text-orange-400" : "text-teal-400"}`} />, "🎓 Exam Questions")}
-          <ol className="space-y-2.5">
+        <div className={card}>
+          {sectionHeader(<GraduationCap className={`h-4 w-4 ${iconColor}`} />, "Exam Questions")}
+          <ol className="space-y-2">
             {notes.examQuestions.map((q, i) => (
-              <li key={i} className={`flex items-start gap-3 text-sm ${isWhite ? "text-gray-600" : "text-gray-300"}`}>
-                <span className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                  isWhite ? "bg-blue-100 text-blue-700" : isGalaxy ? "bg-orange-500/20 text-orange-300" : "bg-cyan-500/20 text-cyan-300"
-                }`}>{i + 1}</span>
+              <li key={i} className={`flex items-start gap-2.5 text-sm ${bodyText}`}>
+                <span className={`flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-medium ${isWhite ? "bg-neutral-100 text-neutral-600" : "bg-white/10 text-neutral-300"}`}>{i + 1}</span>
                 <span className="pt-0.5">{q}</span>
               </li>
             ))}
@@ -178,24 +144,17 @@ export default function SmartNotesDisplay({ notes }) {
         </div>
       )}
 
-      {/* Mind Map */}
       {notes.mindMap?.length > 0 && (
-        <div className={sectionCard}>
-          {sectionHeader(<GitBranch className={`h-5 w-5 ${isWhite ? "text-purple-600" : isGalaxy ? "text-pink-400" : "text-cyan-400"}`} />, "🗺 Mind Map")}
-          <div className="space-y-4">
+        <div className={card}>
+          {sectionHeader(<GitBranch className={`h-4 w-4 ${iconColor}`} />, "Mind Map")}
+          <div className="space-y-3">
             {notes.mindMap.map((node, i) => (
               <div key={i}>
-                <p className={`text-sm font-semibold mb-2 ${isWhite ? "text-blue-700" : "text-cyan-300"}`}>
-                  {node.topic}
-                </p>
-                <div className={`ml-4 pl-4 border-l-2 space-y-1.5 ${
-                  isWhite ? "border-blue-200" : isGalaxy ? "border-purple-500/30" : "border-cyan-500/30"
-                }`}>
+                <p className={`text-sm font-medium mb-1.5 ${headingText}`}>{node.topic}</p>
+                <div className={`ml-3 pl-3 border-l space-y-1 ${isWhite ? "border-neutral-200" : "border-neutral-700"}`}>
                   {node.subtopics?.map((sub, j) => (
-                    <p key={j} className={`text-sm flex items-center gap-2 ${isWhite ? "text-gray-600" : "text-gray-400"}`}>
-                      <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${
-                        isWhite ? "bg-blue-400" : isGalaxy ? "bg-purple-400" : "bg-cyan-400"
-                      }`} />
+                    <p key={j} className={`text-sm flex items-center gap-2 ${bodyText}`}>
+                      <span className={`w-1 h-1 rounded-full flex-shrink-0 ${isWhite ? "bg-neutral-400" : "bg-neutral-500"}`} />
                       {sub}
                     </p>
                   ))}

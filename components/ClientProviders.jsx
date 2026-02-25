@@ -12,10 +12,10 @@ export default function ClientProviders({ children }) {
         position="top-right"
         toastOptions={{
           style: {
-            background: "rgba(15, 23, 42, 0.9)",
+            background: "#1e293b",
             color: "#e2e8f0",
-            border: "1px solid var(--border-accent)",
-            backdropFilter: "blur(12px)",
+            border: "1px solid #334155",
+            fontSize: "13px",
           },
         }}
       />

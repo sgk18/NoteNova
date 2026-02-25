@@ -2,14 +2,22 @@
 
 import { useEffect, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
+<<<<<<< Updated upstream
 import { Download, Lock, Globe, ArrowLeft, Star, Calendar, Tag, BookOpen, Building2, Send, ExternalLink, Sparkles, Eye, FileText, RefreshCw } from "lucide-react";
+=======
+import { Download, Lock, Globe, ArrowLeft, Star, Calendar, Tag, BookOpen, Building2, Send, ExternalLink, Eye, RefreshCw } from "lucide-react";
+>>>>>>> Stashed changes
 import StarRating from "@/components/StarRating";
 import SmartNotesDisplay from "@/components/SmartNotesDisplay";
+import StudyModePanel from "@/components/StudyModePanel";
 import toast from "react-hot-toast";
+import { useTheme } from "@/context/ThemeContext";
 
 export default function ResourceDetailPage() {
   const { id } = useParams();
   const router = useRouter();
+  const { theme } = useTheme();
+  const isWhite = theme === "white";
   const [resource, setResource] = useState(null);
   const [reviews, setReviews] = useState([]);
   const [avgRating, setAvgRating] = useState(0);
@@ -20,26 +28,17 @@ export default function ResourceDetailPage() {
   const [submitting, setSubmitting] = useState(false);
   const [smartNotes, setSmartNotes] = useState(null);
   const [smartNotesLoading, setSmartNotesLoading] = useState(false);
+<<<<<<< Updated upstream
   const [visible, setVisible] = useState(false);
   const [previewLoading, setPreviewLoading] = useState(true);
   const [previewError, setPreviewError] = useState(false);
   const contentRef = useRef(null);
+=======
+>>>>>>> Stashed changes
   const smartNotesRef = useRef(null);
 
-  useEffect(() => {
-    if (!id) return;
-    fetchDetail();
-  }, [id]);
-
-  useEffect(() => {
-    if (resource) {
-      setTimeout(() => setVisible(true), 50);
-      // Load cached smart notes if available
-      if (resource.smartNotes) {
-        setSmartNotes(resource.smartNotes);
-      }
-    }
-  }, [resource]);
+  useEffect(() => { if (id) fetchDetail(); }, [id]);
+  useEffect(() => { if (resource?.smartNotes) setSmartNotes(resource.smartNotes); }, [resource]);
 
   useEffect(() => {
     if (resource) {
@@ -264,32 +263,17 @@ export default function ResourceDetailPage() {
       const token = localStorage.getItem("token");
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
       const res = await fetch(`/api/resource/${id}`, { headers });
-
-      if (res.status === 403) {
-        const data = await res.json();
-        setAccessDenied(true);
-        toast.error(data.error || "Access denied");
-        setLoading(false);
-        return;
-      }
-
+      if (res.status === 403) { setAccessDenied(true); toast.error("Access denied"); setLoading(false); return; }
       const data = await res.json();
-      if (res.ok) {
-        setResource(data.resource);
-        setReviews(data.reviews || []);
-        setAvgRating(data.avgRating || 0);
-      } else {
-        toast.error(data.error || "Resource not found");
-      }
-    } catch {
-      toast.error("Failed to load resource");
-    } finally {
-      setLoading(false);
-    }
+      if (res.ok) { setResource(data.resource); setReviews(data.reviews || []); setAvgRating(data.avgRating || 0); }
+      else toast.error(data.error || "Resource not found");
+    } catch { toast.error("Failed to load resource"); }
+    finally { setLoading(false); }
   };
 
   const handleDownload = async () => {
     const token = localStorage.getItem("token");
+<<<<<<< Updated upstream
     if (!token) {
       toast.error("Please login to download");
       router.push("/login");
@@ -317,124 +301,91 @@ export default function ResourceDetailPage() {
     } catch {
       toast.error("Download failed");
     }
+=======
+    if (!token) { toast.error("Please login to download"); router.push("/login"); return; }
+    if (resource?.fileUrl) { window.open(resource.fileUrl, "_blank"); toast.success("Download started"); }
+    else toast.error("File not available");
+>>>>>>> Stashed changes
   };
 
   const handleSubmitReview = async (e) => {
     e.preventDefault();
     const token = localStorage.getItem("token");
-    if (!token) {
-      toast.error("Please login to review");
-      router.push("/login");
-      return;
-    }
+    if (!token) { toast.error("Please login to review"); router.push("/login"); return; }
     if (!myRating) return toast.error("Please select a rating");
     setSubmitting(true);
     try {
-      const res = await fetch("/api/rate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ resourceId: id, rating: myRating, review: myReview }),
-      });
+      const res = await fetch("/api/rate", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ resourceId: id, rating: myRating, review: myReview }) });
       const data = await res.json();
-      if (res.ok) {
-        toast.success(data.message || "Review submitted");
-        setMyRating(0);
-        setMyReview("");
-        fetchDetail();
-      } else {
-        toast.error(data.error);
-      }
-    } catch {
-      toast.error("Failed to submit review");
-    } finally {
-      setSubmitting(false);
-    }
+      if (res.ok) { toast.success(data.message || "Review submitted"); setMyRating(0); setMyReview(""); fetchDetail(); }
+      else toast.error(data.error);
+    } catch { toast.error("Failed to submit review"); }
+    finally { setSubmitting(false); }
   };
 
   const handleGenerateSmartNotes = async (regenerate = false) => {
     setSmartNotesLoading(true);
     try {
-      const res = await fetch("/api/generate-smart-notes", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ resourceId: id, regenerate }),
-      });
+      const res = await fetch("/api/generate-smart-notes", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ resourceId: id, regenerate }) });
       const data = await res.json();
-      if (res.ok) {
-        setSmartNotes(data.smartNotes);
-        toast.success(data.cached ? "Smart Notes loaded from cache" : "Smart Notes generated!");
-        setTimeout(() => {
-          smartNotesRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-        }, 100);
-      } else {
-        toast.error(data.error || "Failed to generate Smart Notes");
-      }
-    } catch {
-      toast.error("Failed to generate Smart Notes");
-    } finally {
-      setSmartNotesLoading(false);
-    }
+      if (res.ok) { setSmartNotes(data.smartNotes); toast.success(data.cached ? "Smart Notes loaded" : "Smart Notes generated!"); setTimeout(() => smartNotesRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 100); }
+      else toast.error(data.error || "Failed to generate Smart Notes");
+    } catch { toast.error("Failed to generate Smart Notes"); }
+    finally { setSmartNotesLoading(false); }
   };
 
   // --- Render ---
 
-  if (loading) {
-    return (
-      <div className="flex justify-center py-32">
-        <div className="w-10 h-10 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
+  const card = `rounded-lg p-5 sm:p-6 mb-6 ${isWhite ? "bg-white border border-neutral-200" : "bg-[var(--card-bg)] border border-[var(--card-border)]"}`;
+  const labelText = isWhite ? "text-neutral-500" : "text-neutral-400";
+  const headingText = isWhite ? "text-neutral-900" : "text-white";
+  const bodyText = isWhite ? "text-neutral-600" : "text-neutral-300";
+  const mutedText = isWhite ? "text-neutral-400" : "text-neutral-500";
 
-  if (accessDenied) {
-    return (
-      <div className="text-center py-32 max-w-md mx-auto">
-        <Lock className="h-12 w-12 text-orange-400 mx-auto mb-4" />
-        <h2 className="text-xl font-bold text-white mb-2">Access Restricted</h2>
-        <p className="text-gray-400 text-sm mb-6">This resource is private and only available to students from the same college.</p>
-        <button onClick={() => router.push("/")} className="text-cyan-400 hover:text-cyan-300 text-sm">← Back to Home</button>
-      </div>
-    );
-  }
+  if (loading) return <div className="flex justify-center py-32"><div className={`w-6 h-6 border-2 border-t-transparent rounded-full animate-spin ${isWhite ? "border-neutral-300" : "border-neutral-600"}`} /></div>;
 
-  if (!resource) {
-    return (
-      <div className="text-center py-32">
-        <p className="text-gray-500 text-lg">Resource not found</p>
-        <button onClick={() => router.push("/")} className="mt-4 text-cyan-400 hover:text-cyan-300 text-sm">← Go back</button>
-      </div>
-    );
-  }
+  if (accessDenied) return (
+    <div className="text-center py-32 max-w-md mx-auto">
+      <Lock className={`h-10 w-10 mx-auto mb-4 ${mutedText}`} />
+      <h2 className={`text-lg font-semibold mb-2 ${headingText}`}>Access Restricted</h2>
+      <p className={`text-sm mb-6 ${mutedText}`}>This resource is private and only available to students from the same college.</p>
+      <button onClick={() => router.push("/")} className={`text-sm ${labelText} hover:underline`}>← Back to Home</button>
+    </div>
+  );
+
+  if (!resource) return (
+    <div className="text-center py-32">
+      <p className={`text-sm ${mutedText}`}>Resource not found</p>
+      <button onClick={() => router.push("/")} className={`mt-4 text-sm ${labelText} hover:underline`}>← Go back</button>
+    </div>
+  );
 
   return (
-    <div className={`max-w-4xl mx-auto px-4 py-10 transition-all duration-500 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
-      <button onClick={() => router.back()} className="flex items-center gap-1 text-sm text-gray-400 hover:text-white mb-6 transition-colors">
-        <ArrowLeft className="h-4 w-4" /> Back
+    <div className="max-w-3xl mx-auto px-4 py-8">
+      <button onClick={() => router.back()} className={`flex items-center gap-1 text-sm mb-6 ${mutedText} hover:underline`}>
+        <ArrowLeft className="h-3.5 w-3.5" /> Back
       </button>
 
       {/* Resource Header */}
-      <div ref={contentRef} className="glass-strong rounded-2xl p-5 sm:p-8 neon-border mb-8">
-        <div className="flex flex-wrap gap-2 mb-4">
-          <span className="px-3 py-1 rounded-full text-xs font-semibold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
+      <div className={card}>
+        <div className="flex flex-wrap gap-1.5 mb-3">
+          <span className={`px-2 py-0.5 rounded text-[11px] font-medium ${isWhite ? "bg-neutral-100 text-neutral-600" : "bg-white/5 text-neutral-300"}`}>
             {resource.resourceType || "Notes"}
           </span>
-          <span className="px-3 py-1 rounded-full text-xs font-semibold bg-purple-500/20 text-purple-300 border border-purple-500/30">
+          <span className={`px-2 py-0.5 rounded text-[11px] font-medium ${isWhite ? "bg-neutral-100 text-neutral-500" : "bg-white/5 text-neutral-400"}`}>
             {resource.subject || "General"}
           </span>
           {resource.isPublic === false ? (
-            <span className="px-3 py-1 rounded-full text-xs font-semibold bg-orange-500/20 text-orange-400 border border-orange-500/30 flex items-center gap-1">
-              <Lock className="h-3 w-3" /> Private
-            </span>
+            <span className="px-2 py-0.5 rounded text-[11px] font-medium bg-orange-500/10 text-orange-500 flex items-center gap-1"><Lock className="h-2.5 w-2.5" /> Private</span>
           ) : (
-            <span className="px-3 py-1 rounded-full text-xs font-semibold bg-green-500/20 text-green-400 border border-green-500/30 flex items-center gap-1">
-              <Globe className="h-3 w-3" /> Public
-            </span>
+            <span className="px-2 py-0.5 rounded text-[11px] font-medium bg-green-500/10 text-green-500 flex items-center gap-1"><Globe className="h-2.5 w-2.5" /> Public</span>
           )}
         </div>
 
-        <h1 className="text-2xl sm:text-3xl font-bold text-white mb-3">{resource.title}</h1>
-        <p className="text-gray-400 mb-6">{resource.description || "No description provided"}</p>
+        <h1 className={`text-xl sm:text-2xl font-bold mb-2 ${headingText}`}>{resource.title}</h1>
+        <p className={`text-sm mb-5 ${bodyText}`}>{resource.description || "No description provided"}</p>
 
+<<<<<<< Updated upstream
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
           {resource.semester && (
             <div className="flex items-center gap-2 text-sm text-gray-400">
@@ -454,43 +405,56 @@ export default function ResourceDetailPage() {
           <div className="flex items-center gap-2 text-sm text-gray-400">
             <Download className="h-4 w-4 text-yellow-400" /> {resource.downloads || 0} downloads
           </div>
+=======
+        {/* Meta */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+          {resource.semester && <span className={`flex items-center gap-1.5 text-xs ${mutedText}`}><BookOpen className="h-3.5 w-3.5" /> Semester {resource.semester}</span>}
+          {resource.department && <span className={`flex items-center gap-1.5 text-xs ${mutedText}`}><Building2 className="h-3.5 w-3.5" /> {resource.department}</span>}
+          {resource.yearBatch && <span className={`flex items-center gap-1.5 text-xs ${mutedText}`}><Calendar className="h-3.5 w-3.5" /> {resource.yearBatch}</span>}
+          <span className={`flex items-center gap-1.5 text-xs ${mutedText}`}><Download className="h-3.5 w-3.5" /> {resource.downloads || 0} downloads</span>
+>>>>>>> Stashed changes
         </div>
 
         {resource.tags?.length > 0 && (
-          <div className="flex flex-wrap gap-2 mb-6">
+          <div className="flex flex-wrap gap-1.5 mb-5">
             {resource.tags.map((tag) => (
-              <span key={tag} className="flex items-center gap-1 text-xs px-2.5 py-1 rounded-full bg-white/5 text-gray-400 border border-white/10">
-                <Tag className="h-3 w-3" /> {tag}
+              <span key={tag} className={`flex items-center gap-1 text-[11px] px-2 py-0.5 rounded ${isWhite ? "bg-neutral-50 text-neutral-400" : "bg-white/5 text-neutral-500"}`}>
+                <Tag className="h-2.5 w-2.5" /> {tag}
               </span>
             ))}
           </div>
         )}
 
         {/* Uploader */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 glass rounded-xl p-4 border border-white/10 mb-6">
+        <div className={`rounded-lg p-3.5 mb-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 ${isWhite ? "bg-neutral-50 border border-neutral-100" : "bg-white/5 border border-[var(--glass-border)]"}`}>
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center text-white font-bold flex-shrink-0">
+            <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold flex-shrink-0 ${isWhite ? "bg-neutral-200 text-neutral-600" : "bg-white/10 text-white"}`}>
               {resource.uploadedBy?.name?.[0] || "?"}
             </div>
             <div className="min-w-0">
-              <p className="text-white font-semibold text-sm truncate">{resource.uploadedBy?.name || "Unknown"}</p>
-              <p className="text-xs text-gray-500 truncate">{resource.uploadedBy?.college} • {resource.uploadedBy?.department}</p>
+              <p className={`font-medium text-sm truncate ${headingText}`}>{resource.uploadedBy?.name || "Unknown"}</p>
+              <p className={`text-xs truncate ${mutedText}`}>{resource.uploadedBy?.college} · {resource.uploadedBy?.department}</p>
             </div>
           </div>
-          <div className="flex items-center gap-3 flex-shrink-0">
-            <StarRating rating={avgRating} size={18} />
-            <span className="text-sm text-gray-400">({avgRating})</span>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <StarRating rating={avgRating} size={14} />
+            <span className={`text-xs ${mutedText}`}>({avgRating})</span>
           </div>
         </div>
 
         {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row gap-3">
-          <button onClick={handleDownload} className="flex-1 py-3.5 rounded-xl btn-gradient text-white font-semibold text-sm flex items-center justify-center gap-2">
-            <Download className="h-5 w-5" /> Download
+        <div className="flex flex-col sm:flex-row gap-2">
+          <button onClick={handleDownload} className="flex-1 py-2.5 rounded-lg btn-gradient text-white text-sm font-medium flex items-center justify-center gap-2">
+            <Download className="h-4 w-4" /> Download
           </button>
           {resource.fileUrl && (
+<<<<<<< Updated upstream
             <a href={getOpenInTabUrl(resource.fileUrl)} target="_blank" rel="noopener noreferrer" className="flex-1 py-3.5 rounded-xl glass neon-border text-white font-semibold text-sm flex items-center justify-center gap-2 hover:bg-white/10 transition-all">
               <ExternalLink className="h-4 w-4" /> Open in New Tab
+=======
+            <a href={resource.fileUrl} target="_blank" rel="noopener noreferrer" className={`flex-1 py-2.5 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-colors ${isWhite ? "border border-neutral-200 text-neutral-600 hover:bg-neutral-50" : "border border-[var(--glass-border)] text-neutral-300 hover:bg-white/5"}`}>
+              <ExternalLink className="h-3.5 w-3.5" /> Open in New Tab
+>>>>>>> Stashed changes
             </a>
           )}
         </div>
@@ -505,83 +469,77 @@ export default function ResourceDetailPage() {
       </div>
 
       {/* Smart Notes Button */}
-      <div className="mb-8">
-        <div className="flex flex-col sm:flex-row gap-3">
-          <button
-            onClick={() => handleGenerateSmartNotes(false)}
-            disabled={smartNotesLoading}
-            className="flex-1 py-4 rounded-xl bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-500 hover:to-cyan-500 text-white font-semibold text-sm flex items-center justify-center gap-2 transition-all duration-300 disabled:opacity-50 shadow-lg shadow-purple-500/20"
-          >
-            {smartNotesLoading ? (
-              <>
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                Generating Smart Notes...
-              </>
-            ) : (
-              <>
-                <Sparkles className="h-5 w-5" /> ✨ Generate Smart Notes
-              </>
-            )}
+      <div className="mb-6 flex flex-col sm:flex-row gap-2">
+        <button onClick={() => handleGenerateSmartNotes(false)} disabled={smartNotesLoading} className="flex-1 py-2.5 rounded-lg btn-gradient text-white text-sm font-medium flex items-center justify-center gap-2 disabled:opacity-50">
+          {smartNotesLoading ? <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> Generating...</> : <>Generate Smart Notes</>}
+        </button>
+        {smartNotes && (
+          <button onClick={() => handleGenerateSmartNotes(true)} disabled={smartNotesLoading} className={`py-2.5 px-4 rounded-lg text-sm font-medium flex items-center justify-center gap-2 disabled:opacity-50 transition-colors ${isWhite ? "border border-neutral-200 text-neutral-600 hover:bg-neutral-50" : "border border-[var(--glass-border)] text-neutral-300 hover:bg-white/5"}`}>
+            <RefreshCw className={`h-3.5 w-3.5 ${smartNotesLoading ? "animate-spin" : ""}`} /> Regenerate
           </button>
-          {smartNotes && (
-            <button
-              onClick={() => handleGenerateSmartNotes(true)}
-              disabled={smartNotesLoading}
-              className="py-4 px-6 rounded-xl glass neon-border text-gray-300 font-medium text-sm flex items-center justify-center gap-2 hover:bg-white/10 transition-all disabled:opacity-50"
-            >
-              <RefreshCw className={`h-4 w-4 ${smartNotesLoading ? "animate-spin" : ""}`} /> Regenerate
-            </button>
-          )}
-        </div>
+        )}
       </div>
 
       {/* Smart Notes Display */}
-      {smartNotes && (
-        <div ref={smartNotesRef}>
-          <SmartNotesDisplay notes={smartNotes} />
+      {smartNotes && <div ref={smartNotesRef}><SmartNotesDisplay notes={smartNotes} /></div>}
+
+      {/* AI Study Mode */}
+      <StudyModePanel resourceId={id} resourceTitle={resource.title} />
+
+<<<<<<< Updated upstream
+=======
+      {/* PDF Preview */}
+      {resource.fileUrl && isPdf && (
+        <div className={`rounded-lg overflow-hidden mb-6 ${isWhite ? "border border-neutral-200" : "border border-[var(--card-border)]"}`}>
+          <div className={`flex items-center gap-2 px-4 py-2.5 border-b ${isWhite ? "border-neutral-200 bg-neutral-50" : "border-[var(--glass-border)] bg-white/5"}`}>
+            <Eye className={`h-3.5 w-3.5 ${mutedText}`} />
+            <span className={`text-xs font-medium ${headingText}`}>Document Preview</span>
+          </div>
+          <iframe src={resource.fileUrl} className="w-full h-[350px] sm:h-[500px] lg:h-[600px]" title="Resource Preview" />
         </div>
       )}
 
+>>>>>>> Stashed changes
       {/* Reviews */}
-      <div className="glass-strong rounded-2xl p-5 sm:p-8 neon-border mb-8">
-        <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-          <Star className="h-5 w-5 text-yellow-400" /> Reviews ({reviews.length})
+      <div className={card}>
+        <h2 className={`text-base font-semibold mb-5 flex items-center gap-2 ${headingText}`}>
+          Reviews ({reviews.length})
         </h2>
 
-        <form onSubmit={handleSubmitReview} className="glass rounded-xl p-5 border border-white/10 mb-6">
-          <p className="text-sm text-white font-medium mb-3">Write a Review</p>
-          <div className="flex items-center gap-3 mb-3">
-            <span className="text-sm text-gray-400">Your Rating:</span>
-            <StarRating rating={myRating} onRate={setMyRating} size={20} />
+        <form onSubmit={handleSubmitReview} className={`rounded-lg p-4 mb-5 ${isWhite ? "bg-neutral-50 border border-neutral-100" : "bg-white/5 border border-[var(--glass-border)]"}`}>
+          <p className={`text-sm font-medium mb-2 ${headingText}`}>Write a Review</p>
+          <div className="flex items-center gap-3 mb-2">
+            <span className={`text-xs ${mutedText}`}>Your Rating:</span>
+            <StarRating rating={myRating} onRate={setMyRating} size={16} />
           </div>
-          <textarea rows={3} placeholder="Share your thoughts about this resource..." value={myReview} onChange={(e) => setMyReview(e.target.value)} className="w-full px-4 py-3 rounded-xl glass border border-white/10 text-white placeholder-gray-500 text-sm focus:outline-none focus:neon-glow resize-none mb-3" />
-          <button type="submit" disabled={submitting} className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl btn-gradient text-white text-sm font-medium disabled:opacity-50">
-            <Send className="h-4 w-4" /> {submitting ? "Submitting..." : "Submit Review"}
+          <textarea rows={3} placeholder="Share your thoughts..." value={myReview} onChange={(e) => setMyReview(e.target.value)} className={`w-full px-3 py-2 rounded-lg text-sm focus:outline-none resize-none mb-2 ${isWhite ? "bg-white border border-neutral-200 text-neutral-900 placeholder-neutral-400" : "bg-[var(--input-bg)] border border-[var(--glass-border)] text-white placeholder-neutral-500"}`} />
+          <button type="submit" disabled={submitting} className="flex items-center gap-1.5 px-4 py-2 rounded-lg btn-gradient text-white text-xs font-medium disabled:opacity-50">
+            <Send className="h-3.5 w-3.5" /> {submitting ? "Submitting..." : "Submit Review"}
           </button>
         </form>
 
         {reviews.length === 0 ? (
-          <p className="text-gray-500 text-sm text-center py-6">No reviews yet. Be the first to review!</p>
+          <p className={`text-sm text-center py-6 ${mutedText}`}>No reviews yet. Be the first to review!</p>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3">
             {reviews.map((r) => (
-              <div key={r._id} className="glass rounded-xl p-4 border border-white/10">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-2">
+              <div key={r._id} className={`rounded-lg p-3.5 ${isWhite ? "bg-neutral-50 border border-neutral-100" : "bg-white/5 border border-[var(--glass-border)]"}`}>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-1.5">
                   <div className="flex items-center gap-2 min-w-0">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-500 to-purple-500 flex items-center justify-center text-white font-bold text-xs flex-shrink-0">
+                    <div className={`w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-semibold flex-shrink-0 ${isWhite ? "bg-neutral-200 text-neutral-600" : "bg-white/10 text-white"}`}>
                       {r.userId?.name?.[0] || "?"}
                     </div>
                     <div className="min-w-0">
-                      <p className="text-white font-medium text-sm truncate">{r.userId?.name || "Anonymous"}</p>
-                      <p className="text-xs text-gray-500 truncate">{r.userId?.college || ""}</p>
+                      <p className={`font-medium text-sm truncate ${headingText}`}>{r.userId?.name || "Anonymous"}</p>
+                      <p className={`text-[11px] truncate ${mutedText}`}>{r.userId?.college || ""}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-1.5 flex-shrink-0">
-                    <StarRating rating={r.rating} size={14} />
-                    <span className="text-xs text-gray-500">{new Date(r.createdAt).toLocaleDateString()}</span>
+                    <StarRating rating={r.rating} size={12} />
+                    <span className={`text-[11px] ${mutedText}`}>{new Date(r.createdAt).toLocaleDateString()}</span>
                   </div>
                 </div>
-                {r.review && <p className="text-sm text-gray-400 mt-2">{r.review}</p>}
+                {r.review && <p className={`text-sm ${bodyText}`}>{r.review}</p>}
               </div>
             ))}
           </div>
