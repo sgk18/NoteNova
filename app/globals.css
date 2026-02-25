@@ -2,12 +2,8 @@
 
 /* ===== MINIMALIST THEME VARIABLES ===== */
 @layer base {
-<<<<<<< Updated upstream
 
   /* === ION DRIFT THEME (Default) === */
-=======
-  /* === ION DRIFT THEME (Default Dark) === */
->>>>>>> Stashed changes
   body.ion-theme {
     --bg-primary: #111111;
     --bg-secondary: #1a1a1a;
@@ -248,7 +244,6 @@ body.white-theme .bg-clip-text {
 }
 
 /* ===== ANIMATIONS ===== */
-<<<<<<< Updated upstream
 @keyframes nova-pulse {
 
   0%,
@@ -318,16 +313,3 @@ body.white-theme .animate-float {
 body.white-theme .animate-shimmer {
   animation: none;
 }
-=======
-@keyframes fade-in {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.animate-fade-in { animation: fade-in 0.3s ease-out; }
-
-/* Remove decorative animations for all themes */
-.animate-nova-pulse,
-.animate-float { animation: none; opacity: 0; display: none; }
-.animate-shimmer { animation: none; }
->>>>>>> Stashed changes
