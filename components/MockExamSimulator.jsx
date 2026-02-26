@@ -183,12 +183,16 @@ export default function MockExamSimulator({ resourceId, resourceTitle, customTex
               value={difficulty}
               onChange={(e) => setDifficulty(e.target.value)}
               style={{ colorScheme: isWhite ? 'light' : 'dark' }}
-              className={`w-full px-2 py-1.5 rounded-lg text-xs cursor-pointer focus:outline-none border ${isWhite ? "bg-white border-neutral-200 text-neutral-900" : "bg-[var(--input-bg)] border-[var(--glass-border)] text-white"}`}
+              className={`w-full px-2 py-1.5 rounded-lg text-xs cursor-pointer focus:outline-none border ${
+                isWhite 
+                  ? "bg-white border-neutral-200 text-neutral-900" 
+                  : "bg-neutral-800 border-neutral-700 text-white"
+              }`}
             >
-              <option value="easy">Easy</option>
-              <option value="medium">Medium</option>
-              <option value="hard">Hard</option>
-              <option value="mixed">Mixed (Default)</option>
+              <option value="easy" className={isWhite ? "text-neutral-900" : "bg-neutral-800 text-white"}>Easy</option>
+              <option value="medium" className={isWhite ? "text-neutral-900" : "bg-neutral-800 text-white"}>Medium</option>
+              <option value="hard" className={isWhite ? "text-neutral-900" : "bg-neutral-800 text-white"}>Hard</option>
+              <option value="mixed" className={isWhite ? "text-neutral-900" : "bg-neutral-800 text-white"}>Mixed (Default)</option>
             </select>
           </div>
           <div>
@@ -197,12 +201,16 @@ export default function MockExamSimulator({ resourceId, resourceTitle, customTex
               value={durationMinutes}
               onChange={(e) => setDurationMinutes(Number(e.target.value))}
               style={{ colorScheme: isWhite ? 'light' : 'dark' }}
-              className={`w-full px-2 py-1.5 rounded-lg text-xs cursor-pointer focus:outline-none border ${isWhite ? "bg-white border-neutral-200 text-neutral-900" : "bg-[var(--input-bg)] border-[var(--glass-border)] text-white"}`}
+              className={`w-full px-2 py-1.5 rounded-lg text-xs cursor-pointer focus:outline-none border ${
+                isWhite 
+                  ? "bg-white border-neutral-200 text-neutral-900" 
+                  : "bg-neutral-800 border-neutral-700 text-white"
+              }`}
             >
-              <option value={15}>15 Minutes</option>
-              <option value={30}>30 Minutes</option>
-              <option value={45}>45 Minutes</option>
-              <option value={60}>60 Minutes</option>
+              <option value={15} className={isWhite ? "text-neutral-900" : "bg-neutral-800 text-white"}>15 Minutes</option>
+              <option value={30} className={isWhite ? "text-neutral-900" : "bg-neutral-800 text-white"}>30 Minutes</option>
+              <option value={45} className={isWhite ? "text-neutral-900" : "bg-neutral-800 text-white"}>45 Minutes</option>
+              <option value={60} className={isWhite ? "text-neutral-900" : "bg-neutral-800 text-white"}>60 Minutes</option>
             </select>
           </div>
         </div>
