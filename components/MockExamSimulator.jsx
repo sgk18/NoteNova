@@ -182,6 +182,7 @@ export default function MockExamSimulator({ resourceId, resourceTitle, customTex
             <select
               value={difficulty}
               onChange={(e) => setDifficulty(e.target.value)}
+              style={{ colorScheme: isWhite ? 'light' : 'dark' }}
               className={`w-full px-2 py-1.5 rounded-lg text-xs cursor-pointer focus:outline-none border ${isWhite ? "bg-white border-neutral-200 text-neutral-900" : "bg-[var(--input-bg)] border-[var(--glass-border)] text-white"}`}
             >
               <option value="easy">Easy</option>
@@ -195,6 +196,7 @@ export default function MockExamSimulator({ resourceId, resourceTitle, customTex
             <select
               value={durationMinutes}
               onChange={(e) => setDurationMinutes(Number(e.target.value))}
+              style={{ colorScheme: isWhite ? 'light' : 'dark' }}
               className={`w-full px-2 py-1.5 rounded-lg text-xs cursor-pointer focus:outline-none border ${isWhite ? "bg-white border-neutral-200 text-neutral-900" : "bg-[var(--input-bg)] border-[var(--glass-border)] text-white"}`}
             >
               <option value={15}>15 Minutes</option>
