@@ -1,10 +1,20 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
 import { Search, SlidersHorizontal, ChevronDown } from "lucide-react";
 import ResourceCard from "@/components/ResourceCard";
 import { useTheme } from "@/context/ThemeContext";
+
+const Antigravity = dynamic(() => import("@/components/Antigravity"), { ssr: false });
+const TextType = dynamic(() => import("@/components/TextType"), { ssr: false });
+
+const THEME_PARTICLE_COLORS = {
+  ion: "#3b82f6",
+  galaxy: "#8b5cf6",
+  white: "#a3a3a3",
+};
 
 const DEPARTMENTS = ["","CSE","IT","ECE","EEE","MECH","CIVIL","AIDS","AIML","CSE (Cyber Security)","Biomedical","Chemical","Automobile","Common"];
 const RESOURCE_TYPES = ["","Notes","Question Papers","Solutions","Project Reports","Study Material"];
@@ -27,6 +37,7 @@ export default function HomePage() {
   const [filters, setFilters] = useState({ subject: "", semester: "", department: "", resourceType: "", isPublic: "", sort: "trending" });
 
   const isWhite = theme === "white";
+  const particleColor = THEME_PARTICLE_COLORS[theme] || THEME_PARTICLE_COLORS.white;
 
   const fetchResources = async () => {
     setLoading(true);
@@ -77,39 +88,71 @@ export default function HomePage() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6">
-      {/* Hero */}
-      <section className="py-16 sm:py-24 text-center">
-        <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight mb-4 leading-tight">
-          <span className={isWhite ? "text-neutral-900" : "text-white"}>Share your notes.</span>
-          <br />
-          <span className={isWhite ? "text-neutral-400" : "text-neutral-500"}>Discover more.</span>
-        </h1>
-        <p className={`text-base sm:text-lg mb-8 max-w-lg mx-auto ${isWhite ? "text-neutral-500" : "text-neutral-400"}`}>
-          The best academic resources from students across campuses.
-        </p>
-        <form onSubmit={handleSearch} className="max-w-md mx-auto flex gap-2">
-          <div className="flex-1 relative">
-            <Search className={`absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 ${isWhite ? "text-neutral-400" : "text-neutral-500"}`} />
-            <input
-              type="text"
-              placeholder="Search notes, subjects..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className={`w-full pl-9 pr-4 py-2.5 rounded-lg text-sm focus:outline-none ${
-                isWhite
-                  ? "bg-white border border-neutral-200 text-neutral-900 placeholder-neutral-400 focus:border-neutral-400"
-                  : "bg-[var(--input-bg)] border border-[var(--glass-border)] text-white placeholder-neutral-500 focus:border-neutral-500"
-              }`}
+      {/* Hero with Antigravity Background */}
+      <section className="relative py-16 sm:py-24 text-center overflow-hidden">
+        {/* Antigravity particle background */}
+        <div className="absolute inset-0 z-0 pointer-events-none" style={{ opacity: isWhite ? 0.35 : 0.6 }}>
+          <Antigravity
+            count={300}
+            magnetRadius={6}
+            ringRadius={7}
+            waveSpeed={0.4}
+            waveAmplitude={1}
+            particleSize={1.5}
+            lerpSpeed={0.05}
+            color={particleColor}
+            autoAnimate={true}
+            particleVariance={1}
+            rotationSpeed={0}
+            depthFactor={1}
+            pulseSpeed={3}
+            particleShape="capsule"
+            fieldStrength={10}
+          />
+        </div>
+        {/* Hero content */}
+        <div className="relative z-10">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight mb-4 leading-tight">
+            <TextType
+              text={["Share your notes.", "Discover more."]}
+              as="span"
+              typingSpeed={40}
+              deletingSpeed={50}
+              pauseDuration={1500}
+              showCursor
+              cursorCharacter="|"
+              cursorBlinkDuration={0.5}
+              className={isWhite ? "text-neutral-900" : "text-white"}
+              cursorClassName={isWhite ? "text-neutral-400" : "text-neutral-500"}
             />
-          </div>
-          <button type="submit" className={`px-5 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-            isWhite
-              ? "bg-neutral-900 text-white hover:bg-neutral-800"
-              : "btn-gradient text-white neon-glow"
-          }`}>
-            Search
-          </button>
-        </form>
+          </h1>
+          <p className={`text-base sm:text-lg mb-8 max-w-lg mx-auto ${isWhite ? "text-neutral-500" : "text-neutral-400"}`}>
+            The best academic resources from students across campuses.
+          </p>
+          <form onSubmit={handleSearch} className="max-w-md mx-auto flex gap-2">
+            <div className="flex-1 relative">
+              <Search className={`absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 ${isWhite ? "text-neutral-400" : "text-neutral-500"}`} />
+              <input
+                type="text"
+                placeholder="Search notes, subjects..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className={`w-full pl-9 pr-4 py-2.5 rounded-lg text-sm focus:outline-none ${
+                  isWhite
+                    ? "bg-white border border-neutral-200 text-neutral-900 placeholder-neutral-400 focus:border-neutral-400"
+                    : "bg-[var(--input-bg)] border border-[var(--glass-border)] text-white placeholder-neutral-500 focus:border-neutral-500"
+                }`}
+              />
+            </div>
+            <button type="submit" className={`px-5 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+              isWhite
+                ? "bg-neutral-900 text-white hover:bg-neutral-800"
+                : "btn-gradient text-white neon-glow"
+            }`}>
+              Search
+            </button>
+          </form>
+        </div>
       </section>
 
       {/* Top Contributors */}
