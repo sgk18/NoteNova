@@ -15,11 +15,17 @@ import {
   ChevronDown,
   ChevronUp,
   X,
+  Repeat,
+  Timer,
 } from "lucide-react";
 import { useTheme } from "@/context/ThemeContext";
 import toast from "react-hot-toast";
+import SRSFlashcards from "@/components/SRSFlashcards";
+import MockExamSimulator from "@/components/MockExamSimulator";
 
 const STUDY_MODES = [
+  { id: "srs", label: "SRS Flashcards", icon: Repeat, description: "Spaced repetition — weak cards appear more often" },
+  { id: "mock-exam", label: "Mock Exam", icon: Timer, description: "30-min timed quiz with AI grading" },
   { id: "explain", label: "Explain Concepts", icon: Brain, description: "Break down difficult topics in simple terms" },
   { id: "quiz", label: "Generate Quiz", icon: ClipboardList, description: "Test your knowledge with a custom quiz" },
   { id: "exam-areas", label: "Key Exam Areas", icon: Target, description: "Spot the most exam-critical topics" },
@@ -90,7 +96,7 @@ function MarkdownRenderer({ content }) {
   return <div className="space-y-0.5">{renderContent()}</div>;
 }
 
-export default function StudyModePanel({ resourceId, resourceTitle }) {
+export default function StudyModePanel({ resourceId, resourceTitle, smartNotes }) {
   const { theme } = useTheme();
   const isWhite = theme === "white";
 
@@ -177,10 +183,11 @@ export default function StudyModePanel({ resourceId, resourceTitle }) {
               {STUDY_MODES.map((mode) => {
                 const isActive = activeMode === mode.id;
                 const Icon = mode.icon;
+                const isInlineMode = mode.id === "srs" || mode.id === "mock-exam";
                 return (
                   <button
                     key={mode.id}
-                    onClick={() => mode.id === "chat" ? (setActiveMode("chat"), setAnswer("")) : handleStudy(mode.id)}
+                    onClick={() => isInlineMode ? (setActiveMode(mode.id), setAnswer("")) : mode.id === "chat" ? (setActiveMode("chat"), setAnswer("")) : handleStudy(mode.id)}
                     disabled={loading}
                     className={`relative text-left p-3 rounded-lg border transition-colors disabled:opacity-50 ${
                       isActive
@@ -199,6 +206,20 @@ export default function StudyModePanel({ resourceId, resourceTitle }) {
               })}
             </div>
           </div>
+
+          {/* SRS Flashcards inline */}
+          {activeMode === "srs" && (
+            <div className={`p-4 border-b ${borderColor}`}>
+              <SRSFlashcards resourceId={resourceId} />
+            </div>
+          )}
+
+          {/* Mock Exam inline */}
+          {activeMode === "mock-exam" && (
+            <div className={`p-4 border-b ${borderColor}`}>
+              <MockExamSimulator resourceId={resourceId} resourceTitle={resourceTitle} />
+            </div>
+          )}
 
           {/* Chat Input */}
           {activeMode === "chat" && !answer && (

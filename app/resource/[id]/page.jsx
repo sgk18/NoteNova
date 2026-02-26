@@ -457,7 +457,7 @@ export default function ResourceDetailPage() {
       {smartNotes && <div ref={smartNotesRef}><SmartNotesDisplay notes={smartNotes} /></div>}
 
       {/* AI Study Mode */}
-      <StudyModePanel resourceId={id} resourceTitle={resource.title} />
+      <StudyModePanel resourceId={id} resourceTitle={resource.title} smartNotes={smartNotes} />
 
       {/* Reviews */}
       <div className={card}>
