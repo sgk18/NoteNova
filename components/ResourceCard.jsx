@@ -79,6 +79,11 @@ export default function ResourceCard({ resource, onBookmark, isBookmarked, showE
           </span>
         </div>
         <div className="flex items-center gap-1.5 flex-wrap justify-end">
+          {resource.resourceType === "Google NotebookLM" && (
+            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-500/10 text-blue-500 border border-blue-500/20 flex items-center gap-1">
+              <Sparkles className="h-3 w-3" /> NotebookLM
+            </span>
+          )}
           {resource.uploaderRole === "verified_scholar" && (
              <BadgeCheck className="h-4 w-4 text-blue-500" title="Verified Nova Scholar" />
           )}
