@@ -48,8 +48,15 @@ export default function ResourceDetailPage() {
   const getFileExtension = (url) => {
     if (!url) return "";
     try {
+      // Handle base64 or blob URLs gracefully
+      if (url.startsWith("data:") || url.startsWith("blob:")) return "";
+
       const pathname = new URL(url).pathname;
-      return pathname.split(".").pop().toLowerCase();
+      const parts = pathname.split(".");
+      if (parts.length > 1) {
+        return parts.pop().toLowerCase();
+      }
+      return "";
     } catch {
       return "";
     }
@@ -71,18 +78,31 @@ export default function ResourceDetailPage() {
     return `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(url)}`;
   };
 
-  // For "Open in New Tab": Office docs use viewer, images/PDFs use direct URL
+  // For "Open in New Tab": PDFs use Google Docs Viewer, images use direct URL
   const getOpenInTabUrl = (url) => {
     if (!url) return url;
     const ext = getFileExtension(url);
+    if (isPdfExt(ext)) {
+      // Google Docs Viewer renders PDFs
+      return `https://docs.google.com/gview?url=${encodeURIComponent(getInlineCloudinaryUrl(url))}`;
+    }
     if (isOfficeExt(ext)) {
       return `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(url)}`;
     }
-    // PDFs and Images open natively in browser
+    if (isImageExt(ext)) {
+      return getImageDisplayUrl(url);
+    }
     return url;
   };
 
   const getDownloadUrl = (url) => url;
+
+  // Modifies Cloudinary URLs to force inline display instead of downloading
+  const getInlineCloudinaryUrl = (url) => {
+    if (!url || !url.includes("res.cloudinary.com")) return url;
+    // Inject fl_attachment:false after /upload/ to override raw download behavior
+    return url.replace("/upload/", "/upload/fl_attachment:false/");
+  };
 
   // --- Preview renderer ---
 
@@ -137,36 +157,40 @@ export default function ResourceDetailPage() {
       );
     }
 
-    // PDF preview — Native Browser Viewer
+    // PDF preview — Google Docs Viewer
     if (isPdfExt(ext)) {
       return (
-        <div className="relative w-full h-[600px] rounded-xl overflow-hidden border border-white/10 bg-white">
-          <iframe
-            src={fileUrl}
-            className="w-full h-full"
-            frameBorder="0"
-            title="PDF Preview"
-            onLoad={() => setPreviewLoading(false)}
-            onError={() => { setPreviewLoading(false); setPreviewError(true); }}
-          />
+        <div className="relative">
           {previewLoading && (
-            <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
-              <div className="flex flex-col items-center gap-3 bg-black/50 p-4 rounded-xl backdrop-blur-sm">
+            <div className="absolute inset-0 flex items-center justify-center z-10 bg-black/40 rounded-xl backdrop-blur-sm">
+              <div className="flex flex-col items-center gap-3">
                 <div className="w-8 h-8 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" />
-                <p className="text-xs text-white uppercase tracking-wider font-semibold">Loading PDF...</p>
+                <p className="text-xs text-white">Loading PDF preview...</p>
               </div>
             </div>
           )}
-          <div className="absolute top-3 right-3 z-10 transition-opacity opacity-0 hover:opacity-100 group-hover:opacity-100">
-            <a
-              href={fileUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-black/80 hover:bg-black text-white px-3 py-1.5 rounded-lg flex items-center gap-1.5 backdrop-blur-md transition-all text-xs font-medium border border-white/20 shadow-xl"
-            >
-              <ExternalLink className="h-3.5 w-3.5" /> Open Native
-            </a>
-          </div>
+          <iframe
+            src={getGoogleViewerUrl(getInlineCloudinaryUrl(fileUrl))}
+            className="w-full rounded-xl border border-white/10 bg-white"
+            style={{ height: "600px" }}
+            frameBorder="0"
+            allow="autoplay"
+            onLoad={() => setPreviewLoading(false)}
+            onError={() => { setPreviewLoading(false); setPreviewError(true); }}
+            title="PDF Preview"
+          />
+          {!previewLoading && (
+            <div className="mt-3 flex justify-end">
+              <a
+                href={getOpenInTabUrl(fileUrl)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-cyan-400 hover:text-cyan-300 flex items-center gap-1 transition-colors"
+              >
+                <Eye className="h-3 w-3" /> Open in new tab
+              </a>
+            </div>
+          )}
         </div>
       );
     }

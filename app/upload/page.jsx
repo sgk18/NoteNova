@@ -69,9 +69,8 @@ export default function UploadPage() {
     fd.append("upload_preset", "app_uploads");
 
     // Determine the correct resource type endpoint
-    // Cloudinary treats PDFs as images natively. 'raw' files force a download attachment, breaking inline previews.
-    const isImageOrPdf = fileToUpload.type.startsWith("image/") || fileToUpload.type === "application/pdf";
-    const endpoint = isImageOrPdf
+    const isImage = fileToUpload.type.startsWith("image/");
+    const endpoint = isImage
       ? "https://api.cloudinary.com/v1_1/daiox49tz/image/upload"
       : "https://api.cloudinary.com/v1_1/daiox49tz/raw/upload";
 
