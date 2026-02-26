@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { writeFile, mkdir } from "fs/promises";
+import path from "path";
 import dbConnect from "@/lib/db";
 import Resource from "@/models/Resource";
 import User from "@/models/User";
@@ -30,37 +32,22 @@ export async function POST(request) {
 
     let fileUrl = "";
     if (file && file.size > 0) {
-      // Convert file to buffer for proper transfer
       const bytes = await file.arrayBuffer();
       const buffer = Buffer.from(bytes);
-      const fileName = file.name || "upload";
-      const contentType = file.type || "application/octet-stream";
 
-      // Upload to Uploadcare
-      const uploadForm = new FormData();
-      uploadForm.append("UPLOADCARE_PUB_KEY", process.env.UPLOADCARE_PUB_KEY);
-      uploadForm.append("UPLOADCARE_STORE", "auto");
-      uploadForm.append("file", new Blob([buffer], { type: contentType }), fileName);
+      // Generate a unique filename
+      const timestamp = Date.now();
+      const safeName = (file.name || "upload").replace(/[^a-zA-Z0-9._-]/g, "_");
+      const fileName = `${timestamp}_${safeName}`;
 
-      // Disable strict SSL checking for the fetch call (often needed on local Windows networks)
-      const { Agent } = require("undici");
+      // Save to public/uploads directory
+      const uploadsDir = path.join(process.cwd(), "public", "uploads");
+      await mkdir(uploadsDir, { recursive: true });
+      const filePath = path.join(uploadsDir, fileName);
+      await writeFile(filePath, buffer);
 
-      const uploadRes = await fetch("https://upload.uploadcare.com/base/", {
-        method: "POST",
-        body: uploadForm,
-        dispatcher: new Agent({ connect: { rejectUnauthorized: false } }),
-      });
-
-      if (!uploadRes.ok) {
-        const errText = await uploadRes.text();
-        console.error("Uploadcare error:", uploadRes.status, errText);
-        throw new Error(`Uploadcare API error: ${errText || uploadRes.statusText}`);
-      }
-
-      const uploadData = await uploadRes.json();
-      console.log("Uploadcare success:", uploadData);
-      // Uploadcare CDN URL
-      fileUrl = `https://ucarecdn.com/${uploadData.file}/`;
+      // File URL served from public directory
+      fileUrl = `/uploads/${fileName}`;
     }
 
     const tags = tagsRaw ? tagsRaw.split(",").map((t) => t.trim()).filter(Boolean) : [];

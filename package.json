@@ -9,7 +9,6 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.998.0",
     "@capacitor/android": "^8.1.0",
     "@capacitor/cli": "^8.1.0",
     "@capacitor/core": "^8.1.0",
@@ -20,21 +19,18 @@
     "bcryptjs": "^3.0.3",
     "bytez.js": "^3.0.0",
     "class-variance-authority": "^0.7.1",
-    "cloudinary": "^2.9.0",
     "clsx": "^2.1.1",
     "gsap": "^3.14.2",
     "jsonwebtoken": "^9.0.3",
     "lucide-react": "^0.566.0",
     "mongoose": "^9.2.1",
     "next": "16.1.6",
-    "next-cloudinary": "^6.17.5",
     "radix-ui": "^1.4.3",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-hot-toast": "^2.6.0",
     "tailwind-merge": "^3.5.0",
-    "three": "^0.167.1",
-    "undici": "^7.22.0"
+    "three": "^0.167.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
