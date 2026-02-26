@@ -16,6 +16,8 @@ export default function ProfilePage() {
   const [resources, setResources] = useState([]);
   const [bookmarks, setBookmarks] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [followersCount, setFollowersCount] = useState(0);
+  const [followingCount, setFollowingCount] = useState(0);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -33,6 +35,13 @@ export default function ProfilePage() {
       setResources(data.resources || []);
       const bRes = await fetch("/api/bookmarks", { headers: { Authorization: `Bearer ${token}` } });
       if (bRes.ok) { const bData = await bRes.json(); setBookmarks(bData.bookmarks || []); }
+
+      const fRes = await fetch(`/api/follow?userId=${userId}`);
+      if (fRes.ok) {
+        const fData = await fRes.json();
+        setFollowersCount(fData.followersCount || 0);
+        setFollowingCount(fData.followingCount || 0);
+      }
     } catch {} finally { setLoading(false); }
   };
 
@@ -57,6 +66,21 @@ export default function ProfilePage() {
             {user.department && <span className={`flex items-center gap-1 text-xs ${mutedText}`}><BookOpen className="h-3 w-3" /> {user.department}</span>}
             {user.semester && <span className={`flex items-center gap-1 text-xs ${mutedText}`}><GraduationCap className="h-3 w-3" /> Sem {user.semester}</span>}
             <span className={`flex items-center gap-1 text-xs ${mutedText}`}><Award className="h-3 w-3" /> {user.points || 0} pts</span>
+          </div>
+          
+          <div className="flex items-center gap-5 mt-4 pt-4 border-t border-[var(--glass-border)]">
+            <div className="text-center group cursor-pointer" onClick={() => router.push(`/user/${user.id}`)}>
+              <p className={`text-sm font-bold ${headingText} group-hover:underline`}>{followersCount}</p>
+              <p className={`text-[10px] ${mutedText}`}>Followers</p>
+            </div>
+            <div className="text-center group cursor-pointer" onClick={() => router.push(`/user/${user.id}`)}>
+              <p className={`text-sm font-bold ${headingText} group-hover:underline`}>{followingCount}</p>
+              <p className={`text-[10px] ${mutedText}`}>Following</p>
+            </div>
+            <div className="text-center">
+              <p className={`text-sm font-bold ${headingText}`}>{resources.length}</p>
+              <p className={`text-[10px] ${mutedText}`}>Uploads</p>
+            </div>
           </div>
         </div>
       </div>
