@@ -48,11 +48,11 @@ export async function POST(request) {
 
       await b2.send(command);
 
-      // Virtual-hosted style URL for Backblaze B2
-      // e.g. https://notenovacloud.s3.us-west-000.backblazeb2.com/notenova/...
+      // Path-style URL for Backblaze B2
+      // e.g. https://s3.us-west-000.backblazeb2.com/notenova/notenova/...
       const bucketName = process.env.B2_BUCKET;
-      const endpoint = process.env.B2_ENDPOINT.replace("https://", "");
-      fileUrl = `https://${bucketName}.${endpoint}/${key}`;
+      const endpoint = process.env.B2_ENDPOINT;
+      fileUrl = `${endpoint}/${bucketName}/${key}`;
     }
 
     const tags = tagsRaw ? tagsRaw.split(",").map((t) => t.trim()).filter(Boolean) : [];
