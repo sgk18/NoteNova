@@ -12,7 +12,7 @@ const SUGGESTIONS = [
   "Explain Fourier Transform with applications",
 ];
 
-export default function AskAIPage() {
+export default function AskNovaPage() {
   const { theme } = useTheme();
   const isWhite = theme === "white";
   const [question, setQuestion] = useState("");
@@ -34,7 +34,7 @@ export default function AskAIPage() {
     if (trimmed.length > MAX_CHARS) return toast.error(`Max ${MAX_CHARS} characters`);
     setLoading(true); setAnswer(""); setError(""); setAudioUrl("");
     try {
-      const res = await fetch("/api/ask-ai", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ question: trimmed }) });
+      const res = await fetch("/api/ask-nova", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ question: trimmed }) });
       const data = await res.json();
       if (res.ok) setAnswer(data.answer);
       else setError(data.error || "Something went wrong");
@@ -90,7 +90,7 @@ export default function AskAIPage() {
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
       <div className="mb-6">
-        <h1 className={`text-xl font-bold ${headingText}`}>Ask AI</h1>
+        <h1 className={`text-xl font-bold ${headingText}`}>Ask Nova</h1>
         <p className={`text-xs mt-1 ${mutedText}`}>Get instant academic help powered by AI</p>
       </div>
 
@@ -109,7 +109,7 @@ export default function AskAIPage() {
           <span className={`absolute bottom-3 right-3 text-[11px] ${isOverLimit ? "text-red-400" : mutedText}`}>{question.length}/{MAX_CHARS}</span>
         </div>
         <button onClick={handleAsk} disabled={loading || isOverLimit} className="w-full mt-3 py-2.5 rounded-lg btn-gradient text-white text-sm font-medium flex items-center justify-center gap-2 disabled:opacity-50">
-          {loading ? <><Loader2 className="h-4 w-4 animate-spin" /> Thinking...</> : <><Send className="h-3.5 w-3.5" /> Ask AI</>}
+          {loading ? <><Loader2 className="h-4 w-4 animate-spin" /> Thinking...</> : <><Send className="h-3.5 w-3.5" /> Ask Nova</>}
         </button>
       </div>
 
@@ -124,7 +124,7 @@ export default function AskAIPage() {
       {answer && (
         <div ref={answerRef} className={`rounded-lg overflow-hidden mb-5 ${isWhite ? "bg-white border border-neutral-200" : "bg-[var(--card-bg)] border border-[var(--card-border)]"}`}>
           <div className={`flex items-center justify-between px-4 py-2.5 border-b ${isWhite ? "border-neutral-100 bg-neutral-50" : "border-[var(--glass-border)] bg-white/5"}`}>
-            <span className={`text-xs font-medium ${headingText}`}>AI Response</span>
+            <span className={`text-xs font-medium ${headingText}`}>Nova Response</span>
             <div className="flex gap-2 items-center">
               <button onClick={handleCopy} className={`flex items-center gap-1 px-2.5 py-1 rounded text-[11px] font-medium border transition-colors ${isWhite ? "border-neutral-200 text-neutral-500 hover:bg-neutral-100" : "border-[var(--glass-border)] text-neutral-400 hover:bg-white/5"}`}>
                 {copied ? <Check className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3" />}

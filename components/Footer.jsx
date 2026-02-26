@@ -6,7 +6,7 @@ import { useTheme } from "@/context/ThemeContext";
 const links = [
   { name: "Home", href: "/" },
   { name: "Upload", href: "/upload" },
-  { name: "Ask AI", href: "/ask-ai" },
+  { name: "Ask Nova", href: "/ask-nova" },
   { name: "Leaderboard", href: "/leaderboard" },
   { name: "Dashboard", href: "/dashboard" },
 ];
