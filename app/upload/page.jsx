@@ -68,7 +68,13 @@ export default function UploadPage() {
     fd.append("file", fileToUpload);
     fd.append("upload_preset", "app_uploads");
 
-    const res = await fetch("https://api.cloudinary.com/v1_1/daiox49tz/auto/upload", {
+    // Determine the correct resource type endpoint
+    const isImage = fileToUpload.type.startsWith("image/");
+    const endpoint = isImage
+      ? "https://api.cloudinary.com/v1_1/daiox49tz/image/upload"
+      : "https://api.cloudinary.com/v1_1/daiox49tz/raw/upload";
+
+    const res = await fetch(endpoint, {
       method: "POST",
       body: fd,
     });
