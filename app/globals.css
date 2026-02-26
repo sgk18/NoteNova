@@ -2,6 +2,7 @@
 @import "~@uploadthing/react/styles.css";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@import "@uploadthing/react/styles.css";
 
 @custom-variant dark (&:is(.dark *));
 
