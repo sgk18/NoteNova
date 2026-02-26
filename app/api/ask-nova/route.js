@@ -70,7 +70,7 @@ export async function POST(request) {
 
     if (!response.ok) {
       const errData = await response.json().catch(() => ({}));
-      console.error("Groq Ask AI error:", response.status, errData?.error?.message || "Unknown");
+      console.error("Groq Ask Nova error:", response.status, errData?.error?.message || "Unknown");
       return NextResponse.json({ error: "AI request failed. Please try again." }, { status: 502 });
     }
 
@@ -79,7 +79,7 @@ export async function POST(request) {
 
     return NextResponse.json({ answer: output || "No response from AI." });
   } catch (err) {
-    console.error("Ask AI error:", err.message);
+    console.error("Ask Nova error:", err.message);
     return NextResponse.json({ error: "AI request failed" }, { status: 500 });
   }
 }

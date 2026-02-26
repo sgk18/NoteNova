@@ -54,14 +54,14 @@ export default function Navbar() {
       { name: "Home", href: "/" },
       { name: "Dashboard", href: "/dashboard" },
       { name: "Upload", href: "/upload" },
-      { name: "Ask AI", href: "/ask-ai" },
+      { name: "Ask Nova", href: "/ask-nova" },
       { name: "Mock Exam", href: "/mock-exam" },
       { name: "Leaderboard", href: "/leaderboard" },
       { name: "Profile", href: "/profile" },
     ]
     : [
       { name: "Home", href: "/" },
-      { name: "Ask AI", href: "/ask-ai" },
+      { name: "Ask Nova", href: "/ask-nova" },
       { name: "Leaderboard", href: "/leaderboard" },
       { name: "Login", href: "/login" },
       { name: "Register", href: "/register" },
