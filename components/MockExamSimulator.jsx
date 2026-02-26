@@ -5,8 +5,11 @@ import {
   Timer, Play, Flag, ChevronLeft, ChevronRight, CheckCircle2,
   XCircle, AlertTriangle, Loader2, Trophy, RotateCcw, Clock,
 } from "lucide-react";
+import { Menu, MenuButton, MenuItem, MenuItems, Transition } from '@headlessui/react';
+import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import { useTheme } from "@/context/ThemeContext";
 import toast from "react-hot-toast";
+import { Fragment } from "react";
 
 const PHASES = { SETUP: "setup", EXAM: "exam", RESULTS: "results" };
 
@@ -41,6 +44,8 @@ export default function MockExamSimulator({ resourceId, resourceTitle, customTex
   const mutedText = isWhite ? "text-neutral-400" : "text-neutral-500";
   const cardBg = isWhite ? "bg-white border-neutral-200" : "bg-[var(--card-bg)] border-[var(--card-border)]";
   const borderColor = isWhite ? "border-neutral-200" : "border-[var(--card-border)]";
+  const menuBg = isWhite ? "bg-white" : "bg-neutral-900/90 backdrop-blur-md";
+  const menuItemHover = isWhite ? "bg-neutral-100 text-neutral-900" : "bg-white/10 text-white";
   const inputClass = `w-full px-3 py-2.5 rounded-lg text-sm focus:outline-none resize-none ${
     isWhite
       ? "bg-neutral-50 border border-neutral-200 text-neutral-900 placeholder-neutral-400 focus:border-neutral-400"
@@ -176,42 +181,89 @@ export default function MockExamSimulator({ resourceId, resourceTitle, customTex
         </div>
 
         {/* Configuration Options */}
-        <div className="grid grid-cols-2 gap-4 max-w-xs mx-auto text-left">
-          <div>
-            <label className={`block text-xs font-semibold mb-1 cursor-pointer ${headingText}`}>Difficulty</label>
-            <select
-              value={difficulty}
-              onChange={(e) => setDifficulty(e.target.value)}
-              style={{ colorScheme: isWhite ? 'light' : 'dark' }}
-              className={`w-full px-2 py-1.5 rounded-lg text-xs cursor-pointer focus:outline-none border ${
+        <div className="flex flex-col sm:flex-row gap-4 max-w-sm mx-auto text-left py-2">
+          {/* Difficulty Dropdown */}
+          <div className="flex-1">
+            <label className={`block text-[10px] font-bold uppercase tracking-wider mb-1.5 ml-1 ${mutedText}`}>Difficulty</label>
+            <Menu as="div" className="relative">
+              <MenuButton className={`group flex items-center justify-between w-full px-3 py-2.5 rounded-xl text-xs font-medium border transition-all ${
                 isWhite 
-                  ? "bg-white border-neutral-200 text-neutral-900" 
-                  : "bg-neutral-800 border-neutral-700 text-white"
-              }`}
-            >
-              <option value="easy" className={isWhite ? "text-neutral-900" : "bg-neutral-800 text-white"}>Easy</option>
-              <option value="medium" className={isWhite ? "text-neutral-900" : "bg-neutral-800 text-white"}>Medium</option>
-              <option value="hard" className={isWhite ? "text-neutral-900" : "bg-neutral-800 text-white"}>Hard</option>
-              <option value="mixed" className={isWhite ? "text-neutral-900" : "bg-neutral-800 text-white"}>Mixed (Default)</option>
-            </select>
+                  ? "bg-white border-neutral-200 text-neutral-900 hover:border-neutral-300 shadow-sm" 
+                  : "bg-white/5 border-white/10 text-white hover:border-white/20"
+              }`}>
+                <span className="capitalize">{difficulty}</span>
+                <ChevronDownIcon className={`h-4 w-4 transition-transform group-data-open:rotate-180 ${mutedText}`} />
+              </MenuButton>
+
+              <Transition
+                as={Fragment}
+                enter="transition ease-out duration-100"
+                enterFrom="transform opacity-0 scale-95"
+                enterTo="transform opacity-100 scale-100"
+                leave="transition ease-in duration-75"
+                leaveFrom="transform opacity-100 scale-100"
+                leaveTo="transform opacity-0 scale-95"
+              >
+                <MenuItems className={`absolute z-20 mt-2 w-full origin-top-left rounded-xl border p-1 shadow-xl focus:outline-none ${menuBg} ${borderColor}`}>
+                  {["easy", "medium", "hard", "mixed"].map((lvl) => (
+                    <MenuItem key={lvl}>
+                      {({ active }) => (
+                        <button
+                          onClick={() => setDifficulty(lvl)}
+                          className={`flex w-full items-center rounded-lg px-3 py-2 text-xs transition-colors ${
+                            active ? menuItemHover : bodyText
+                          }`}
+                        >
+                          <span className="capitalize">{lvl === "mixed" ? "Mixed (Default)" : lvl}</span>
+                        </button>
+                      )}
+                    </MenuItem>
+                  ))}
+                </MenuItems>
+              </Transition>
+            </Menu>
           </div>
-          <div>
-            <label className={`block text-xs font-semibold mb-1 cursor-pointer ${headingText}`}>Time Limit</label>
-            <select
-              value={durationMinutes}
-              onChange={(e) => setDurationMinutes(Number(e.target.value))}
-              style={{ colorScheme: isWhite ? 'light' : 'dark' }}
-              className={`w-full px-2 py-1.5 rounded-lg text-xs cursor-pointer focus:outline-none border ${
+
+          {/* Time Limit Dropdown */}
+          <div className="flex-1">
+            <label className={`block text-[10px] font-bold uppercase tracking-wider mb-1.5 ml-1 ${mutedText}`}>Time Limit</label>
+            <Menu as="div" className="relative">
+              <MenuButton className={`group flex items-center justify-between w-full px-3 py-2.5 rounded-xl text-xs font-medium border transition-all ${
                 isWhite 
-                  ? "bg-white border-neutral-200 text-neutral-900" 
-                  : "bg-neutral-800 border-neutral-700 text-white"
-              }`}
-            >
-              <option value={15} className={isWhite ? "text-neutral-900" : "bg-neutral-800 text-white"}>15 Minutes</option>
-              <option value={30} className={isWhite ? "text-neutral-900" : "bg-neutral-800 text-white"}>30 Minutes</option>
-              <option value={45} className={isWhite ? "text-neutral-900" : "bg-neutral-800 text-white"}>45 Minutes</option>
-              <option value={60} className={isWhite ? "text-neutral-900" : "bg-neutral-800 text-white"}>60 Minutes</option>
-            </select>
+                  ? "bg-white border-neutral-200 text-neutral-900 hover:border-neutral-300 shadow-sm" 
+                  : "bg-white/5 border-white/10 text-white hover:border-white/20"
+              }`}>
+                <span>{durationMinutes} Minutes</span>
+                <ChevronDownIcon className={`h-4 w-4 transition-transform group-data-open:rotate-180 ${mutedText}`} />
+              </MenuButton>
+
+              <Transition
+                as={Fragment}
+                enter="transition ease-out duration-100"
+                enterFrom="transform opacity-0 scale-95"
+                enterTo="transform opacity-100 scale-100"
+                leave="transition ease-in duration-75"
+                leaveFrom="transform opacity-100 scale-100"
+                leaveTo="transform opacity-0 scale-95"
+              >
+                <MenuItems className={`absolute z-20 mt-2 w-full origin-top-left rounded-xl border p-1 shadow-xl focus:outline-none ${menuBg} ${borderColor}`}>
+                  {[15, 30, 45, 60].map((mins) => (
+                    <MenuItem key={mins}>
+                      {({ active }) => (
+                        <button
+                          onClick={() => setDurationMinutes(mins)}
+                          className={`flex w-full items-center rounded-lg px-3 py-2 text-xs transition-colors ${
+                            active ? menuItemHover : bodyText
+                          }`}
+                        >
+                          {mins} Minutes
+                        </button>
+                      )}
+                    </MenuItem>
+                  ))}
+                </MenuItems>
+              </Transition>
+            </Menu>
           </div>
         </div>
 
