@@ -122,6 +122,57 @@ export async function GET(request) {
   }
 }
 
+export async function POST(request) {
+  try {
+    await dbConnect();
+    const authHeader = request.headers.get("authorization");
+    let userId = "anonymous_for_now";
+    
+    if (authHeader) {
+      const decoded = verifyToken(authHeader.split(" ")[1]);
+      if (decoded) userId = decoded.userId;
+    }
+
+    const body = await request.json();
+    const { 
+      title, description, subject, semester, department, 
+      resourceType, yearBatch, tags, isPublic, 
+      fileUrl, fileType, notebookLMLink 
+    } = body;
+
+    if (!title || !fileUrl) {
+      return NextResponse.json({ error: "Title and File URL are required" }, { status: 400 });
+    }
+
+    const resource = await Resource.create({
+      title,
+      description,
+      subject,
+      semester,
+      department,
+      resourceType,
+      yearBatch,
+      tags: typeof tags === "string" ? tags.split(",").map(t => t.trim()).filter(Boolean) : tags,
+      isPublic: isPublic !== false && isPublic !== "false",
+      fileUrl,
+      fileType,
+      uploaderId: userId,
+      uploadedBy: userId !== "anonymous_for_now" ? userId : null,
+      notebookLMLink,
+    });
+
+    // Reward points if authenticated
+    if (userId !== "anonymous_for_now") {
+      await User.findByIdAndUpdate(userId, { $inc: { points: 10 } });
+    }
+
+    return NextResponse.json({ success: true, resource }, { status: 201 });
+  } catch (err) {
+    console.error("Resource creation error:", err);
+    return NextResponse.json({ error: err.message || "Failed to save resource" }, { status: 500 });
+  }
+}
+
 export async function PUT(request) {
   try {
     await dbConnect();

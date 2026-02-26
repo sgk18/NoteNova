@@ -14,14 +14,15 @@ const ResourceSchema = new mongoose.Schema({
   yearBatch: { type: String, default: "" },
   tags: [{ type: String }],
   isPublic: { type: Boolean, default: true },
-  fileUrl: { type: String, default: "" },
+  fileUrl: { type: String, required: true },
+  fileType: { type: String }, // e.g., 'pdf' or 'image'
+  uploaderId: { type: String, default: 'anonymous_for_now' }, // For UploadThing context
   notebookLMLink: { type: String, default: "" },
   downloads: { type: Number, default: 0 },
   views: { type: Number, default: 0 },
   avgRating: { type: Number, default: 0 },
   smartNotes: { type: Object, default: null },
   uploadedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-  createdAt: { type: Date, default: Date.now },
-});
+}, { timestamps: true });
 
 export default mongoose.models.Resource || mongoose.model("Resource", ResourceSchema);

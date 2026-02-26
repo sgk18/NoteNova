@@ -7,6 +7,9 @@ import { Menu, X, LogOut, ChevronDown } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "@/context/ThemeContext";
 import NotificationBell from "@/components/NotificationBell";
+import { useSocket } from "@/hooks/useSocket";
+import toast from "react-hot-toast";
+import { BellRing } from "lucide-react";
 
 const THEMES = [
   { value: "ion", label: "Dark", icon: "◐" },
@@ -32,6 +35,39 @@ export default function Navbar() {
     if (stored) setUser(JSON.parse(stored));
   }, [pathname]);
 
+  const { isConnected, joinRoom, onEscalation } = useSocket();
+
+  useEffect(() => {
+    if (isConnected && user?.department) {
+      joinRoom(user.department);
+      onEscalation((data) => {
+        // Don't notify the person who escalated
+        if (data.user?.userId !== user.userId) {
+          toast((t) => (
+            <div className="flex items-center gap-3">
+              <div className="bg-cyan-500 p-2 rounded-lg text-white">
+                <BellRing className="h-4 w-4" />
+              </div>
+              <div className="flex-grow">
+                <p className="text-xs font-bold">New Escalation: {data.department}</p>
+                <p className="text-[10px] text-neutral-500 line-clamp-1">{data.question}</p>
+                <button 
+                  onClick={() => {
+                     toast.dismiss(t.id);
+                     router.push("/ask-nova"); // Or a specific peer-tutoring dashboard
+                  }}
+                  className="mt-1 text-[10px] font-bold text-cyan-500 hover:underline"
+                >
+                  Help Now
+                </button>
+              </div>
+            </div>
+          ), { duration: 6000 });
+        }
+      });
+    }
+  }, [isConnected, user, joinRoom, onEscalation, router]);
+
   useEffect(() => {
     const handleClick = (e) => {
       const inDesktop = desktopDropdownRef.current?.contains(e.target);
@@ -53,6 +89,7 @@ export default function Navbar() {
     ? [
       { name: "Home", href: "/" },
       { name: "Dashboard", href: "/dashboard" },
+      { name: "Bounties", href: "/bounty-board" },
       { name: "Upload", href: "/upload" },
       { name: "Ask Nova", href: "/ask-nova" },
       { name: "Mock Exam", href: "/mock-exam" },
