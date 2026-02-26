@@ -29,9 +29,10 @@ export default function UploadPage() {
 
   useEffect(() => {
     return () => {
-      if (previewUrl) URL.revokeObjectURL(previewUrl);
+      // fileUrl is a string from UploadThing, not a blob object
+      // so we don't need to revoke it, but we can clear state if needed
     };
-  }, [previewUrl]);
+  }, [fileUrl]);
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
