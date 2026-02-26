@@ -42,15 +42,19 @@ export async function POST(request) {
       uploadForm.append("UPLOADCARE_STORE", "auto");
       uploadForm.append("file", new Blob([buffer], { type: contentType }), fileName);
 
+      // Disable strict SSL checking for the fetch call (often needed on local Windows networks)
+      const { Agent } = require("undici");
+
       const uploadRes = await fetch("https://upload.uploadcare.com/base/", {
         method: "POST",
         body: uploadForm,
+        dispatcher: new Agent({ connect: { rejectUnauthorized: false } }),
       });
 
       if (!uploadRes.ok) {
         const errText = await uploadRes.text();
         console.error("Uploadcare error:", uploadRes.status, errText);
-        throw new Error("File upload to Uploadcare failed");
+        throw new Error(`Uploadcare API error: ${errText || uploadRes.statusText}`);
       }
 
       const uploadData = await uploadRes.json();
