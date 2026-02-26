@@ -48,8 +48,15 @@ export default function ResourceDetailPage() {
   const getFileExtension = (url) => {
     if (!url) return "";
     try {
+      // Handle base64 or blob URLs gracefully
+      if (url.startsWith("data:") || url.startsWith("blob:")) return "";
+
       const pathname = new URL(url).pathname;
-      return pathname.split(".").pop().toLowerCase();
+      const parts = pathname.split(".");
+      if (parts.length > 1) {
+        return parts.pop().toLowerCase();
+      }
+      return "";
     } catch {
       return "";
     }
@@ -59,14 +66,7 @@ export default function ResourceDetailPage() {
   const isPdfExt = (ext) => ext === "pdf";
   const isOfficeExt = (ext) => ["doc", "docx", "ppt", "pptx", "xls", "xlsx"].includes(ext);
 
-  // For images stored as "raw" in Cloudinary, convert to /image/upload/ for display
-  const getImageDisplayUrl = (url) => {
-    if (!url) return url;
-    if (url.includes("cloudinary.com") && url.includes("/raw/upload/")) {
-      return url.replace("/raw/upload/", "/image/upload/");
-    }
-    return url;
-  };
+  const getImageDisplayUrl = (url) => url;
 
   // Google Docs Viewer URL — works for any publicly accessible PDF/doc URL
   const getGoogleViewerUrl = (url) => {
@@ -83,8 +83,8 @@ export default function ResourceDetailPage() {
     if (!url) return url;
     const ext = getFileExtension(url);
     if (isPdfExt(ext)) {
-      // Google Docs Viewer renders PDFs regardless of Cloudinary resource type
-      return `https://docs.google.com/gview?url=${encodeURIComponent(url)}`;
+      // Google Docs Viewer renders PDFs
+      return `https://docs.google.com/gview?url=${encodeURIComponent(getInlineCloudinaryUrl(url))}`;
     }
     if (isOfficeExt(ext)) {
       return `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(url)}`;
@@ -95,14 +95,13 @@ export default function ResourceDetailPage() {
     return url;
   };
 
-  // For download: use Cloudinary fl_attachment flag to force proper download
-  const getDownloadUrl = (url) => {
-    if (!url) return url;
-    if (url.includes("cloudinary.com") && url.includes("/upload/")) {
-      // Insert fl_attachment flag after /upload/ to force download with correct headers
-      return url.replace("/upload/", "/upload/fl_attachment/");
-    }
-    return url;
+  const getDownloadUrl = (url) => url;
+
+  // Modifies Cloudinary URLs to force inline display instead of downloading
+  const getInlineCloudinaryUrl = (url) => {
+    if (!url || !url.includes("res.cloudinary.com")) return url;
+    // Inject fl_attachment:false after /upload/ to override raw download behavior
+    return url.replace("/upload/", "/upload/fl_attachment:false/");
   };
 
   // --- Preview renderer ---
@@ -158,21 +157,21 @@ export default function ResourceDetailPage() {
       );
     }
 
-    // PDF preview — Google Docs Viewer (works with ANY Cloudinary URL)
+    // PDF preview — Google Docs Viewer
     if (isPdfExt(ext)) {
       return (
         <div className="relative">
           {previewLoading && (
-            <div className="absolute inset-0 flex items-center justify-center z-10">
+            <div className="absolute inset-0 flex items-center justify-center z-10 bg-black/40 rounded-xl backdrop-blur-sm">
               <div className="flex flex-col items-center gap-3">
                 <div className="w-8 h-8 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" />
-                <p className="text-xs text-gray-500">Loading PDF preview...</p>
+                <p className="text-xs text-white">Loading PDF preview...</p>
               </div>
             </div>
           )}
           <iframe
-            src={getGoogleViewerUrl(fileUrl)}
-            className="w-full rounded-xl border border-white/10"
+            src={getGoogleViewerUrl(getInlineCloudinaryUrl(fileUrl))}
+            className="w-full rounded-xl border border-white/10 bg-white"
             style={{ height: "600px" }}
             frameBorder="0"
             allow="autoplay"
@@ -437,10 +436,10 @@ export default function ResourceDetailPage() {
               <div className="flex items-center gap-1.5">
                 <p className={`font-medium text-sm truncate ${headingText}`}>{resource.uploadedBy?.name || "Unknown"}</p>
                 {resource.uploaderRole === "verified_scholar" && (
-                   <BadgeCheck className="h-4 w-4 text-blue-500 flex-shrink-0" title="Verified Nova Scholar" />
+                  <BadgeCheck className="h-4 w-4 text-blue-500 flex-shrink-0" title="Verified Nova Scholar" />
                 )}
                 {resource.uploaderRole === "gold_creator" && (
-                   <Award className="h-4 w-4 text-amber-500 flex-shrink-0" title="Gold Badge Creator" />
+                  <Award className="h-4 w-4 text-amber-500 flex-shrink-0" title="Gold Badge Creator" />
                 )}
               </div>
               <p className={`text-xs truncate ${mutedText}`}>{resource.uploadedBy?.college} · {resource.uploadedBy?.department}</p>
@@ -455,10 +454,10 @@ export default function ResourceDetailPage() {
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-2">
           {resource.notebookLMLink && (
-            <a 
-              href={resource.notebookLMLink} 
-              target="_blank" 
-              rel="noopener noreferrer" 
+            <a
+              href={resource.notebookLMLink}
+              target="_blank"
+              rel="noopener noreferrer"
               className="flex-1 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20 transition-all active:scale-95"
             >
               <Sparkles className="h-4 w-4" /> View in NotebookLM
@@ -473,7 +472,7 @@ export default function ResourceDetailPage() {
               <Download className="h-4 w-4" /> {hasPurchased ? "Download Purchased Item" : "Download"}
             </button>
           )}
-          
+
           {(resource.fileUrl && (hasPurchased || !resource.price)) && (
             <a href={getOpenInTabUrl(resource.fileUrl)} target="_blank" rel="noopener noreferrer" className="flex-1 py-3.5 rounded-xl glass neon-border text-white font-semibold text-sm flex items-center justify-center gap-2 hover:bg-white/10 transition-all">
               <ExternalLink className="h-4 w-4" /> Open in New Tab
@@ -599,9 +598,8 @@ export default function ResourceDetailPage() {
               <button
                 onClick={processPayment}
                 disabled={paymentProcessing}
-                className={`w-full py-3 rounded-lg text-white font-medium flex items-center justify-center gap-2 transition-transform active:scale-[0.98] ${
-                  paymentProcessing ? "bg-emerald-500/70 cursor-not-allowed" : "bg-emerald-500 hover:bg-emerald-600 shadow-lg shadow-emerald-500/20"
-                }`}
+                className={`w-full py-3 rounded-lg text-white font-medium flex items-center justify-center gap-2 transition-transform active:scale-[0.98] ${paymentProcessing ? "bg-emerald-500/70 cursor-not-allowed" : "bg-emerald-500 hover:bg-emerald-600 shadow-lg shadow-emerald-500/20"
+                  }`}
               >
                 {paymentProcessing ? (
                   <><div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Processing...</>
