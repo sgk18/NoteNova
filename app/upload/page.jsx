@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
+<<<<<<< SGK
 import { Upload, File, Award, X, Image as ImageIcon, CheckCircle, Eye, RefreshCcw } from "lucide-react";
 import toast from "react-hot-toast";
 import { useTheme } from "@/context/ThemeContext";
@@ -15,37 +16,67 @@ const ALLOWED_TYPES = [
   "application/vnd.ms-powerpoint",
   "application/vnd.openxmlformats-officedocument.presentationml.presentation"
 ];
+=======
+import { Upload, File, Award, X, Image as ImageIcon, CheckCircle } from "lucide-react";
+import toast from "react-hot-toast";
+import { useTheme } from "@/context/ThemeContext";
+import { UploadDropzone } from "@/utils/uploadthing";
+>>>>>>> main
 
 export default function UploadPage() {
   const router = useRouter();
   const { theme } = useTheme();
   const isWhite = theme === "white";
   const [form, setForm] = useState({ title: "", description: "", subject: "", semester: "", department: "", resourceType: "", yearBatch: "", tags: "", isPublic: "true", price: "", notebookLMLink: "" });
+<<<<<<< SGK
   const [fileUrl, setFileUrl] = useState(null);
   const [fileName, setFileName] = useState("");
   const [isSavedInDB, setIsSavedInDB] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [loading, setLoading] = useState(false);
+=======
+>>>>>>> main
 
-  useEffect(() => {
-    return () => {
-      if (previewUrl) URL.revokeObjectURL(previewUrl);
-    };
-  }, [previewUrl]);
+  // Stores the result from Uploadthing
+  const [uploadedFile, setUploadedFile] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
+<<<<<<< SGK
   const handleSaveToDatabase = async (url, name) => {
+=======
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+>>>>>>> main
     const token = localStorage.getItem("token");
     const isPdf = name.toLowerCase().endsWith(".pdf");
     
     setLoading(true);
+<<<<<<< SGK
     try {
       const response = await fetch('/api/resources', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
+=======
+
+    try {
+      // 1. Send metadata to our backend (file is already uploaded to Uploadthing)
+      toast.loading("Saving resource metadata...", { id: "upload-toast" });
+      const metadata = { ...form };
+      if (uploadedFile) {
+        metadata.fileUrl = uploadedFile.url;
+        metadata.fileName = uploadedFile.name;
+      }
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+>>>>>>> main
         },
         body: JSON.stringify({
           ...form,
@@ -81,9 +112,9 @@ export default function UploadPage() {
   const mutedText = isWhite ? "text-neutral-400" : "text-neutral-500";
   const inputClass = `w-full px-3 py-2.5 rounded-lg text-sm focus:outline-none ${isWhite ? "bg-white border border-neutral-200 text-neutral-900 placeholder-neutral-400 focus:border-neutral-400" : "bg-[var(--input-bg)] border border-[var(--glass-border)] text-white placeholder-neutral-500 focus:border-neutral-500"}`;
 
-  const resourceTypeOptions = ["Notes","Question Papers","Solutions","Project Reports","Study Material","Google NotebookLM"];
-  const semesterOptions = ["1","2","3","4","5","6","7","8"];
-  const departmentOptions = ["CSE","IT","ECE","EEE","MECH","CIVIL","AIDS","AIML","CSE (Cyber Security)","Biomedical","Chemical","Automobile","Common"];
+  const resourceTypeOptions = ["Notes", "Question Papers", "Solutions", "Project Reports", "Study Material", "Google NotebookLM"];
+  const semesterOptions = ["1", "2", "3", "4", "5", "6", "7", "8"];
+  const departmentOptions = ["CSE", "IT", "ECE", "EEE", "MECH", "CIVIL", "AIDS", "AIML", "CSE (Cyber Security)", "Biomedical", "Chemical", "Automobile", "Common"];
 
   return (
     <div className="max-w-xl mx-auto px-4 py-8">
@@ -126,6 +157,7 @@ export default function UploadPage() {
               </div>
             </div>
 
+<<<<<<< SGK
             {/* Upload Section */}
             {!fileUrl ? (
               <div className={`border-2 border-dashed rounded-xl p-6 transition-all ${isWhite ? "border-neutral-200 hover:border-blue-400 bg-neutral-50" : "border-[var(--glass-border)] hover:border-cyan-500 bg-white/5"}`}>
@@ -199,6 +231,53 @@ export default function UploadPage() {
               ) : (
                 <img src={fileUrl} alt="Preview" className="w-full h-full object-contain" />
               )}
+=======
+        {/* File Upload UI */}
+        <div className={`border-2 border-dashed rounded-lg p-6 text-center ${isWhite ? "border-neutral-200" : "border-[var(--glass-border)]"} transition-colors relative`}>
+          {!uploadedFile ? (
+            <div className={isWhite ? "text-neutral-900" : "text-white"}>
+              <UploadDropzone
+                endpoint="courseResource"
+                onClientUploadComplete={(res) => {
+                  toast.success("File uploaded to cloud!");
+                  setUploadedFile({
+                    url: res[0].url,
+                    name: res[0].name,
+                    size: res[0].size
+                  });
+                }}
+                onUploadError={(error) => {
+                  toast.error(`Error uploading: ${error.message}`);
+                }}
+                appearance={{
+                  container: `border-none p-0 max-w-none`,
+                  button: `ut-ready:bg-cyan-500 ut-ready:text-white ut-uploading:bg-cyan-500/50 ut-uploading:text-white after:bg-cyan-400`,
+                  label: `text-sm font-medium hover:text-cyan-400 transition-colors ${headingText}`,
+                  allowedContent: `text-xs ${mutedText}`
+                }}
+              />
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-4">
+              <CheckCircle className={`h-12 w-12 mb-3 ${isWhite ? "text-green-500" : "text-green-400"}`} />
+              <p className={`text-sm font-semibold truncate max-w-[280px] ${headingText}`}>
+                {uploadedFile.name}
+              </p>
+              <p className={`text-xs mt-1 mb-4 ${mutedText}`}>
+                {(uploadedFile.size / (1024 * 1024)).toFixed(2)} MB • Ready to submit
+              </p>
+
+              <button
+                type="button"
+                onClick={() => setUploadedFile(null)}
+                className={`text-xs px-4 py-2 rounded-lg font-medium transition-colors ${isWhite
+                    ? "bg-red-50 text-red-600 hover:bg-red-100"
+                    : "bg-red-500/10 text-red-400 hover:bg-red-500/20"
+                  }`}
+              >
+                Remove File
+              </button>
+>>>>>>> main
             </div>
           </div>
         )}
