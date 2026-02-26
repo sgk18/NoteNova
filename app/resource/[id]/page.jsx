@@ -138,10 +138,10 @@ export default function ResourceDetailPage() {
   // For "Open in New Tab": PDFs use Google Docs Viewer, images use direct URL
   const getOpenInTabUrl = (url) => {
     if (!url) return url;
-    const ext = getFileExtension(url);
+    const ext = getFileExtension(resource?.fileName || url);
     if (isPdfExt(ext)) {
       // Google Docs Viewer renders PDFs
-      return `https://docs.google.com/gview?url=${encodeURIComponent(getInlineCloudinaryUrl(url))}`;
+      return `https://docs.google.com/gview?url=${encodeURIComponent(url)}&embedded=true`;
     }
     if (isOfficeExt(ext)) {
       return `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(url)}`;
@@ -153,13 +153,6 @@ export default function ResourceDetailPage() {
   };
 
   const getDownloadUrl = (url) => url;
-
-  // Modifies Cloudinary URLs to force inline display instead of downloading
-  const getInlineCloudinaryUrl = (url) => {
-    if (!url || !url.includes("res.cloudinary.com")) return url;
-    // Inject fl_attachment:false after /upload/ to override raw download behavior
-    return url.replace("/upload/", "/upload/fl_attachment:false/");
-  };
 
   // --- Preview renderer ---
 
@@ -174,7 +167,7 @@ export default function ResourceDetailPage() {
       );
     }
 
-    const ext = getFileExtension(fileUrl);
+    const ext = getFileExtension(resource?.fileName || fileUrl);
 
     if (previewError) {
       return (
@@ -227,7 +220,7 @@ export default function ResourceDetailPage() {
             </div>
           )}
           <iframe
-            src={getGoogleViewerUrl(getInlineCloudinaryUrl(fileUrl))}
+            src={getGoogleViewerUrl(fileUrl)}
             className="w-full rounded-xl border border-white/10 bg-white"
             style={{ height: "600px" }}
             frameBorder="0"
@@ -335,7 +328,7 @@ export default function ResourceDetailPage() {
       const res = await fetch(`/api/resources?download=${id}`);
       const data = await res.json();
       if (data.fileUrl) {
-        const ext = getFileExtension(data.fileUrl);
+        const ext = getFileExtension(resource?.fileName || data.fileUrl);
         if (isPdfExt(ext) || isOfficeExt(ext)) {
           // For PDFs/docs: use fl_attachment to force download with correct content-type
           const downloadUrl = getDownloadUrl(data.fileUrl);
