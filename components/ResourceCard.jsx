@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Download, Bookmark, BookmarkCheck, Lock, Globe } from "lucide-react";
+import { Download, Bookmark, BookmarkCheck, Lock, Globe, BadgeCheck, Award } from "lucide-react";
 import StarRating from "./StarRating";
 import toast from "react-hot-toast";
 import { useTheme } from "@/context/ThemeContext";
@@ -57,7 +57,8 @@ export default function ResourceCard({ resource, onBookmark, isBookmarked, showE
 
   return (
     <div
-      className={`rounded-lg p-4 flex flex-col group cursor-pointer transition-shadow ${
+      className={`rounded-lg p-4 flex flex-col group cursor-pointer transition-all ${
+        resource.price > 0 ? (isWhite ? "bg-amber-50/50 border border-amber-200 hover:shadow-md" : "bg-amber-900/10 border border-amber-700/50 hover:border-amber-500") :
         isWhite
           ? "bg-white border border-neutral-200 hover:shadow-md"
           : "bg-[var(--card-bg)] border border-[var(--card-border)] hover:border-neutral-600"
@@ -77,7 +78,18 @@ export default function ResourceCard({ resource, onBookmark, isBookmarked, showE
             {resource.resourceType || "Notes"}
           </span>
         </div>
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5 flex-wrap justify-end">
+          {resource.uploaderRole === "verified_scholar" && (
+             <BadgeCheck className="h-4 w-4 text-blue-500" title="Verified Nova Scholar" />
+          )}
+          {resource.uploaderRole === "gold_creator" && (
+             <Award className="h-4 w-4 text-amber-500" title="Gold Badge Creator" />
+          )}
+          {resource.price > 0 && (
+             <span className={`px-2 py-0.5 rounded text-[11px] font-bold ${isWhite ? "bg-amber-100 text-amber-700" : "bg-amber-500/20 text-amber-400"}`}>
+               ₹{resource.price}
+             </span>
+          )}
           {resource.isPublic === false ? (
             <Lock className="h-3 w-3 text-orange-400" title="Private" />
           ) : (
@@ -110,8 +122,8 @@ export default function ResourceCard({ resource, onBookmark, isBookmarked, showE
         </span>
       </div>
       <div className="flex flex-wrap gap-2" onClick={(e) => e.stopPropagation()}>
-        <button onClick={handleDownload} className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 text-xs font-medium rounded-lg text-white btn-gradient neon-glow">
-          <Download className="h-3.5 w-3.5" /> Download
+        <button onClick={handleDownload} className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 text-xs font-medium rounded-lg text-white ${resource.price > 0 ? "bg-gradient-to-r from-amber-500 to-orange-600 shadow-md shadow-amber-500/20" : "btn-gradient neon-glow"}`}>
+          <Download className="h-3.5 w-3.5" /> {resource.price > 0 ? `Buy for ₹${resource.price}` : "Download"}
         </button>
         <button onClick={handleBookmark} className={`p-2 rounded-lg transition-colors ${
           isWhite

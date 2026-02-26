@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Download, Lock, Globe, ArrowLeft, Star, Calendar, Tag, BookOpen, Building2, Send, ExternalLink, Sparkles, Eye, FileText, RefreshCw } from "lucide-react";
+import { Download, Lock, Globe, ArrowLeft, Star, Calendar, Tag, BookOpen, Building2, Send, ExternalLink, Sparkles, Eye, FileText, RefreshCw, BadgeCheck, Award, CreditCard, CheckCircle2, ShieldCheck } from "lucide-react";
 import StarRating from "@/components/StarRating";
 import SmartNotesDisplay from "@/components/SmartNotesDisplay";
 import StudyModePanel from "@/components/StudyModePanel";
@@ -27,6 +27,9 @@ export default function ResourceDetailPage() {
   const [visible, setVisible] = useState(false);
   const [previewLoading, setPreviewLoading] = useState(true);
   const [previewError, setPreviewError] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [paymentProcessing, setPaymentProcessing] = useState(false);
+  const [hasPurchased, setHasPurchased] = useState(false);
   const contentRef = useRef(null);
   const smartNotesRef = useRef(null);
 
@@ -295,6 +298,27 @@ export default function ResourceDetailPage() {
     }
   };
 
+  const handleBuy = () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      toast.error("Please login to purchase items");
+      router.push("/login");
+      return;
+    }
+    setShowPaymentModal(true);
+  };
+
+  const processPayment = () => {
+    setPaymentProcessing(true);
+    // Simulate payment gateway delay
+    setTimeout(() => {
+      setPaymentProcessing(false);
+      setShowPaymentModal(false);
+      setHasPurchased(true); // Grant access
+      toast.success("Payment successful! You now have access.");
+    }, 2000);
+  };
+
   const handleSubmitReview = async (e) => {
     e.preventDefault();
     const token = localStorage.getItem("token");
@@ -410,7 +434,15 @@ export default function ResourceDetailPage() {
               {resource.uploadedBy?.name?.[0] || "?"}
             </div>
             <div className="min-w-0">
-              <p className={`font-medium text-sm truncate ${headingText}`}>{resource.uploadedBy?.name || "Unknown"}</p>
+              <div className="flex items-center gap-1.5">
+                <p className={`font-medium text-sm truncate ${headingText}`}>{resource.uploadedBy?.name || "Unknown"}</p>
+                {resource.uploaderRole === "verified_scholar" && (
+                   <BadgeCheck className="h-4 w-4 text-blue-500 flex-shrink-0" title="Verified Nova Scholar" />
+                )}
+                {resource.uploaderRole === "gold_creator" && (
+                   <Award className="h-4 w-4 text-amber-500 flex-shrink-0" title="Gold Badge Creator" />
+                )}
+              </div>
               <p className={`text-xs truncate ${mutedText}`}>{resource.uploadedBy?.college} · {resource.uploadedBy?.department}</p>
             </div>
           </div>
@@ -422,10 +454,17 @@ export default function ResourceDetailPage() {
 
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-2">
-          <button onClick={handleDownload} className="flex-1 py-2.5 rounded-lg btn-gradient text-white text-sm font-medium flex items-center justify-center gap-2 neon-glow">
-            <Download className="h-4 w-4" /> Download
-          </button>
-          {resource.fileUrl && (
+          {resource.price > 0 && !hasPurchased ? (
+            <button onClick={handleBuy} className="flex-1 py-2.5 rounded-lg bg-gradient-to-r from-amber-500 to-orange-600 shadow-md shadow-amber-500/20 text-white text-sm font-medium flex items-center justify-center gap-2">
+              <CreditCard className="h-4 w-4" /> Buy for ₹{resource.price}
+            </button>
+          ) : (
+            <button onClick={handleDownload} className="flex-1 py-2.5 rounded-lg btn-gradient text-white text-sm font-medium flex items-center justify-center gap-2 neon-glow">
+              <Download className="h-4 w-4" /> {hasPurchased ? "Download Purchased Item" : "Download"}
+            </button>
+          )}
+          
+          {(resource.fileUrl && (hasPurchased || !resource.price)) && (
             <a href={getOpenInTabUrl(resource.fileUrl)} target="_blank" rel="noopener noreferrer" className="flex-1 py-3.5 rounded-xl glass neon-border text-white font-semibold text-sm flex items-center justify-center gap-2 hover:bg-white/10 transition-all">
               <ExternalLink className="h-4 w-4" /> Open in New Tab
             </a>
@@ -504,6 +543,69 @@ export default function ResourceDetailPage() {
           </div>
         )}
       </div>
+
+      {/* Dummy Payment Modal */}
+      {showPaymentModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={() => !paymentProcessing && setShowPaymentModal(false)}>
+          <div
+            className={`w-full max-w-sm rounded-xl overflow-hidden shadow-2xl transform transition-all ${isWhite ? "bg-white" : "bg-[#111]"}`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className={`p-4 border-b flex items-center justify-between ${isWhite ? "border-neutral-100 bg-neutral-50" : "border-neutral-800 bg-[#161616]"}`}>
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="h-5 w-5 text-emerald-500" />
+                <h3 className={`font-semibold ${isWhite ? "text-neutral-900" : "text-white"}`}>Secure Checkout</h3>
+              </div>
+              <span className={`text-xs px-2 py-0.5 rounded font-medium ${isWhite ? "bg-amber-100 text-amber-700" : "bg-amber-500/20 text-amber-400"}`}>
+                <Award className="h-3 w-3 inline mr-1" /> Nova Marketplace
+              </span>
+            </div>
+
+            {/* Body */}
+            <div className="p-5">
+              <div className="flex justify-between items-start mb-4">
+                <div>
+                  <h4 className={`font-medium line-clamp-2 ${isWhite ? "text-neutral-800" : "text-neutral-200"}`}>{resource.title}</h4>
+                  <p className={`text-xs mt-1 ${isWhite ? "text-neutral-500" : "text-neutral-400"}`}>By {resource.uploadedBy?.name || "Creator"}</p>
+                </div>
+              </div>
+
+              <div className={`rounded-lg p-3 mb-5 border ${isWhite ? "bg-neutral-50 border-neutral-100" : "bg-white/5 border-neutral-800"}`}>
+                <div className="flex justify-between text-sm mb-2">
+                  <span className={isWhite ? "text-neutral-500" : "text-neutral-400"}>Item Price</span>
+                  <span className={isWhite ? "text-neutral-700" : "text-neutral-300"}>₹{(resource.price * 0.85).toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-sm mb-3">
+                  <span className={isWhite ? "text-neutral-500" : "text-neutral-400"}>Platform Fee (15%)</span>
+                  <span className={isWhite ? "text-neutral-700" : "text-neutral-300"}>₹{(resource.price * 0.15).toFixed(2)}</span>
+                </div>
+                <div className={`flex justify-between font-bold pt-3 border-t ${isWhite ? "border-neutral-200 text-neutral-900" : "border-neutral-700 text-white"}`}>
+                  <span>Total Amount</span>
+                  <span>₹{resource.price}</span>
+                </div>
+              </div>
+
+              <button
+                onClick={processPayment}
+                disabled={paymentProcessing}
+                className={`w-full py-3 rounded-lg text-white font-medium flex items-center justify-center gap-2 transition-transform active:scale-[0.98] ${
+                  paymentProcessing ? "bg-emerald-500/70 cursor-not-allowed" : "bg-emerald-500 hover:bg-emerald-600 shadow-lg shadow-emerald-500/20"
+                }`}
+              >
+                {paymentProcessing ? (
+                  <><div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Processing...</>
+                ) : (
+                  <><CheckCircle2 className="h-5 w-5" /> Pay ₹{resource.price}</>
+                )}
+              </button>
+              <p className={`text-center text-[10px] mt-3 ${isWhite ? "text-neutral-400" : "text-neutral-500"}`}>
+                Simulated Payment via Razorpay/Stripe (Demo)
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

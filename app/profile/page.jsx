@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { BookOpen, Building2, GraduationCap, Award } from "lucide-react";
+import { BookOpen, Building2, GraduationCap, Award, BadgeCheck } from "lucide-react";
 import ResourceCard from "@/components/ResourceCard";
 import toast from "react-hot-toast";
 import { useTheme } from "@/context/ThemeContext";
@@ -59,7 +59,15 @@ export default function ProfilePage() {
           <div className={`w-14 h-14 rounded-full flex items-center justify-center text-lg font-bold mb-3 ${isWhite ? "bg-neutral-200 text-neutral-600 ring-4 ring-white" : "bg-white/10 text-white ring-4 ring-[var(--bg-primary)]"}`}>
             {user.name?.[0]}
           </div>
-          <h1 className={`text-lg font-bold ${headingText}`}>{user.name}</h1>
+          <div className="flex items-center gap-2 mb-1">
+            <h1 className={`text-lg font-bold ${headingText}`}>{user.name}</h1>
+            {user.role === "verified_scholar" && (
+              <BadgeCheck className="h-5 w-5 text-blue-500" title="Verified Nova Scholar" />
+            )}
+            {user.role === "gold_creator" && (
+              <Award className="h-5 w-5 text-amber-500" title="Gold Badge Creator" />
+            )}
+          </div>
           <p className={`text-xs ${mutedText}`}>{user.email}</p>
           <div className="flex flex-wrap gap-3 mt-3">
             {user.college && <span className={`flex items-center gap-1 text-xs ${mutedText}`}><Building2 className="h-3 w-3" /> {user.college}</span>}
