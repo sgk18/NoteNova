@@ -54,6 +54,7 @@ export default function Navbar() {
       { name: "Dashboard", href: "/dashboard" },
       { name: "Upload", href: "/upload" },
       { name: "Ask AI", href: "/ask-ai" },
+      { name: "Mock Exam", href: "/mock-exam" },
       { name: "Leaderboard", href: "/leaderboard" },
       { name: "Profile", href: "/profile" },
     ]
