@@ -138,6 +138,10 @@ export default function UploadPage() {
   const mutedText = isWhite ? "text-neutral-400" : "text-neutral-500";
   const inputClass = `w-full px-3 py-2.5 rounded-lg text-sm focus:outline-none ${isWhite ? "bg-white border border-neutral-200 text-neutral-900 placeholder-neutral-400 focus:border-neutral-400" : "bg-[var(--input-bg)] border border-[var(--glass-border)] text-white placeholder-neutral-500 focus:border-neutral-500"}`;
 
+  const resourceTypeOptions = ["Notes","Question Papers","Solutions","Project Reports","Study Material","Google NotebookLM"];
+  const semesterOptions = ["1","2","3","4","5","6","7","8"];
+  const departmentOptions = ["CSE","IT","ECE","EEE","MECH","CIVIL","AIDS","AIML","CSE (Cyber Security)","Biomedical","Chemical","Automobile","Common"];
+
   return (
     <div className="max-w-xl mx-auto px-4 py-8">
       <h1 className={`text-xl font-bold mb-5 ${headingText}`}>Upload Resource</h1>
