@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Upload, File, Award, X, Image as ImageIcon } from "lucide-react";
 import toast from "react-hot-toast";
@@ -21,8 +21,15 @@ export default function UploadPage() {
   const isWhite = theme === "white";
   const [form, setForm] = useState({ title: "", description: "", subject: "", semester: "", department: "", resourceType: "", yearBatch: "", tags: "", isPublic: "true", price: "", notebookLMLink: "" });
   const [file, setFile] = useState(null);
+  const [fileType, setFileType] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    return () => {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+    };
+  }, [previewUrl]);
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
@@ -43,17 +50,13 @@ export default function UploadPage() {
     }
 
     setFile(selectedFile);
-
-    // Create preview for images
-    if (selectedFile.type.startsWith("image/")) {
-      setPreviewUrl(URL.createObjectURL(selectedFile));
-    } else {
-      setPreviewUrl(null);
-    }
+    setFileType(selectedFile.type);
+    setPreviewUrl(URL.createObjectURL(selectedFile));
   };
 
   const removeFile = () => {
     setFile(null);
+    setFileType(null);
     if (previewUrl) {
       URL.revokeObjectURL(previewUrl);
       setPreviewUrl(null);
@@ -239,11 +242,17 @@ export default function UploadPage() {
                 <X className="h-4 w-4" />
               </button>
 
-              {previewUrl ? (
+              {previewUrl && fileType?.startsWith("image/") && (
                 <div className="relative w-full max-w-[200px] h-32 mx-auto rounded overflow-hidden mb-3">
                   <img src={previewUrl} alt="Preview" className="object-contain w-full h-full" />
                 </div>
-              ) : (
+              )}
+              {previewUrl && fileType === "application/pdf" && (
+                <div className="relative w-full h-[400px] mb-3">
+                  <iframe src={previewUrl} className={`w-full h-full border rounded-lg ${isWhite ? "border-neutral-200" : "border-neutral-700"}`} />
+                </div>
+              )}
+              {(!previewUrl || (!fileType?.startsWith("image/") && fileType !== "application/pdf")) && (
                 <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-3 ${isWhite ? "bg-blue-50 text-blue-500" : "bg-blue-500/10 text-blue-400"}`}>
                   <File className="h-8 w-8" />
                 </div>
