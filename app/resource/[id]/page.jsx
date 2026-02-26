@@ -454,6 +454,16 @@ export default function ResourceDetailPage() {
 
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-2">
+          {resource.notebookLMLink && (
+            <a 
+              href={resource.notebookLMLink} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="flex-1 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20 transition-all active:scale-95"
+            >
+              <Sparkles className="h-4 w-4" /> View in NotebookLM
+            </a>
+          )}
           {resource.price > 0 && !hasPurchased ? (
             <button onClick={handleBuy} className="flex-1 py-2.5 rounded-lg bg-gradient-to-r from-amber-500 to-orange-600 shadow-md shadow-amber-500/20 text-white text-sm font-medium flex items-center justify-center gap-2">
               <CreditCard className="h-4 w-4" /> Buy for ₹{resource.price}

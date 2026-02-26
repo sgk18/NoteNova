@@ -30,6 +30,7 @@ export async function POST(request) {
     const yearBatch = formData.get("yearBatch") || "";
     const tagsRaw = formData.get("tags") || "";
     const isPublic = formData.get("isPublic") !== "false";
+    const notebookLMLink = formData.get("notebookLMLink") || "";
     const file = formData.get("file");
 
     if (!title) return NextResponse.json({ error: "Title is required" }, { status: 400 });
@@ -57,6 +58,7 @@ export async function POST(request) {
     const resource = await Resource.create({
       title, description, subject, semester, department,
       resourceType, yearBatch, tags, isPublic, fileUrl,
+      notebookLMLink,
       uploadedBy: decoded.userId,
     });
 

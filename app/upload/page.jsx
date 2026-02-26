@@ -10,7 +10,7 @@ export default function UploadPage() {
   const router = useRouter();
   const { theme } = useTheme();
   const isWhite = theme === "white";
-  const [form, setForm] = useState({ title: "", description: "", subject: "", semester: "", department: "", resourceType: "", yearBatch: "", tags: "", isPublic: "true", price: "" });
+  const [form, setForm] = useState({ title: "", description: "", subject: "", semester: "", department: "", resourceType: "", yearBatch: "", tags: "", isPublic: "true", price: "", notebookLMLink: "" });
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -49,7 +49,7 @@ export default function UploadPage() {
           <input name="subject" placeholder="Subject / Course" className={inputClass} value={form.subject} onChange={handleChange} />
           <select name="resourceType" required className={`${inputClass} appearance-none`} value={form.resourceType} onChange={handleChange}>
             <option value="" className={isWhite ? "bg-white" : "bg-[var(--bg-secondary)]"}>Resource Type *</option>
-            {["Notes","Question Papers","Solutions","Project Reports","Study Material"].map(t => <option key={t} value={t} className={isWhite ? "bg-white" : "bg-[var(--bg-secondary)]"}>{t}</option>)}
+            {["Notes","Question Papers","Solutions","Project Reports","Study Material","Google NotebookLM"].map(t => <option key={t} value={t} className={isWhite ? "bg-white" : "bg-[var(--bg-secondary)]"}>{t}</option>)}
           </select>
         </div>
 
@@ -83,8 +83,24 @@ export default function UploadPage() {
              <input type="number" min="0" step="1" name="price" placeholder="Price (e.g. 49)" className={`${inputClass} pl-8 border-amber-500/30 focus:border-amber-500`} value={form.price} onChange={handleChange} />
           </div>
         </div>
+ 
+        {form.resourceType === "Google NotebookLM" && (
+          <div className="space-y-1.5 animate-in fade-in slide-in-from-top-2 duration-300">
+            <label className={`text-[10px] font-bold uppercase tracking-wider ml-1 ${mutedText}`}>NotebookLM Share Link</label>
+            <input 
+              name="notebookLMLink" 
+              placeholder="https://notebooklm.google.com/notebook/..." 
+              className={`${inputClass} border-blue-500/30 focus:border-blue-500`} 
+              value={form.notebookLMLink} 
+              onChange={handleChange} 
+            />
+            <p className={`text-[10px] ml-1 ${mutedText}`}>
+              Make sure the notebook is set to "Public" or "Anyone with the link".
+            </p>
+          </div>
+        )}
 
-        {/* Privacy Toggle */}
+        {/* Access Level Toggle */}
         <div className={`flex items-center justify-between rounded-lg p-3.5 ${isWhite ? "bg-neutral-50 border border-neutral-100" : "bg-white/5 border border-[var(--glass-border)]"}`}>
           <div>
             <p className={`text-sm font-medium ${headingText}`}>Access Level</p>
@@ -106,7 +122,7 @@ export default function UploadPage() {
           <Upload className={`h-6 w-6 mx-auto mb-2 ${mutedText}`} />
           <label className="cursor-pointer">
             <span className={`text-sm font-medium ${headingText}`}>Choose a file</span>
-            <span className={`text-xs ml-1 ${mutedText}`}>(PDF, DOCX, PPT, images)</span>
+            <span className={`text-xs ml-1 ${mutedText}`}>{form.resourceType === "Google NotebookLM" ? "(Optional Notebook Export/Summary)" : "(PDF, DOCX, PPT, images)"}</span>
             <input type="file" className="hidden" accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,.png,.jpg,.jpeg" onChange={(e) => setFile(e.target.files[0])} />
           </label>
           {file && (
