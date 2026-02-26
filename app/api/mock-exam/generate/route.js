@@ -10,7 +10,7 @@ STRICT RULES:
 - 12 Multiple Choice Questions (4 options each, one correct)
 - 4 True/False questions
 - 4 Short Answer questions (2-3 sentences expected)
-- Vary difficulty: 6 easy (3 pts each), 8 medium (4 pts each), 6 hard (6 pts each) = 86 pts base, adjust to total 100
+- Difficulty Level: {DIFFICULTY_LEVEL}. Adjust the questions to precisely match this difficulty. If Mixed, vary them (6 easy, 8 medium, 6 hard).
 - Each question must have: id, type, question, difficulty, points
 - MCQ must have: options (array of 4), correctAnswer (the correct option text)
 - TrueFalse must have: correctAnswer ("True" or "False")
@@ -18,9 +18,9 @@ STRICT RULES:
 
 Return ONLY valid JSON, no markdown, no explanation:
 {
-  "title": "Mock Exam: [Subject]",
+  "title": "{EXAM_TITLE}",
   "totalPoints": 100,
-  "duration": 30,
+  "duration": {DURATION},
   "questions": [
     { "id": 1, "type": "mcq", "question": "...", "options": ["A","B","C","D"], "correctAnswer": "A", "difficulty": "easy", "points": 5 },
     { "id": 2, "type": "trueFalse", "question": "...", "correctAnswer": "True", "difficulty": "medium", "points": 5 },
@@ -34,27 +34,42 @@ export async function POST(request) {
     if (!apiKey) return NextResponse.json({ error: "AI service not configured" }, { status: 503 });
 
     await dbConnect();
-    const { resourceId } = await request.json();
+    const { resourceId, customText, customTitle, difficulty = "mixed", durationMinutes = 30 } = await request.json();
 
-    if (!resourceId) return NextResponse.json({ error: "resourceId required" }, { status: 400 });
+    if (!resourceId && !customText) return NextResponse.json({ error: "resourceId or customText required" }, { status: 400 });
 
-    const resource = await Resource.findById(resourceId);
-    if (!resource) return NextResponse.json({ error: "Resource not found" }, { status: 404 });
+    let context = "";
+    let examTitle = customTitle || "Mock Exam";
 
-    const context = [
-      `Title: ${resource.title}`,
-      resource.description ? `Description: ${resource.description}` : "",
-      resource.subject ? `Subject: ${resource.subject}` : "",
-      resource.department ? `Department: ${resource.department}` : "",
-      resource.semester ? `Semester: ${resource.semester}` : "",
-      resource.resourceType ? `Type: ${resource.resourceType}` : "",
-      resource.tags?.length ? `Tags: ${resource.tags.join(", ")}` : "",
-    ].filter(Boolean).join("\n");
+    if (customText) {
+      context = `Title: ${examTitle}\n\nContent:\n${customText}`;
+    } else {
+      const resource = await Resource.findById(resourceId);
+      if (!resource) return NextResponse.json({ error: "Resource not found" }, { status: 404 });
+      examTitle = `Mock Exam: ${resource.subject || resource.title}`;
+      
+      context = [
+        `Title: ${resource.title}`,
+        resource.description ? `Description: ${resource.description}` : "",
+        resource.subject ? `Subject: ${resource.subject}` : "",
+        resource.department ? `Department: ${resource.department}` : "",
+        resource.semester ? `Semester: ${resource.semester}` : "",
+        resource.resourceType ? `Type: ${resource.resourceType}` : "",
+        resource.tags?.length ? `Tags: ${resource.tags.join(", ")}` : "",
+      ].filter(Boolean).join("\n");
+      
+      // If resource has extracted text but no smart notes, maybe include it (omitted for brevity unless needed)
+    }
 
     const sdk = new Bytez(apiKey);
     const model = sdk.model("meta-llama/Meta-Llama-3-8B");
 
-    const prompt = `${EXAM_PROMPT}\n\nResource:\n${context}\n\nGenerate the exam JSON:`;
+    const dynamicPrompt = EXAM_PROMPT
+      .replace("{DIFFICULTY_LEVEL}", difficulty.toUpperCase())
+      .replace("{EXAM_TITLE}", examTitle)
+      .replace("{DURATION}", durationMinutes);
+
+    const prompt = `${dynamicPrompt}\n\nResource:\n${context}\n\nGenerate the exam JSON:`;
     const { error, output } = await model.run(prompt);
 
     if (error) {
@@ -85,12 +100,15 @@ export async function POST(request) {
 
     // Validate & fix structure
     if (!examData.questions || !Array.isArray(examData.questions)) {
-      examData = generateFallbackExam(resource);
+      if (customText) {
+        return NextResponse.json({ error: "AI failed to generate structural JSON from custom text." }, { status: 502 });
+      }
+      examData = generateFallbackExam(await Resource.findById(resourceId), durationMinutes);
     }
 
     examData.totalPoints = examData.questions.reduce((sum, q) => sum + (q.points || 5), 0);
-    examData.duration = 30;
-    examData.title = examData.title || `Mock Exam: ${resource.subject || resource.title}`;
+    examData.duration = durationMinutes;
+    examData.title = examData.title || examTitle;
 
     return NextResponse.json({ exam: examData });
   } catch (err) {
@@ -99,7 +117,7 @@ export async function POST(request) {
   }
 }
 
-function generateFallbackExam(resource) {
+function generateFallbackExam(resource, durationMinutes = 30) {
   const smartNotes = resource.smartNotes;
   const questions = [];
   let id = 1;
@@ -150,7 +168,7 @@ function generateFallbackExam(resource) {
   return {
     title: `Mock Exam: ${resource.subject || resource.title}`,
     totalPoints: questions.reduce((sum, q) => sum + q.points, 0),
-    duration: 30,
+    duration: durationMinutes,
     questions,
   };
 }
