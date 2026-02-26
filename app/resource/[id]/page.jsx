@@ -6,8 +6,10 @@ import { Download, Lock, Globe, ArrowLeft, Star, Calendar, Tag, BookOpen, Buildi
 import StarRating from "@/components/StarRating";
 import SmartNotesDisplay from "@/components/SmartNotesDisplay";
 import StudyModePanel from "@/components/StudyModePanel";
+import AudioPlayer from "@/components/AudioPlayer";
 import toast from "react-hot-toast";
 import { useTheme } from "@/context/ThemeContext";
+import { useTTS } from "@/hooks/useTTS";
 
 export default function ResourceDetailPage() {
   const { id } = useParams();
@@ -30,11 +32,66 @@ export default function ResourceDetailPage() {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentProcessing, setPaymentProcessing] = useState(false);
   const [hasPurchased, setHasPurchased] = useState(false);
+  const [audioChunks, setAudioChunks] = useState([]);
   const contentRef = useRef(null);
   const smartNotesRef = useRef(null);
 
+  const {
+    isPlaying,
+    currentIndex,
+    playbackSpeed,
+    play,
+    pause,
+    resume,
+    stop,
+    skipForward,
+    skipBackward,
+    updateSpeed
+  } = useTTS(audioChunks, id);
+
   useEffect(() => { if (id) fetchDetail(); }, [id]);
-  useEffect(() => { if (resource?.smartNotes) setSmartNotes(resource.smartNotes); }, [resource]);
+  
+  useEffect(() => { 
+    if (resource?.smartNotes) {
+      setSmartNotes(resource.smartNotes); 
+      setAudioChunks(extractAudioChunks(resource.smartNotes));
+    } 
+  }, [resource]);
+
+  const extractAudioChunks = (notes) => {
+    if (!notes) return [];
+    
+    const chunks = [];
+    
+    if (notes.summary) {
+      chunks.push({ id: 0, title: "Summary", text: `Summary: ${notes.summary}` });
+    }
+    
+    if (notes.keyConcepts?.length > 0) {
+      chunks.push({ id: 1, title: "Key Concepts", text: `Key Concepts: ${notes.keyConcepts.join(". ")}` });
+    }
+    
+    if (notes.flashcards?.length > 0) {
+      const text = notes.flashcards.map(f => `Question: ${f.question}. Answer: ${f.answer}`).join(". ");
+      chunks.push({ id: 2, title: "Flashcards", text: `Flashcards: ${text}` });
+    }
+    
+    if (notes.mcqs?.length > 0) {
+      const text = notes.mcqs.map((m, i) => `Question ${i + 1}: ${m.question}. Options are: ${m.options.join(", ")}. Correct answer is ${m.answer}`).join(". ");
+      chunks.push({ id: 3, title: "Multiple Choice Questions", text: `Practice Questions: ${text}` });
+    }
+    
+    if (notes.examQuestions?.length > 0) {
+      chunks.push({ id: 4, title: "Exam Questions", text: `Possible Exam Questions: ${notes.examQuestions.join(". ")}` });
+    }
+    
+    if (notes.mindMap?.length > 0) {
+      const text = notes.mindMap.map(node => `Topic: ${node.topic}. Subtopics: ${node.subtopics?.join(", ")}`).join(". ");
+      chunks.push({ id: 5, title: "Mind Map Structure", text: `Mind Map Overview: ${text}` });
+    }
+    
+    return chunks;
+  };
 
   useEffect(() => {
     if (resource) {
@@ -502,7 +559,32 @@ export default function ResourceDetailPage() {
       </div>
 
       {/* Smart Notes Display */}
-      {smartNotes && <div ref={smartNotesRef}><SmartNotesDisplay notes={smartNotes} /></div>}
+      {smartNotes && (
+        <div ref={smartNotesRef}>
+          <SmartNotesDisplay 
+            notes={smartNotes} 
+            activeIndex={currentIndex !== -1 ? audioChunks[currentIndex]?.id : -1} 
+          />
+        </div>
+      )}
+
+      {/* Audio Player Container */}
+      {smartNotes && (
+        <AudioPlayer 
+          isPlaying={isPlaying}
+          currentIndex={currentIndex}
+          totalChunks={audioChunks.length}
+          onPlay={() => play()}
+          onPause={pause}
+          onResume={resume}
+          onSkipForward={skipForward}
+          onSkipBackward={skipBackward}
+          playbackSpeed={playbackSpeed}
+          onSpeedChange={updateSpeed}
+          onClose={stop}
+          currentTitle={currentIndex !== -1 ? audioChunks[currentIndex]?.title : "Smart Notes"}
+        />
+      )}
 
       {/* AI Study Mode */}
       <StudyModePanel resourceId={id} resourceTitle={resource.title} smartNotes={smartNotes} />

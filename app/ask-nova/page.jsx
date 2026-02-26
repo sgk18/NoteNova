@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Send, Copy, Check, Loader2, Volume2 } from "lucide-react";
+import { Send, Copy, Check, Loader2, Volume2, Users } from "lucide-react";
 import toast from "react-hot-toast";
 import { useTheme } from "@/context/ThemeContext";
+import ExpertChat from "@/components/ExpertChat";
+import { useSocket } from "@/hooks/useSocket";
 
 const MAX_CHARS = 500;
 const SUGGESTIONS = [
@@ -20,9 +22,16 @@ export default function AskNovaPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
-  const [audioUrl, setAudioUrl] = useState("");
   const [audioLoading, setAudioLoading] = useState(false);
+  const [user, setUser] = useState(null);
+  const [showExpertChat, setShowExpertChat] = useState(false);
+  const { emitEscalation } = useSocket();
   const answerRef = useRef(null);
+
+  useEffect(() => {
+    const stored = localStorage.getItem("user");
+    if (stored) setUser(JSON.parse(stored));
+  }, []);
 
   useEffect(() => {
     if (answer) answerRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -135,13 +144,33 @@ export default function AskNovaPage() {
           <div className="px-4 py-4">
             <div className={`text-sm leading-relaxed whitespace-pre-wrap ${bodyText}`}>{answer}</div>
           </div>
-          <div className={`px-4 py-3 border-t flex justify-end ${isWhite ? "border-neutral-100 bg-neutral-50" : "border-[var(--glass-border)] bg-white/5"}`}>
+          <div className={`px-4 py-3 border-t flex flex-wrap justify-end gap-2 ${isWhite ? "border-neutral-100 bg-neutral-50" : "border-[var(--glass-border)] bg-white/5"}`}>
+            <button 
+              onClick={() => {
+                setShowExpertChat(true);
+                emitEscalation(user?.department || "CSE", user, question, Date.now());
+                toast.success("Escalation request sent to Seniors!");
+              }} 
+              className={`py-2 px-4 rounded-lg text-xs font-medium flex items-center gap-2 transition-all border ${isWhite ? "border-neutral-200 text-neutral-600 hover:bg-neutral-100" : "border-white/10 text-neutral-400 hover:bg-white/5"}`}
+            >
+                <Users className="h-4 w-4" />
+                Escalate to a Senior
+            </button>
             <button onClick={handleGenerateAudio} disabled={audioLoading} className="py-2 px-4 rounded-lg btn-gradient text-white text-xs font-medium flex items-center gap-2 neon-glow transition-all">
                 {audioLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Volume2 className="h-4 w-4" />}
                 {audioLoading ? "Generating Audio..." : (audioUrl ? "Replay Audio" : "Listen to Response")}
             </button>
           </div>
         </div>
+      )}
+
+      {showExpertChat && (
+        <ExpertChat 
+          room={`esc-${user?.userId || "anon"}-${Date.now()}`}
+          currentUser={user}
+          topic={question.slice(0, 30)}
+          onClose={() => setShowExpertChat(false)}
+        />
       )}
 
       {/* Suggestions */}
