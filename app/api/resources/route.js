@@ -31,12 +31,7 @@ export async function GET(request) {
         if (resource.uploadedBy) {
           await User.findByIdAndUpdate(resource.uploadedBy, { $inc: { points: 2 } });
         }
-        let url = resource.fileUrl;
-        // Fix URLs stored with wrong resource type path
-        if (url && url.includes("/image/upload/")) {
-          url = url.replace("/image/upload/", "/raw/upload/");
-        }
-        return NextResponse.json({ fileUrl: url });
+        return NextResponse.json({ fileUrl: resource.fileUrl });
       }
       return NextResponse.json({ error: "Resource not found" }, { status: 404 });
     }
@@ -59,9 +54,13 @@ export async function GET(request) {
       query.isPublic = isPublic === "true";
     }
     if (tag) query.tags = { $in: [new RegExp(tag, "i")] };
-    if (userId) query.uploadedBy = new mongoose.Types.ObjectId(userId);
-
-
+    if (userId) {
+      try {
+        query.uploadedBy = new mongoose.Types.ObjectId(userId);
+      } catch {
+        query.uploadedBy = userId;
+      }
+    }
 
     // Access control for private resources
     let userCollege = null;
@@ -85,9 +84,6 @@ export async function GET(request) {
         },
         { $sort: { score: -1 } },
         { $limit: 50 },
-        { $lookup: { from: "users", localField: "uploadedBy", foreignField: "_id", as: "uploadedBy" } },
-        { $unwind: { path: "$uploadedBy", preserveNullAndEmptyArrays: true } },
-        { $project: { "uploadedBy.password": 0 } },
       ]);
       // Populate uploadedBy manually for aggregation
       resources = await Resource.populate(resources, { path: "uploadedBy", select: "name college department" });
@@ -102,16 +98,21 @@ export async function GET(request) {
     }
 
     // Filter out private resources from other colleges
-    // Resources without isPublic field are treated as public (backwards compatible)
+    // Filter out private resources from other colleges, but always show user's own uploads
     resources = resources.filter((r) => {
-      if (r.isPublic === false) {
-        // Explicitly private — only show to same college
-        if (!userCollege) return false;
-        const uploaderCollege = r.uploadedBy?.college || "";
-        return uploaderCollege.toLowerCase() === userCollege.toLowerCase();
-      }
       // isPublic is true, undefined, or null — treat as public
-      return true;
+      if (r.isPublic !== false) return true;
+
+      // If querying own uploads, always include
+      if (userId) {
+        const uploaderId = r.uploadedBy?._id?.toString() || r.uploadedBy?.toString() || "";
+        if (uploaderId === userId) return true;
+      }
+
+      // Explicitly private — only show to same college
+      if (!userCollege) return false;
+      const uploaderCollege = r.uploadedBy?.college || "";
+      return uploaderCollege.toLowerCase() === userCollege.toLowerCase();
     });
 
     return NextResponse.json({ resources });

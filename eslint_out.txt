@@ -1,0 +1,25 @@
+
+D:\website\NoteNova_Frontend\app\resource\[id]\page.jsx
+   32:6   warning  React Hook useEffect has a missing dependency: 'fetchDetail'. Either include it or remove the dependency array                                                                                                                                                                           react-hooks/exhaustive-deps
+   49:6   warning  React Hook useEffect has a missing dependency: 'resource'. Either include it or remove the dependency array                                                                                                                                                                              react-hooks/exhaustive-deps
+  155:11  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+D:\website\NoteNova_Frontend\components\Navbar.jsx
+  30:17  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  28 |   useEffect(() => {
+  29 |     const stored = localStorage.getItem("user");
+> 30 |     if (stored) setUser(JSON.parse(stored));
+     |                 ^^^^^^^ Avoid calling setState() directly within an effect
+  31 |   }, [pathname]);
+  32 |
+  33 |   // Close dropdown on outside click  react-hooks/set-state-in-effect
+
+✖ 4 problems (1 error, 3 warnings)
+

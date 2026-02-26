@@ -2,12 +2,15 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { UploadCloud, Download, Star, Trash2, Pencil, X } from "lucide-react";
+import { UploadCloud, Download, Star, X } from "lucide-react";
 import ResourceCard from "@/components/ResourceCard";
 import toast from "react-hot-toast";
+import { useTheme } from "@/context/ThemeContext";
 
 export default function DashboardPage() {
   const router = useRouter();
+  const { theme } = useTheme();
+  const isWhite = theme === "white";
   const [user, setUser] = useState(null);
   const [resources, setResources] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -34,35 +37,14 @@ export default function DashboardPage() {
     if (!confirm("Are you sure you want to delete this resource?")) return;
     const token = localStorage.getItem("token");
     try {
-      const res = await fetch(`/api/resources?resourceId=${resourceId}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        toast.success("Resource deleted");
-        setResources(resources.filter((r) => r._id !== resourceId));
-      } else {
-        const data = await res.json();
-        toast.error(data.error || "Delete failed");
-      }
-    } catch {
-      toast.error("Delete failed");
-    }
+      const res = await fetch(`/api/resources?resourceId=${resourceId}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
+      if (res.ok) { toast.success("Resource deleted"); setResources(resources.filter((r) => r._id !== resourceId)); }
+      else { const data = await res.json(); toast.error(data.error || "Delete failed"); }
+    } catch { toast.error("Delete failed"); }
   };
 
   const openEdit = (resource) => {
-    setEditForm({
-      resourceId: resource._id,
-      title: resource.title,
-      description: resource.description || "",
-      subject: resource.subject || "",
-      semester: resource.semester || "",
-      department: resource.department || "",
-      resourceType: resource.resourceType || "Notes",
-      yearBatch: resource.yearBatch || "",
-      tags: (resource.tags || []).join(", "),
-      isPublic: resource.isPublic !== false,
-    });
+    setEditForm({ resourceId: resource._id, title: resource.title, description: resource.description || "", subject: resource.subject || "", semester: resource.semester || "", department: resource.department || "", resourceType: resource.resourceType || "Notes", yearBatch: resource.yearBatch || "", tags: (resource.tags || []).join(", "), isPublic: resource.isPublic !== false });
     setEditModal(true);
   };
 
@@ -70,108 +52,87 @@ export default function DashboardPage() {
     e.preventDefault();
     const token = localStorage.getItem("token");
     try {
-      const body = {
-        ...editForm,
-        tags: editForm.tags.split(",").map((t) => t.trim()).filter(Boolean),
-      };
-      const res = await fetch("/api/resources", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify(body),
-      });
-      if (res.ok) {
-        toast.success("Resource updated");
-        setEditModal(null);
-        fetchMyResources(user.id);
-      } else {
-        const data = await res.json();
-        toast.error(data.error || "Edit failed");
-      }
-    } catch {
-      toast.error("Edit failed");
-    }
+      const body = { ...editForm, tags: editForm.tags.split(",").map((t) => t.trim()).filter(Boolean) };
+      const res = await fetch("/api/resources", { method: "PUT", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify(body) });
+      if (res.ok) { toast.success("Resource updated"); setEditModal(null); fetchMyResources(user.id); }
+      else { const data = await res.json(); toast.error(data.error || "Edit failed"); }
+    } catch { toast.error("Edit failed"); }
   };
 
   const totalDownloads = resources.reduce((s, r) => s + (r.downloads || 0), 0);
   const avgRating = resources.length ? (resources.reduce((s, r) => s + (r.avgRating || 0), 0) / resources.length).toFixed(1) : "0";
 
+  const headingText = isWhite ? "text-neutral-900" : "text-white";
+  const mutedText = isWhite ? "text-neutral-400" : "text-neutral-500";
+  const card = `rounded-lg p-4 ${isWhite ? "bg-white border border-neutral-200" : "bg-[var(--card-bg)] border border-[var(--card-border)]"}`;
+  const inputClass = `w-full px-3 py-2.5 rounded-lg text-sm focus:outline-none ${isWhite ? "bg-white border border-neutral-200 text-neutral-900 placeholder-neutral-400 focus:border-neutral-400" : "bg-[var(--input-bg)] border border-[var(--glass-border)] text-white placeholder-neutral-500 focus:border-neutral-500"}`;
+
   const stats = [
-    { label: "Uploads", value: resources.length, icon: UploadCloud, gradient: "from-purple-500 to-blue-500" },
-    { label: "Downloads", value: totalDownloads, icon: Download, gradient: "from-cyan-500 to-teal-500" },
-    { label: "Avg Rating", value: avgRating, icon: Star, gradient: "from-yellow-500 to-orange-500" },
+    { label: "Uploads", value: resources.length },
+    { label: "Downloads", value: totalDownloads },
+    { label: "Avg Rating", value: avgRating },
   ];
 
-  if (loading) {
-    return <div className="flex justify-center py-32"><div className="w-10 h-10 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" /></div>;
-  }
+  if (loading) return <div className="flex justify-center py-32"><div className={`w-6 h-6 border-2 border-t-transparent rounded-full animate-spin ${isWhite ? "border-neutral-300" : "border-neutral-600"}`} /></div>;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <h1 className="text-2xl font-bold text-white mb-2">Dashboard</h1>
-      <p className="text-gray-400 text-sm mb-8">Welcome back, {user?.name}</p>
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+      <h1 className={`text-xl font-bold mb-1 ${headingText}`}>Dashboard</h1>
+      <p className={`text-sm mb-6 ${mutedText}`}>Welcome back, {user?.name}</p>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-10">
+      <div className="grid grid-cols-3 gap-3 mb-8">
         {stats.map((s) => (
-          <div key={s.label} className="glass rounded-2xl p-6 neon-border hover:neon-glow transition-all duration-300 flex items-center gap-4">
-            <div className={`p-3 rounded-xl bg-gradient-to-br ${s.gradient} shadow-lg`}>
-              <s.icon className="h-6 w-6 text-white" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-white">{s.value}</p>
-              <p className="text-sm text-gray-400">{s.label}</p>
-            </div>
+          <div key={s.label} className={card}>
+            <p className={`text-2xl font-bold ${headingText}`}>{s.value}</p>
+            <p className={`text-xs ${mutedText}`}>{s.label}</p>
           </div>
         ))}
       </div>
 
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-bold text-white">My Resources</h2>
-        <button onClick={() => router.push("/upload")} className="px-4 py-2 rounded-xl btn-gradient text-white text-sm font-medium flex items-center gap-1.5">
-          <UploadCloud className="h-4 w-4" /> Upload
+      <div className="flex items-center justify-between mb-4">
+        <h2 className={`text-base font-semibold ${headingText}`}>My Resources</h2>
+        <button onClick={() => router.push("/upload")} className="px-3 py-2 rounded-lg btn-gradient text-white text-xs font-medium flex items-center gap-1.5">
+          <UploadCloud className="h-3.5 w-3.5" /> Upload
         </button>
       </div>
 
       {resources.length === 0 ? (
-        <div className="text-center py-16 glass rounded-2xl neon-border">
-          <p className="text-gray-500 mb-3">You haven&apos;t uploaded any resources yet</p>
-          <button onClick={() => router.push("/upload")} className="text-cyan-400 hover:text-cyan-300 text-sm">Upload your first resource →</button>
+        <div className={`text-center py-12 rounded-lg ${isWhite ? "bg-neutral-50 border border-neutral-200" : "bg-[var(--card-bg)] border border-[var(--card-border)]"}`}>
+          <p className={`text-sm ${mutedText}`}>No uploads yet</p>
+          <button onClick={() => router.push("/upload")} className={`mt-2 text-xs ${headingText} hover:underline`}>Upload your first resource →</button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {resources.map((r) => (
-            <ResourceCard key={r._id} resource={r} showEdit onEdit={openEdit} onDelete={handleDelete} />
-          ))}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {resources.map((r) => <ResourceCard key={r._id} resource={r} showEdit onEdit={openEdit} onDelete={handleDelete} />)}
         </div>
       )}
 
       {/* Edit Modal */}
       {editModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="w-full max-w-lg glass-strong rounded-2xl p-8 neon-border relative max-h-[90vh] overflow-y-auto">
-            <button onClick={() => setEditModal(null)} className="absolute top-4 right-4 text-gray-400 hover:text-white">
-              <X className="h-5 w-5" />
-            </button>
-            <h3 className="text-lg font-bold text-white mb-5">Edit Resource</h3>
-            <form onSubmit={handleEditSubmit} className="space-y-4">
-              <input name="title" placeholder="Title" className="w-full px-4 py-3 rounded-xl glass neon-border text-white placeholder-gray-500 text-sm focus:outline-none" value={editForm.title} onChange={(e) => setEditForm({ ...editForm, title: e.target.value })} />
-              <textarea name="description" placeholder="Description" rows={2} className="w-full px-4 py-3 rounded-xl glass neon-border text-white placeholder-gray-500 text-sm focus:outline-none resize-none" value={editForm.description} onChange={(e) => setEditForm({ ...editForm, description: e.target.value })} />
-              <div className="grid grid-cols-2 gap-3">
-                <input name="subject" placeholder="Subject" className="px-4 py-3 rounded-xl glass neon-border text-white placeholder-gray-500 text-sm focus:outline-none" value={editForm.subject} onChange={(e) => setEditForm({ ...editForm, subject: e.target.value })} />
-                <select name="resourceType" className="px-4 py-3 rounded-xl glass neon-border text-white text-sm bg-transparent appearance-none focus:outline-none" value={editForm.resourceType} onChange={(e) => setEditForm({ ...editForm, resourceType: e.target.value })}>
-                  {["Notes","Question Papers","Solutions","Project Reports","Study Material"].map(t => <option key={t} value={t} className="bg-slate-900">{t}</option>)}
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className={`w-full max-w-lg rounded-lg p-5 sm:p-6 relative max-h-[90vh] overflow-y-auto ${isWhite ? "bg-white border border-neutral-200" : "bg-[var(--card-bg)] border border-[var(--card-border)]"}`}>
+            <button onClick={() => setEditModal(null)} className={`absolute top-3 right-3 ${mutedText} hover:opacity-70`}><X className="h-4 w-4" /></button>
+            <h3 className={`text-base font-semibold mb-4 ${headingText}`}>Edit Resource</h3>
+            <form onSubmit={handleEditSubmit} className="space-y-3">
+              <input name="title" placeholder="Title" className={inputClass} value={editForm.title} onChange={(e) => setEditForm({ ...editForm, title: e.target.value })} />
+              <textarea name="description" placeholder="Description" rows={2} className={`${inputClass} resize-none`} value={editForm.description} onChange={(e) => setEditForm({ ...editForm, description: e.target.value })} />
+              <div className="grid grid-cols-2 gap-2">
+                <input name="subject" placeholder="Subject" className={inputClass} value={editForm.subject} onChange={(e) => setEditForm({ ...editForm, subject: e.target.value })} />
+                <select name="resourceType" className={`${inputClass} appearance-none`} value={editForm.resourceType} onChange={(e) => setEditForm({ ...editForm, resourceType: e.target.value })}>
+                  {["Notes","Question Papers","Solutions","Project Reports","Study Material"].map(t => <option key={t} value={t} className={isWhite ? "bg-white" : "bg-[var(--bg-secondary)]"}>{t}</option>)}
                 </select>
-                <select name="semester" className="px-4 py-3 rounded-xl glass neon-border text-white text-sm bg-transparent appearance-none focus:outline-none" value={editForm.semester} onChange={(e) => setEditForm({ ...editForm, semester: e.target.value })}>
-                  <option value="" className="bg-slate-900">Semester</option>
-                  {[1,2,3,4,5,6,7,8].map(s => <option key={s} value={s} className="bg-slate-900">{s}</option>)}
+                <select name="semester" className={`${inputClass} appearance-none`} value={editForm.semester} onChange={(e) => setEditForm({ ...editForm, semester: e.target.value })}>
+                  <option value="" className={isWhite ? "bg-white" : "bg-[var(--bg-secondary)]"}>Semester</option>
+                  {[1,2,3,4,5,6,7,8].map(s => <option key={s} value={s} className={isWhite ? "bg-white" : "bg-[var(--bg-secondary)]"}>{s}</option>)}
                 </select>
-                <input name="yearBatch" placeholder="Year / Batch" className="px-4 py-3 rounded-xl glass neon-border text-white placeholder-gray-500 text-sm focus:outline-none" value={editForm.yearBatch} onChange={(e) => setEditForm({ ...editForm, yearBatch: e.target.value })} />
+                <input name="yearBatch" placeholder="Year / Batch" className={inputClass} value={editForm.yearBatch} onChange={(e) => setEditForm({ ...editForm, yearBatch: e.target.value })} />
               </div>
-              <input name="tags" placeholder="Tags (comma separated)" className="w-full px-4 py-3 rounded-xl glass neon-border text-white placeholder-gray-500 text-sm focus:outline-none" value={editForm.tags} onChange={(e) => setEditForm({ ...editForm, tags: e.target.value })} />
+              <input name="tags" placeholder="Tags (comma separated)" className={inputClass} value={editForm.tags} onChange={(e) => setEditForm({ ...editForm, tags: e.target.value })} />
               <div className="flex gap-2">
-                <button type="button" onClick={() => setEditForm({ ...editForm, isPublic: true })} className={`flex-1 py-2 rounded-lg text-xs font-medium ${editForm.isPublic ? "bg-green-500/20 text-green-400 border border-green-500/40" : "glass text-gray-500 border border-white/10"}`}>Public</button>
-                <button type="button" onClick={() => setEditForm({ ...editForm, isPublic: false })} className={`flex-1 py-2 rounded-lg text-xs font-medium ${!editForm.isPublic ? "bg-orange-500/20 text-orange-400 border border-orange-500/40" : "glass text-gray-500 border border-white/10"}`}>Private</button>
+                <button type="button" onClick={() => setEditForm({ ...editForm, isPublic: true })} className={`flex-1 py-2 rounded-lg text-xs font-medium border transition-colors ${editForm.isPublic ? "bg-green-500/10 text-green-500 border-green-500/30" : isWhite ? "border-neutral-200 text-neutral-400" : "border-[var(--glass-border)] text-neutral-500"}`}>Public</button>
+                <button type="button" onClick={() => setEditForm({ ...editForm, isPublic: false })} className={`flex-1 py-2 rounded-lg text-xs font-medium border transition-colors ${!editForm.isPublic ? "bg-orange-500/10 text-orange-500 border-orange-500/30" : isWhite ? "border-neutral-200 text-neutral-400" : "border-[var(--glass-border)] text-neutral-500"}`}>Private</button>
               </div>
-              <button type="submit" className="w-full py-3 rounded-xl btn-gradient text-white font-semibold text-sm">Save Changes</button>
+              <button type="submit" className="w-full py-2.5 rounded-lg btn-gradient text-white text-sm font-medium">Save Changes</button>
             </form>
           </div>
         </div>

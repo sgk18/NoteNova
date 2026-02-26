@@ -1,47 +1,38 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Trophy, Medal, Shield, Award, Star } from "lucide-react";
+import Link from "next/link";
+import { Shield } from "lucide-react";
 import toast from "react-hot-toast";
+import { useTheme } from "@/context/ThemeContext";
 
 function getBadge(points) {
-  if (points >= 300) return { name: "Gold", color: "text-yellow-400", bg: "bg-yellow-400/10 border-yellow-400/30" };
-  if (points >= 150) return { name: "Silver", color: "text-gray-300", bg: "bg-gray-300/10 border-gray-300/30" };
-  if (points >= 50) return { name: "Bronze", color: "text-amber-600", bg: "bg-amber-600/10 border-amber-600/30" };
-  return { name: "Starter", color: "text-gray-500", bg: "bg-gray-500/10 border-gray-500/30" };
+  if (points >= 300) return { name: "Gold", color: "text-yellow-500" };
+  if (points >= 150) return { name: "Silver", color: "text-neutral-400" };
+  if (points >= 50) return { name: "Bronze", color: "text-amber-600" };
+  return { name: "Starter", color: "text-neutral-500" };
 }
 
 export default function LeaderboardPage() {
+  const { theme } = useTheme();
+  const isWhite = theme === "white";
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchLeaderboard = async () => {
-      try {
-        const res = await fetch("/api/leaderboard");
-        const data = await res.json();
-        setUsers(data.users || []);
-      } catch {
-        toast.error("Failed to load leaderboard");
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchLeaderboard();
+    fetch("/api/leaderboard").then(r => r.json()).then(d => setUsers(d.users || [])).catch(() => toast.error("Failed to load leaderboard")).finally(() => setLoading(false));
   }, []);
 
-  const rankEmoji = ["🥇", "🥈", "🥉"];
+  const headingText = isWhite ? "text-neutral-900" : "text-white";
+  const mutedText = isWhite ? "text-neutral-400" : "text-neutral-500";
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-10 relative">
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[300px] rounded-full bg-yellow-500/5 blur-[120px] -z-10" />
-      <div className="flex items-center gap-3 mb-8">
-        <Trophy className="h-8 w-8 text-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.5)]" />
-        <h1 className="text-2xl font-bold text-white">Leaderboard</h1>
-      </div>
+    <div className="max-w-2xl mx-auto px-4 py-8">
+      <h1 className={`text-xl font-bold mb-6 ${headingText}`}>Leaderboard</h1>
 
-      <div className="glass-strong rounded-2xl neon-border overflow-hidden">
-        <div className="grid grid-cols-12 gap-4 px-6 py-3 border-b border-white/10 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+      <div className={`rounded-lg overflow-hidden ${isWhite ? "bg-white border border-neutral-200" : "bg-[var(--card-bg)] border border-[var(--card-border)]"}`}>
+        {/* Header */}
+        <div className={`hidden sm:grid grid-cols-12 gap-3 px-4 py-2.5 text-[11px] font-medium uppercase tracking-wider border-b ${isWhite ? "border-neutral-100 text-neutral-400 bg-neutral-50" : "border-[var(--glass-border)] text-neutral-500 bg-white/5"}`}>
           <div className="col-span-1">Rank</div>
           <div className="col-span-3">Name</div>
           <div className="col-span-3">College</div>
@@ -52,44 +43,50 @@ export default function LeaderboardPage() {
 
         {loading ? (
           [...Array(5)].map((_, i) => (
-            <div key={i} className="grid grid-cols-12 gap-4 px-6 py-5 border-t border-white/5 animate-pulse">
-              {[1,3,3,2,1,2].map((span, j) => <div key={j} className={`col-span-${span} h-4 bg-white/5 rounded`} />)}
+            <div key={i} className={`px-4 py-4 border-t ${isWhite ? "border-neutral-100" : "border-[var(--glass-border)]"}`}>
+              <div className={`h-3 rounded w-3/4 animate-pulse ${isWhite ? "bg-neutral-100" : "bg-white/5"}`} />
             </div>
           ))
         ) : users.length === 0 ? (
-          <p className="text-center text-gray-500 py-16">No users yet</p>
+          <p className={`text-center text-sm py-12 ${mutedText}`}>No users yet</p>
         ) : (
           users.map((u, i) => {
             const badge = getBadge(u.points);
             return (
-              <div
-                key={u._id}
-                className={`grid grid-cols-12 gap-4 px-6 py-4 border-t border-white/5 items-center transition-all hover:bg-white/5 ${
-                  i < 3 ? "bg-white/[0.02]" : ""
-                }`}
-              >
-                <div className="col-span-1">
-                  {i < 3 ? (
-                    <span className="text-xl">{rankEmoji[i]}</span>
-                  ) : (
-                    <span className="text-sm font-medium text-gray-500">{i + 1}</span>
-                  )}
+              <div key={u._id}>
+                {/* Mobile */}
+                <div className={`sm:hidden px-4 py-3 border-t ${isWhite ? "border-neutral-100" : "border-[var(--glass-border)]"}`}>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <span className={`text-xs font-medium w-5 text-center flex-shrink-0 ${i < 3 ? headingText : mutedText}`}>{i + 1}</span>
+                      <div className="min-w-0">
+                        <Link href={`/user/${u._id}`} className={`font-medium text-sm truncate hover:underline ${headingText}`}>
+                          {u.name}
+                        </Link>
+                        <p className={`text-[11px] truncate ${mutedText}`}>{u.college || "—"} {u.department ? `· ${u.department}` : ""}</p>
+                      </div>
+                    </div>
+                    <span className={`text-sm font-semibold ml-2 ${headingText}`}>{u.points}</span>
+                  </div>
                 </div>
-                <div className="col-span-3">
-                  <p className="font-semibold text-white text-sm">{u.name}</p>
-                  {u.semester && <p className="text-xs text-gray-500">Sem {u.semester}</p>}
-                </div>
-                <div className="col-span-3 text-sm text-gray-400 truncate">{u.college || "—"}</div>
-                <div className="col-span-2 text-sm text-gray-400">{u.department || "—"}</div>
-                <div className="col-span-1">
-                  <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border ${badge.bg} ${badge.color}`}>
-                    <Shield className="h-3 w-3" /> {badge.name}
-                  </span>
-                </div>
-                <div className="col-span-2 text-right">
-                  <span className="text-sm font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
-                    {u.points} pts
-                  </span>
+
+                {/* Desktop */}
+                <div className={`hidden sm:grid grid-cols-12 gap-3 px-4 py-3 items-center border-t ${isWhite ? "border-neutral-100" : "border-[var(--glass-border)]"}`}>
+                  <div className={`col-span-1 text-sm font-medium ${i < 3 ? headingText : mutedText}`}>{i + 1}</div>
+                  <div className="col-span-3">
+                    <Link href={`/user/${u._id}`} className={`font-medium text-sm hover:underline ${headingText}`}>
+                      {u.name}
+                    </Link>
+                    {u.semester && <p className={`text-[11px] ${mutedText}`}>Sem {u.semester}</p>}
+                  </div>
+                  <div className={`col-span-3 text-xs truncate ${mutedText}`}>{u.college || "—"}</div>
+                  <div className={`col-span-2 text-xs ${mutedText}`}>{u.department || "—"}</div>
+                  <div className="col-span-1">
+                    <span className={`inline-flex items-center gap-0.5 text-[11px] font-medium ${badge.color}`}>
+                      <Shield className="h-3 w-3" /> {badge.name}
+                    </span>
+                  </div>
+                  <div className={`col-span-2 text-right text-sm font-semibold ${headingText}`}>{u.points}</div>
                 </div>
               </div>
             );
