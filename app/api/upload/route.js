@@ -3,13 +3,8 @@ import dbConnect from "@/lib/db";
 import Resource from "@/models/Resource";
 import User from "@/models/User";
 import { verifyToken } from "@/lib/auth";
-import { v2 as cloudinary } from "cloudinary";
-
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
+import { PutObjectCommand } from "@aws-sdk/client-s3";
+import b2 from "@/lib/b2";
 
 export async function POST(request) {
   try {
@@ -38,18 +33,25 @@ export async function POST(request) {
     if (file && file.size > 0) {
       const bytes = await file.arrayBuffer();
       const buffer = Buffer.from(bytes);
-      // Use "raw" for documents so Cloudinary serves them with correct content-type
+
       const fileName = file.name?.toLowerCase() || "";
-      const docExts = [".pdf", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".csv", ".zip", ".rar"];
-      const isDoc = docExts.some((ext) => fileName.endsWith(ext));
-      const result = await new Promise((resolve, reject) => {
-        const stream = cloudinary.uploader.upload_stream(
-          { resource_type: isDoc ? "raw" : "auto", folder: "notenova" },
-          (err, result) => (err ? reject(err) : resolve(result))
-        );
-        stream.end(buffer);
+      const validName = fileName.replace(/[^a-z0-9.]/g, '_');
+      const key = `notenova/${Date.now()}_${validName}`;
+
+      const command = new PutObjectCommand({
+        Bucket: process.env.B2_BUCKET,
+        Key: key,
+        Body: buffer,
+        ContentType: file.type || "application/octet-stream",
       });
-      fileUrl = result.secure_url;
+
+      await b2.send(command);
+
+      // Virtual-hosted style URL for Backblaze B2
+      // e.g. https://notenovacloud.s3.us-west-000.backblazeb2.com/notenova/...
+      const bucketName = process.env.B2_BUCKET;
+      const endpoint = process.env.B2_ENDPOINT.replace("https://", "");
+      fileUrl = `https://${bucketName}.${endpoint}/${key}`;
     }
 
     const tags = tagsRaw ? tagsRaw.split(",").map((t) => t.trim()).filter(Boolean) : [];
