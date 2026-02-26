@@ -3,8 +3,6 @@ import dbConnect from "@/lib/db";
 import Resource from "@/models/Resource";
 import User from "@/models/User";
 import { verifyToken } from "@/lib/auth";
-import { PutObjectCommand } from "@aws-sdk/client-s3";
-import b2 from "@/lib/b2";
 
 export async function POST(request) {
   try {
@@ -32,27 +30,26 @@ export async function POST(request) {
 
     let fileUrl = "";
     if (file && file.size > 0) {
-      const bytes = await file.arrayBuffer();
-      const buffer = Buffer.from(bytes);
+      // Upload to Uploadcare
+      const uploadForm = new FormData();
+      uploadForm.append("UPLOADCARE_PUB_KEY", process.env.UPLOADCARE_PUB_KEY);
+      uploadForm.append("UPLOADCARE_STORE", "auto");
+      uploadForm.append("file", file);
 
-      const fileName = file.name?.toLowerCase() || "";
-      const validName = fileName.replace(/[^a-z0-9.]/g, '_');
-      const key = `notenova/${Date.now()}_${validName}`;
-
-      const command = new PutObjectCommand({
-        Bucket: process.env.B2_BUCKET,
-        Key: key,
-        Body: buffer,
-        ContentType: file.type || "application/octet-stream",
+      const uploadRes = await fetch("https://upload.uploadcare.com/base/", {
+        method: "POST",
+        body: uploadForm,
       });
 
-      await b2.send(command);
+      if (!uploadRes.ok) {
+        const errText = await uploadRes.text();
+        console.error("Uploadcare error:", errText);
+        throw new Error("File upload to Uploadcare failed");
+      }
 
-      // Path-style URL for Backblaze B2
-      // e.g. https://s3.us-west-000.backblazeb2.com/notenova/notenova/...
-      const bucketName = process.env.B2_BUCKET;
-      const endpoint = process.env.B2_ENDPOINT;
-      fileUrl = `${endpoint}/${bucketName}/${key}`;
+      const uploadData = await uploadRes.json();
+      // Uploadcare CDN URL
+      fileUrl = `https://ucarecdn.com/${uploadData.file}/`;
     }
 
     const tags = tagsRaw ? tagsRaw.split(",").map((t) => t.trim()).filter(Boolean) : [];
