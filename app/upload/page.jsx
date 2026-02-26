@@ -1,91 +1,23 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Upload, File, Award, X, Image as ImageIcon } from "lucide-react";
+import { Upload, File, Award, X, Image as ImageIcon, CheckCircle } from "lucide-react";
 import toast from "react-hot-toast";
 import { useTheme } from "@/context/ThemeContext";
-
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
-const ALLOWED_TYPES = [
-  "image/jpeg",
-  "image/png",
-  "application/pdf",
-  "application/vnd.ms-powerpoint",
-  "application/vnd.openxmlformats-officedocument.presentationml.presentation"
-];
+import { UploadDropzone } from "@/utils/uploadthing";
 
 export default function UploadPage() {
   const router = useRouter();
   const { theme } = useTheme();
   const isWhite = theme === "white";
   const [form, setForm] = useState({ title: "", description: "", subject: "", semester: "", department: "", resourceType: "", yearBatch: "", tags: "", isPublic: "true", price: "", notebookLMLink: "" });
-  const [file, setFile] = useState(null);
-  const [fileType, setFileType] = useState(null);
-  const [previewUrl, setPreviewUrl] = useState(null);
+
+  // Stores the result from Uploadthing
+  const [uploadedFile, setUploadedFile] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    return () => {
-      if (previewUrl) URL.revokeObjectURL(previewUrl);
-    };
-  }, [previewUrl]);
-
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
-
-  const handleFileChange = (e) => {
-    const selectedFile = e.target.files[0];
-    if (!selectedFile) return;
-
-    if (selectedFile.size > MAX_FILE_SIZE) {
-      toast.error("File size must be less than 10MB");
-      e.target.value = "";
-      return;
-    }
-
-    if (!ALLOWED_TYPES.includes(selectedFile.type)) {
-      toast.error("Invalid file type. Allowed: JPG, PNG, PDF, PPT, PPTX");
-      e.target.value = "";
-      return;
-    }
-
-    setFile(selectedFile);
-    setFileType(selectedFile.type);
-    setPreviewUrl(URL.createObjectURL(selectedFile));
-  };
-
-  const removeFile = () => {
-    setFile(null);
-    setFileType(null);
-    if (previewUrl) {
-      URL.revokeObjectURL(previewUrl);
-      setPreviewUrl(null);
-    }
-  };
-
-  const uploadToCloudinary = async (fileToUpload) => {
-    const fd = new FormData();
-    fd.append("file", fileToUpload);
-    fd.append("upload_preset", "app_uploads");
-
-    // Determine the correct resource type endpoint
-    const isImage = fileToUpload.type.startsWith("image/");
-    const endpoint = isImage
-      ? "https://api.cloudinary.com/v1_1/daiox49tz/image/upload"
-      : "https://api.cloudinary.com/v1_1/daiox49tz/raw/upload";
-
-    const res = await fetch(endpoint, {
-      method: "POST",
-      body: fd,
-    });
-
-    if (!res.ok) {
-      throw new Error("Failed to upload to Cloudinary");
-    }
-
-    const data = await res.json();
-    return data.secure_url;
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -94,21 +26,14 @@ export default function UploadPage() {
     if (!form.title || !form.resourceType) return toast.error("Title and Resource Type are required");
 
     setLoading(true);
-    let uploadedFileUrl = "";
 
     try {
-      // 1. Upload file to Cloudinary first if exists
-      if (file) {
-        toast.loading("Uploading file to Cloudinary...", { id: "upload-toast" });
-        uploadedFileUrl = await uploadToCloudinary(file);
-      }
-
-      // 2. Send metadata to our backend
+      // 1. Send metadata to our backend (file is already uploaded to Uploadthing)
       toast.loading("Saving resource metadata...", { id: "upload-toast" });
       const metadata = { ...form };
-      if (uploadedFileUrl) {
-        metadata.fileUrl = uploadedFileUrl;
-        metadata.fileName = file.name;
+      if (uploadedFile) {
+        metadata.fileUrl = uploadedFile.url;
+        metadata.fileName = uploadedFile.name;
       }
 
       const res = await fetch("/api/upload", {
@@ -138,9 +63,9 @@ export default function UploadPage() {
   const mutedText = isWhite ? "text-neutral-400" : "text-neutral-500";
   const inputClass = `w-full px-3 py-2.5 rounded-lg text-sm focus:outline-none ${isWhite ? "bg-white border border-neutral-200 text-neutral-900 placeholder-neutral-400 focus:border-neutral-400" : "bg-[var(--input-bg)] border border-[var(--glass-border)] text-white placeholder-neutral-500 focus:border-neutral-500"}`;
 
-  const resourceTypeOptions = ["Notes","Question Papers","Solutions","Project Reports","Study Material","Google NotebookLM"];
-  const semesterOptions = ["1","2","3","4","5","6","7","8"];
-  const departmentOptions = ["CSE","IT","ECE","EEE","MECH","CIVIL","AIDS","AIML","CSE (Cyber Security)","Biomedical","Chemical","Automobile","Common"];
+  const resourceTypeOptions = ["Notes", "Question Papers", "Solutions", "Project Reports", "Study Material", "Google NotebookLM"];
+  const semesterOptions = ["1", "2", "3", "4", "5", "6", "7", "8"];
+  const departmentOptions = ["CSE", "IT", "ECE", "EEE", "MECH", "CIVIL", "AIDS", "AIML", "CSE (Cyber Security)", "Biomedical", "Chemical", "Automobile", "Common"];
 
   return (
     <div className="max-w-xl mx-auto px-4 py-8">
@@ -223,55 +148,50 @@ export default function UploadPage() {
         </div>
 
         {/* File Upload UI */}
-        <div className={`border-2 border-dashed rounded-lg p-6 text-center ${isWhite ? "border-neutral-200 hover:border-neutral-300" : "border-[var(--glass-border)] hover:border-neutral-500"} transition-colors relative`}>
-          {!file && (
-            <>
-              <Upload className={`h-6 w-6 mx-auto mb-2 ${mutedText}`} />
-              <label className="cursor-pointer">
-                <span className={`text-sm font-medium ${headingText}`}>Choose a file (Max 10MB)</span>
-                <span className={`text-xs ml-1 block mt-1 ${mutedText}`}>
-                  {form.resourceType === "Google NotebookLM" ? "(Optional Notebook Export)" : "Allowed: JPG, PNG, PDF, PPT, PPTX"}
-                </span>
-                <input
-                  type="file"
-                  className="hidden"
-                  accept="image/jpeg,image/png,application/pdf,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation"
-                  onChange={handleFileChange}
-                />
-              </label>
-            </>
-          )}
+        <div className={`border-2 border-dashed rounded-lg p-6 text-center ${isWhite ? "border-neutral-200" : "border-[var(--glass-border)]"} transition-colors relative`}>
+          {!uploadedFile ? (
+            <div className={isWhite ? "text-neutral-900" : "text-white"}>
+              <UploadDropzone
+                endpoint="courseResource"
+                onClientUploadComplete={(res) => {
+                  toast.success("File uploaded to cloud!");
+                  setUploadedFile({
+                    url: res[0].url,
+                    name: res[0].name,
+                    size: res[0].size
+                  });
+                }}
+                onUploadError={(error) => {
+                  toast.error(`Error uploading: ${error.message}`);
+                }}
+                appearance={{
+                  container: `border-none p-0 max-w-none`,
+                  button: `ut-ready:bg-cyan-500 ut-ready:text-white ut-uploading:bg-cyan-500/50 ut-uploading:text-white after:bg-cyan-400`,
+                  label: `text-sm font-medium hover:text-cyan-400 transition-colors ${headingText}`,
+                  allowedContent: `text-xs ${mutedText}`
+                }}
+              />
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-4">
+              <CheckCircle className={`h-12 w-12 mb-3 ${isWhite ? "text-green-500" : "text-green-400"}`} />
+              <p className={`text-sm font-semibold truncate max-w-[280px] ${headingText}`}>
+                {uploadedFile.name}
+              </p>
+              <p className={`text-xs mt-1 mb-4 ${mutedText}`}>
+                {(uploadedFile.size / (1024 * 1024)).toFixed(2)} MB • Ready to submit
+              </p>
 
-          {file && (
-            <div className="flex flex-col items-center justify-center">
               <button
                 type="button"
-                onClick={removeFile}
-                className="absolute top-2 right-2 p-1 bg-red-500/10 text-red-500 rounded-full hover:bg-red-500/20"
+                onClick={() => setUploadedFile(null)}
+                className={`text-xs px-4 py-2 rounded-lg font-medium transition-colors ${isWhite
+                    ? "bg-red-50 text-red-600 hover:bg-red-100"
+                    : "bg-red-500/10 text-red-400 hover:bg-red-500/20"
+                  }`}
               >
-                <X className="h-4 w-4" />
+                Remove File
               </button>
-
-              {previewUrl && fileType?.startsWith("image/") && (
-                <div className="relative w-full max-w-[200px] h-32 mx-auto rounded overflow-hidden mb-3">
-                  <img src={previewUrl} alt="Preview" className="object-contain w-full h-full" />
-                </div>
-              )}
-              {previewUrl && fileType === "application/pdf" && (
-                <div className="relative w-full h-[400px] mb-3">
-                  <iframe src={previewUrl} className={`w-full h-full border rounded-lg ${isWhite ? "border-neutral-200" : "border-neutral-700"}`} />
-                </div>
-              )}
-              {(!previewUrl || (!fileType?.startsWith("image/") && fileType !== "application/pdf")) && (
-                <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-3 ${isWhite ? "bg-blue-50 text-blue-500" : "bg-blue-500/10 text-blue-400"}`}>
-                  <File className="h-8 w-8" />
-                </div>
-              )}
-
-              <p className={`text-sm font-medium ${headingText} truncate max-w-[250px]`}>{file.name}</p>
-              <p className={`text-xs mt-1 ${mutedText}`}>
-                {(file.size / (1024 * 1024)).toFixed(2)} MB
-              </p>
             </div>
           )}
         </div>
