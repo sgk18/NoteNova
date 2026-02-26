@@ -73,7 +73,7 @@ export default function AskNovaPage() {
           const blob = new Blob([arr], { type: "audio/wav" });
           finalUrl = URL.createObjectURL(blob);
         } else if (typeof result.data === 'string') {
-           finalUrl = result.data.startsWith('http') ? result.data : `data:audio/wav;base64,${result.data}`;
+          finalUrl = result.data.startsWith('http') ? result.data : `data:audio/wav;base64,${result.data}`;
         }
         setAudioUrl(finalUrl);
         const audio = new Audio(finalUrl);
@@ -145,28 +145,28 @@ export default function AskNovaPage() {
             <div className={`text-sm leading-relaxed whitespace-pre-wrap ${bodyText}`}>{answer}</div>
           </div>
           <div className={`px-4 py-3 border-t flex flex-wrap justify-end gap-2 ${isWhite ? "border-neutral-100 bg-neutral-50" : "border-[var(--glass-border)] bg-white/5"}`}>
-            <button 
+            <button
               onClick={() => {
                 setShowExpertChat(true);
                 emitEscalation(user?.department || "CSE", user, question, Date.now());
                 toast.success("Escalation request sent to Seniors!");
-              }} 
+              }}
               className={`py-2 px-4 rounded-lg text-xs font-medium flex items-center gap-2 transition-all border ${isWhite ? "border-neutral-200 text-neutral-600 hover:bg-neutral-100" : "border-white/10 text-neutral-400 hover:bg-white/5"}`}
             >
-                <Users className="h-4 w-4" />
-                Escalate to a Senior
+              <Users className="h-4 w-4" />
+              Escalate to a Senior
             </button>
             <button onClick={handleGenerateAudio} disabled={audioLoading} className="py-2 px-4 rounded-lg btn-gradient text-white text-xs font-medium flex items-center gap-2 neon-glow transition-all">
-                {audioLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Volume2 className="h-4 w-4" />}
-                {audioLoading ? "Generating Audio..." : (audioUrl ? "Replay Audio" : "Listen to Response")}
+              {audioLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Volume2 className="h-4 w-4" />}
+              {audioLoading ? "Generating Audio..." : (audioUrl ? "Replay Audio" : "Listen to Response")}
             </button>
           </div>
         </div>
       )}
 
       {showExpertChat && (
-        <ExpertChat 
-          room={`esc-${user?.userId || "anon"}-${Date.now()}`}
+        <ExpertChat
+          room={`esc-${user?.id || "anon"}-${Date.now()}`}
           currentUser={user}
           topic={question.slice(0, 30)}
           onClose={() => setShowExpertChat(false)}
