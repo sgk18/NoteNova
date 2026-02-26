@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
   Building2, BookOpen, GraduationCap, Award, UserPlus, UserMinus,
-  Users, Loader2, Calendar
+  Users, Loader2, Calendar, BadgeCheck
 } from "lucide-react";
 import ResourceCard from "@/components/ResourceCard";
 import { useTheme } from "@/context/ThemeContext";
@@ -131,7 +131,15 @@ export default function PublicProfilePage() {
           {/* Info + Follow button row */}
           <div className="flex items-start justify-between flex-wrap gap-3">
             <div>
-              <h1 className={`text-xl font-bold ${headingText}`}>{user.name}</h1>
+              <div className="flex items-center gap-2">
+                <h1 className={`text-xl font-bold ${headingText}`}>{user.name}</h1>
+                {user.role === "verified_scholar" && (
+                  <BadgeCheck className="h-5 w-5 text-blue-500" title="Verified Nova Scholar" />
+                )}
+                {user.role === "gold_creator" && (
+                  <Award className="h-5 w-5 text-amber-500" title="Gold Badge Creator" />
+                )}
+              </div>
               <div className="flex flex-wrap items-center gap-3 mt-1.5">
                 {user.college && (
                   <span className={`flex items-center gap-1 text-xs ${mutedText}`}>

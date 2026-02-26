@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Shield } from "lucide-react";
+import { Shield, BadgeCheck, Award } from "lucide-react";
 import toast from "react-hot-toast";
 import { useTheme } from "@/context/ThemeContext";
 
@@ -60,8 +60,10 @@ export default function LeaderboardPage() {
                     <div className="flex items-center gap-2.5 min-w-0">
                       <span className={`text-xs font-medium w-5 text-center flex-shrink-0 ${i < 3 ? headingText : mutedText}`}>{i + 1}</span>
                       <div className="min-w-0">
-                        <Link href={`/user/${u._id}`} className={`font-medium text-sm truncate hover:underline ${headingText}`}>
+                        <Link href={`/user/${u._id}`} className={`font-medium text-sm truncate hover:underline flex items-center gap-1 ${headingText}`}>
                           {u.name}
+                          {u.role === "verified_scholar" && <BadgeCheck className="h-3.5 w-3.5 text-blue-500" title="Verified Nova Scholar" />}
+                          {u.role === "gold_creator" && <Award className="h-3.5 w-3.5 text-amber-500" title="Gold Badge Creator" />}
                         </Link>
                         <p className={`text-[11px] truncate ${mutedText}`}>{u.college || "—"} {u.department ? `· ${u.department}` : ""}</p>
                       </div>
@@ -74,8 +76,10 @@ export default function LeaderboardPage() {
                 <div className={`hidden sm:grid grid-cols-12 gap-3 px-4 py-3 items-center border-t ${isWhite ? "border-neutral-100" : "border-[var(--glass-border)]"}`}>
                   <div className={`col-span-1 text-sm font-medium ${i < 3 ? headingText : mutedText}`}>{i + 1}</div>
                   <div className="col-span-3">
-                    <Link href={`/user/${u._id}`} className={`font-medium text-sm hover:underline ${headingText}`}>
+                    <Link href={`/user/${u._id}`} className={`font-medium text-sm hover:underline flex items-center gap-1 ${headingText}`}>
                       {u.name}
+                      {u.role === "verified_scholar" && <BadgeCheck className="h-4 w-4 text-blue-500" title="Verified Nova Scholar" />}
+                      {u.role === "gold_creator" && <Award className="h-4 w-4 text-amber-500" title="Gold Badge Creator" />}
                     </Link>
                     {u.semester && <p className={`text-[11px] ${mutedText}`}>Sem {u.semester}</p>}
                   </div>

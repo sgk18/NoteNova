@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Upload, File } from "lucide-react";
+import { Upload, File, Award } from "lucide-react";
 import toast from "react-hot-toast";
 import { useTheme } from "@/context/ThemeContext";
 
@@ -10,7 +10,7 @@ export default function UploadPage() {
   const router = useRouter();
   const { theme } = useTheme();
   const isWhite = theme === "white";
-  const [form, setForm] = useState({ title: "", description: "", subject: "", semester: "", department: "", resourceType: "", yearBatch: "", tags: "", isPublic: "true" });
+  const [form, setForm] = useState({ title: "", description: "", subject: "", semester: "", department: "", resourceType: "", yearBatch: "", tags: "", isPublic: "true", price: "" });
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -65,6 +65,24 @@ export default function UploadPage() {
         </div>
 
         <input name="tags" placeholder="Tags (comma separated)" className={inputClass} value={form.tags} onChange={handleChange} />
+
+        {/* Pricing for Creators */}
+        <div className={`rounded-lg p-4 border ${isWhite ? "bg-amber-50/50 border-amber-200" : "bg-amber-900/10 border-amber-700/50"}`}>
+          <div className="flex justify-between items-start mb-2">
+            <div>
+              <p className={`text-sm font-bold flex items-center gap-1.5 ${isWhite ? "text-amber-800" : "text-amber-500"}`}>
+                <Award className="h-4 w-4" /> Creator Marketplace
+              </p>
+              <p className={`text-[11px] mt-0.5 ${isWhite ? "text-amber-700/70" : "text-amber-500/70"}`}>
+                Gold Badge Creators can set prices. We take a 15% platform fee. Leave blank for Free.
+              </p>
+            </div>
+          </div>
+          <div className="relative mt-3">
+             <span className={`absolute left-3 top-2.5 font-medium ${isWhite ? "text-neutral-500" : "text-neutral-400"}`}>₹</span>
+             <input type="number" min="0" step="1" name="price" placeholder="Price (e.g. 49)" className={`${inputClass} pl-8 border-amber-500/30 focus:border-amber-500`} value={form.price} onChange={handleChange} />
+          </div>
+        </div>
 
         {/* Privacy Toggle */}
         <div className={`flex items-center justify-between rounded-lg p-3.5 ${isWhite ? "bg-neutral-50 border border-neutral-100" : "bg-white/5 border border-[var(--glass-border)]"}`}>
