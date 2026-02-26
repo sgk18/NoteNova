@@ -16,7 +16,7 @@ function formatTime(seconds) {
   return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
 }
 
-export default function MockExamSimulator({ resourceId, resourceTitle }) {
+export default function MockExamSimulator({ resourceId, resourceTitle, customText }) {
   const { theme } = useTheme();
   const isWhite = theme === "white";
 
@@ -30,6 +30,8 @@ export default function MockExamSimulator({ resourceId, resourceTitle }) {
   const [timeLeft, setTimeLeft] = useState(30 * 60);
   const [results, setResults] = useState(null);
   const [confirmSubmit, setConfirmSubmit] = useState(false);
+  const [difficulty, setDifficulty] = useState("mixed"); // "easy", "medium", "hard", "mixed"
+  const [durationMinutes, setDurationMinutes] = useState(30);
   const timerRef = useRef(null);
   const startTimeRef = useRef(null);
 
@@ -53,12 +55,12 @@ export default function MockExamSimulator({ resourceId, resourceTitle }) {
       const res = await fetch("/api/mock-exam/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ resourceId }),
+        body: JSON.stringify({ resourceId, customText, customTitle: resourceTitle, difficulty, durationMinutes }),
       });
       const data = await res.json();
       if (res.ok && data.exam) {
         setExam(data.exam);
-        setTimeLeft(data.exam.duration * 60 || 1800);
+        setTimeLeft(data.exam.duration * 60 || durationMinutes * 60);
         setPhase(PHASES.EXAM);
         startTimeRef.current = Date.now();
         toast.success("Exam generated! Good luck!");
@@ -135,7 +137,7 @@ export default function MockExamSimulator({ resourceId, resourceTitle }) {
     setFlagged({});
     setResults(null);
     setCurrentQ(0);
-    setTimeLeft(1800);
+    setTimeLeft(durationMinutes * 60);
     setConfirmSubmit(false);
   };
 
@@ -163,7 +165,7 @@ export default function MockExamSimulator({ resourceId, resourceTitle }) {
               <p className={`text-[10px] ${mutedText}`}>Questions</p>
             </div>
             <div>
-              <p className={`text-xl font-bold ${headingText}`}>30</p>
+              <p className={`text-xl font-bold ${headingText}`}>{durationMinutes}</p>
               <p className={`text-[10px] ${mutedText}`}>Minutes</p>
             </div>
             <div>
@@ -172,6 +174,37 @@ export default function MockExamSimulator({ resourceId, resourceTitle }) {
             </div>
           </div>
         </div>
+
+        {/* Configuration Options */}
+        <div className="grid grid-cols-2 gap-4 max-w-xs mx-auto text-left">
+          <div>
+            <label className={`block text-xs font-semibold mb-1 cursor-pointer ${headingText}`}>Difficulty</label>
+            <select
+              value={difficulty}
+              onChange={(e) => setDifficulty(e.target.value)}
+              className={`w-full px-2 py-1.5 rounded-lg text-xs cursor-pointer focus:outline-none border ${isWhite ? "bg-white border-neutral-200 text-neutral-900" : "bg-[var(--input-bg)] border-[var(--glass-border)] text-white"}`}
+            >
+              <option value="easy">Easy</option>
+              <option value="medium">Medium</option>
+              <option value="hard">Hard</option>
+              <option value="mixed">Mixed (Default)</option>
+            </select>
+          </div>
+          <div>
+            <label className={`block text-xs font-semibold mb-1 cursor-pointer ${headingText}`}>Time Limit</label>
+            <select
+              value={durationMinutes}
+              onChange={(e) => setDurationMinutes(Number(e.target.value))}
+              className={`w-full px-2 py-1.5 rounded-lg text-xs cursor-pointer focus:outline-none border ${isWhite ? "bg-white border-neutral-200 text-neutral-900" : "bg-[var(--input-bg)] border-[var(--glass-border)] text-white"}`}
+            >
+              <option value={15}>15 Minutes</option>
+              <option value={30}>30 Minutes</option>
+              <option value={45}>45 Minutes</option>
+              <option value={60}>60 Minutes</option>
+            </select>
+          </div>
+        </div>
+
         <div className={`text-xs ${mutedText} max-w-xs mx-auto`}>
           Mix of MCQ, True/False, and Short Answer questions. Auto-submitted when time runs out.
         </div>
