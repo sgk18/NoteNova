@@ -84,7 +84,7 @@ export default function ResourceDetailPage() {
     const ext = getFileExtension(url);
     if (isPdfExt(ext)) {
       // Google Docs Viewer renders PDFs
-      return `https://docs.google.com/gview?url=${encodeURIComponent(getInlineCloudinaryUrl(url))}`;
+      return `https://docs.google.com/gview?url=${encodeURIComponent(url)}&embedded=true`;
     }
     if (isOfficeExt(ext)) {
       return `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(url)}`;
@@ -96,13 +96,6 @@ export default function ResourceDetailPage() {
   };
 
   const getDownloadUrl = (url) => url;
-
-  // Modifies Cloudinary URLs to force inline display instead of downloading
-  const getInlineCloudinaryUrl = (url) => {
-    if (!url || !url.includes("res.cloudinary.com")) return url;
-    // Inject fl_attachment:false after /upload/ to override raw download behavior
-    return url.replace("/upload/", "/upload/fl_attachment:false/");
-  };
 
   // --- Preview renderer ---
 
@@ -170,7 +163,7 @@ export default function ResourceDetailPage() {
             </div>
           )}
           <iframe
-            src={getGoogleViewerUrl(getInlineCloudinaryUrl(fileUrl))}
+            src={getGoogleViewerUrl(fileUrl)}
             className="w-full rounded-xl border border-white/10 bg-white"
             style={{ height: "600px" }}
             frameBorder="0"
