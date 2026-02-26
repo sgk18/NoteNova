@@ -81,7 +81,7 @@ export default function ResourceDetailPage() {
   // For "Open in New Tab": PDFs use Google Docs Viewer, images use direct URL
   const getOpenInTabUrl = (url) => {
     if (!url) return url;
-    const ext = getFileExtension(url);
+    const ext = getFileExtension(resource?.fileName || url);
     if (isPdfExt(ext)) {
       // Google Docs Viewer renders PDFs
       return `https://docs.google.com/gview?url=${encodeURIComponent(url)}&embedded=true`;
@@ -110,7 +110,7 @@ export default function ResourceDetailPage() {
       );
     }
 
-    const ext = getFileExtension(fileUrl);
+    const ext = getFileExtension(resource?.fileName || fileUrl);
 
     if (previewError) {
       return (
@@ -271,7 +271,7 @@ export default function ResourceDetailPage() {
       const res = await fetch(`/api/resources?download=${id}`);
       const data = await res.json();
       if (data.fileUrl) {
-        const ext = getFileExtension(data.fileUrl);
+        const ext = getFileExtension(resource?.fileName || data.fileUrl);
         if (isPdfExt(ext) || isOfficeExt(ext)) {
           // For PDFs/docs: use fl_attachment to force download with correct content-type
           const downloadUrl = getDownloadUrl(data.fileUrl);
