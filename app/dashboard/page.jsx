@@ -6,6 +6,7 @@ import { UploadCloud, Download, Star, X } from "lucide-react";
 import ResourceCard from "@/components/ResourceCard";
 import toast from "react-hot-toast";
 import { useTheme } from "@/context/ThemeContext";
+import Dropdown from "@/components/Dropdown";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -118,13 +119,22 @@ export default function DashboardPage() {
               <textarea name="description" placeholder="Description" rows={2} className={`${inputClass} resize-none`} value={editForm.description} onChange={(e) => setEditForm({ ...editForm, description: e.target.value })} />
               <div className="grid grid-cols-2 gap-2">
                 <input name="subject" placeholder="Subject" className={inputClass} value={editForm.subject} onChange={(e) => setEditForm({ ...editForm, subject: e.target.value })} />
-                <select name="resourceType" className={`${inputClass} appearance-none`} value={editForm.resourceType} onChange={(e) => setEditForm({ ...editForm, resourceType: e.target.value })}>
-                  {["Notes","Question Papers","Solutions","Project Reports","Study Material"].map(t => <option key={t} value={t} className={isWhite ? "bg-white" : "bg-[var(--bg-secondary)]"}>{t}</option>)}
-                </select>
-                <select name="semester" className={`${inputClass} appearance-none`} value={editForm.semester} onChange={(e) => setEditForm({ ...editForm, semester: e.target.value })}>
-                  <option value="" className={isWhite ? "bg-white" : "bg-[var(--bg-secondary)]"}>Semester</option>
-                  {[1,2,3,4,5,6,7,8].map(s => <option key={s} value={s} className={isWhite ? "bg-white" : "bg-[var(--bg-secondary)]"}>{s}</option>)}
-                </select>
+                <Dropdown
+                  name="resourceType"
+                  options={["Notes","Question Papers","Solutions","Project Reports","Study Material", "Google NotebookLM"]}
+                  value={editForm.resourceType}
+                  onChange={(e) => setEditForm({ ...editForm, resourceType: e.target.value })}
+                  placeholder="Type"
+                  isWhite={isWhite}
+                />
+                <Dropdown
+                  name="semester"
+                  options={["1","2","3","4","5","6","7","8"]}
+                  value={editForm.semester}
+                  onChange={(e) => setEditForm({ ...editForm, semester: e.target.value })}
+                  placeholder="Semester"
+                  isWhite={isWhite}
+                />
                 <input name="yearBatch" placeholder="Year / Batch" className={inputClass} value={editForm.yearBatch} onChange={(e) => setEditForm({ ...editForm, yearBatch: e.target.value })} />
               </div>
               <input name="tags" placeholder="Tags (comma separated)" className={inputClass} value={editForm.tags} onChange={(e) => setEditForm({ ...editForm, tags: e.target.value })} />

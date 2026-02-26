@@ -6,6 +6,7 @@ import dynamic from "next/dynamic";
 import { Search, SlidersHorizontal, ChevronDown } from "lucide-react";
 import ResourceCard from "@/components/ResourceCard";
 import { useTheme } from "@/context/ThemeContext";
+import Dropdown from "@/components/Dropdown";
 
 const Antigravity = dynamic(() => import("@/components/Antigravity"), { ssr: false });
 const TextType = dynamic(() => import("@/components/TextType"), { ssr: false });
@@ -189,13 +190,14 @@ export default function HomePage() {
             Resources
           </h2>
           <div className="flex items-center gap-2">
-            <select
+            <Dropdown
+              name="sort"
+              options={SORT_OPTIONS}
               value={filters.sort}
               onChange={(e) => setFilters({ ...filters, sort: e.target.value })}
-              className={`${selectClass} appearance-none cursor-pointer`}
-            >
-              {SORT_OPTIONS.map(s => <option key={s.value} value={s.value} className={isWhite ? "bg-white" : "bg-[var(--bg-secondary)]"}>{s.label}</option>)}
-            </select>
+              isWhite={isWhite}
+              className="w-40"
+            />
             <button onClick={() => setFiltersOpen(!filtersOpen)} className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
               filtersOpen
                 ? isWhite ? "bg-neutral-900 text-white" : "bg-white text-neutral-900"
@@ -208,26 +210,44 @@ export default function HomePage() {
         </div>
 
         {filtersOpen && (
-          <div className={`rounded-lg p-3 mb-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 ${
+          <div className={`rounded-lg p-3 mb-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 relative z-40 ${
             isWhite ? "bg-neutral-50 border border-neutral-200" : "bg-[var(--card-bg)] border border-[var(--card-border)]"
           }`}>
-            <select value={filters.department} onChange={(e) => setFilters({ ...filters, department: e.target.value })} className={selectClass}>
-              <option value="" className={isWhite ? "bg-white" : "bg-[var(--bg-secondary)]"}>All Departments</option>
-              {DEPARTMENTS.filter(Boolean).map(d => <option key={d} value={d} className={isWhite ? "bg-white" : "bg-[var(--bg-secondary)]"}>{d}</option>)}
-            </select>
-            <select value={filters.semester} onChange={(e) => setFilters({ ...filters, semester: e.target.value })} className={selectClass}>
-              <option value="" className={isWhite ? "bg-white" : "bg-[var(--bg-secondary)]"}>All Semesters</option>
-              {SEMESTERS.filter(Boolean).map(s => <option key={s} value={s} className={isWhite ? "bg-white" : "bg-[var(--bg-secondary)]"}>Semester {s}</option>)}
-            </select>
-            <select value={filters.resourceType} onChange={(e) => setFilters({ ...filters, resourceType: e.target.value })} className={selectClass}>
-              <option value="" className={isWhite ? "bg-white" : "bg-[var(--bg-secondary)]"}>All Types</option>
-              {RESOURCE_TYPES.filter(Boolean).map(t => <option key={t} value={t} className={isWhite ? "bg-white" : "bg-[var(--bg-secondary)]"}>{t}</option>)}
-            </select>
-            <select value={filters.isPublic} onChange={(e) => setFilters({ ...filters, isPublic: e.target.value })} className={selectClass}>
-              <option value="" className={isWhite ? "bg-white" : "bg-[var(--bg-secondary)]"}>All Access</option>
-              <option value="true" className={isWhite ? "bg-white" : "bg-[var(--bg-secondary)]"}>Public</option>
-              <option value="false" className={isWhite ? "bg-white" : "bg-[var(--bg-secondary)]"}>Private</option>
-            </select>
+            <Dropdown
+              name="department"
+              options={DEPARTMENTS.filter(Boolean)}
+              value={filters.department}
+              onChange={(e) => setFilters({ ...filters, department: e.target.value })}
+              placeholder="All Departments"
+              isWhite={isWhite}
+            />
+            <Dropdown
+              name="semester"
+              options={SEMESTERS.filter(Boolean).map(s => ({ value: s, label: `Semester ${s}` }))}
+              value={filters.semester}
+              onChange={(e) => setFilters({ ...filters, semester: e.target.value })}
+              placeholder="All Semesters"
+              isWhite={isWhite}
+            />
+            <Dropdown
+              name="resourceType"
+              options={RESOURCE_TYPES.filter(Boolean)}
+              value={filters.resourceType}
+              onChange={(e) => setFilters({ ...filters, resourceType: e.target.value })}
+              placeholder="All Types"
+              isWhite={isWhite}
+            />
+            <Dropdown
+              name="isPublic"
+              options={[
+                { value: "true", label: "Public" },
+                { value: "false", label: "Private" }
+              ]}
+              value={filters.isPublic}
+              onChange={(e) => setFilters({ ...filters, isPublic: e.target.value })}
+              placeholder="All Access"
+              isWhite={isWhite}
+            />
             <input placeholder="Subject" value={filters.subject} onChange={(e) => setFilters({ ...filters, subject: e.target.value })} className={`${selectClass}`} />
             {activeFilterCount > 0 && (
               <button onClick={clearFilters} className="text-xs text-red-500 hover:underline col-span-full text-center py-1">

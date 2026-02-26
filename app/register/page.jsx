@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import { useTheme } from "@/context/ThemeContext";
+import Dropdown from "@/components/Dropdown";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -59,14 +60,25 @@ export default function RegisterPage() {
           <input name="email" type="email" placeholder="Email *" required className={inputClass} value={form.email} onChange={handleChange} />
           <input name="password" type="password" placeholder="Password *" required className={inputClass} value={form.password} onChange={handleChange} />
           <input name="college" placeholder="College / Institution *" required className={inputClass} value={form.college} onChange={handleChange} />
-          <select name="department" className={selectClass} value={form.department} onChange={handleChange}>
-            <option value="" className={isWhite ? "bg-white" : "bg-[var(--bg-secondary)]"}>Select Department</option>
-            {["CSE","IT","ECE","EEE","MECH","CIVIL","AIDS","AIML","CSE (Cyber Security)","Biomedical","Chemical","Automobile"].map(d => <option key={d} value={d} className={isWhite ? "bg-white" : "bg-[var(--bg-secondary)]"}>{d}</option>)}
-          </select>
-          <select name="semester" className={selectClass} value={form.semester} onChange={handleChange}>
-            <option value="" className={isWhite ? "bg-white" : "bg-[var(--bg-secondary)]"}>Select Semester</option>
-            {[1,2,3,4,5,6,7,8].map(s => <option key={s} value={s} className={isWhite ? "bg-white" : "bg-[var(--bg-secondary)]"}>Semester {s}</option>)}
-          </select>
+          
+          <Dropdown
+            name="department"
+            options={["CSE","IT","ECE","EEE","MECH","CIVIL","AIDS","AIML","CSE (Cyber Security)","Biomedical","Chemical","Automobile"]}
+            value={form.department}
+            onChange={handleChange}
+            placeholder="Select Department"
+            isWhite={isWhite}
+          />
+
+          <Dropdown
+            name="semester"
+            options={["1","2","3","4","5","6","7","8"]}
+            value={form.semester}
+            onChange={handleChange}
+            placeholder="Select Semester"
+            isWhite={isWhite}
+          />
+
           <button type="submit" disabled={loading} className="w-full py-2.5 rounded-lg btn-gradient text-white text-sm font-medium disabled:opacity-50">
             {loading ? "Creating Account..." : "Sign Up"}
           </button>

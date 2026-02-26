@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Upload, File, Award } from "lucide-react";
+import Dropdown from "@/components/Dropdown";
 import toast from "react-hot-toast";
 import { useTheme } from "@/context/ThemeContext";
 
@@ -38,6 +39,10 @@ export default function UploadPage() {
   const mutedText = isWhite ? "text-neutral-400" : "text-neutral-500";
   const inputClass = `w-full px-3 py-2.5 rounded-lg text-sm focus:outline-none ${isWhite ? "bg-white border border-neutral-200 text-neutral-900 placeholder-neutral-400 focus:border-neutral-400" : "bg-[var(--input-bg)] border border-[var(--glass-border)] text-white placeholder-neutral-500 focus:border-neutral-500"}`;
 
+  const resourceTypeOptions = ["Notes","Question Papers","Solutions","Project Reports","Study Material","Google NotebookLM"];
+  const semesterOptions = ["1","2","3","4","5","6","7","8"];
+  const departmentOptions = ["CSE","IT","ECE","EEE","MECH","CIVIL","AIDS","AIML","CSE (Cyber Security)","Biomedical","Chemical","Automobile","Common"];
+
   return (
     <div className="max-w-xl mx-auto px-4 py-8">
       <h1 className={`text-xl font-bold mb-5 ${headingText}`}>Upload Resource</h1>
@@ -47,21 +52,33 @@ export default function UploadPage() {
 
         <div className="grid grid-cols-2 gap-3">
           <input name="subject" placeholder="Subject / Course" className={inputClass} value={form.subject} onChange={handleChange} />
-          <select name="resourceType" required className={`${inputClass} appearance-none`} value={form.resourceType} onChange={handleChange}>
-            <option value="" className={isWhite ? "bg-white" : "bg-[var(--bg-secondary)]"}>Resource Type *</option>
-            {["Notes","Question Papers","Solutions","Project Reports","Study Material","Google NotebookLM"].map(t => <option key={t} value={t} className={isWhite ? "bg-white" : "bg-[var(--bg-secondary)]"}>{t}</option>)}
-          </select>
+          <Dropdown
+            name="resourceType"
+            options={resourceTypeOptions}
+            value={form.resourceType}
+            onChange={handleChange}
+            placeholder="Resource Type *"
+            isWhite={isWhite}
+          />
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <select name="semester" className={`${inputClass} appearance-none`} value={form.semester} onChange={handleChange}>
-            <option value="" className={isWhite ? "bg-white" : "bg-[var(--bg-secondary)]"}>Semester</option>
-            {[1,2,3,4,5,6,7,8].map(s => <option key={s} value={s} className={isWhite ? "bg-white" : "bg-[var(--bg-secondary)]"}>{s}</option>)}
-          </select>
-          <select name="department" className={`${inputClass} appearance-none`} value={form.department} onChange={handleChange}>
-            <option value="" className={isWhite ? "bg-white" : "bg-[var(--bg-secondary)]"}>Department</option>
-            {["CSE","IT","ECE","EEE","MECH","CIVIL","AIDS","AIML","CSE (Cyber Security)","Biomedical","Chemical","Automobile","Common"].map(d => <option key={d} value={d} className={isWhite ? "bg-white" : "bg-[var(--bg-secondary)]"}>{d}</option>)}
-          </select>
+        <div className="grid grid-cols-2 gap-3 relative z-40">
+          <Dropdown
+            name="semester"
+            options={semesterOptions}
+            value={form.semester}
+            onChange={handleChange}
+            placeholder="Semester"
+            isWhite={isWhite}
+          />
+          <Dropdown
+            name="department"
+            options={departmentOptions}
+            value={form.department}
+            onChange={handleChange}
+            placeholder="Department"
+            isWhite={isWhite}
+          />
         </div>
 
         <input name="tags" placeholder="Tags (comma separated)" className={inputClass} value={form.tags} onChange={handleChange} />
