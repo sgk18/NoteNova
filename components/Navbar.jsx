@@ -6,6 +6,7 @@ import { useState, useEffect, useRef } from "react";
 import { Menu, X, LogOut, ChevronDown } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "@/context/ThemeContext";
+import NotificationBell from "@/components/NotificationBell";
 
 const THEMES = [
   { value: "ion", label: "Dark", icon: "◐" },
@@ -153,6 +154,7 @@ export default function Navbar() {
                 </div>
               )}
             </div>
+            {user && <NotificationBell />}
             {user && (
               <button
                 onClick={logout}
@@ -167,7 +169,8 @@ export default function Navbar() {
           </div>
 
           {/* Mobile */}
-          <div className="md:hidden flex items-center gap-1">
+          <div className="md:hidden flex items-center gap-2">
+            {user && <NotificationBell />}
             <div ref={mobileDropdownRef} className="relative">
               <button
                 onClick={() => setThemeOpen(!themeOpen)}

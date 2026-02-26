@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { Shield } from "lucide-react";
 import toast from "react-hot-toast";
 import { useTheme } from "@/context/ThemeContext";
@@ -59,7 +60,9 @@ export default function LeaderboardPage() {
                     <div className="flex items-center gap-2.5 min-w-0">
                       <span className={`text-xs font-medium w-5 text-center flex-shrink-0 ${i < 3 ? headingText : mutedText}`}>{i + 1}</span>
                       <div className="min-w-0">
-                        <p className={`font-medium text-sm truncate ${headingText}`}>{u.name}</p>
+                        <Link href={`/user/${u._id}`} className={`font-medium text-sm truncate hover:underline ${headingText}`}>
+                          {u.name}
+                        </Link>
                         <p className={`text-[11px] truncate ${mutedText}`}>{u.college || "—"} {u.department ? `· ${u.department}` : ""}</p>
                       </div>
                     </div>
@@ -71,7 +74,9 @@ export default function LeaderboardPage() {
                 <div className={`hidden sm:grid grid-cols-12 gap-3 px-4 py-3 items-center border-t ${isWhite ? "border-neutral-100" : "border-[var(--glass-border)]"}`}>
                   <div className={`col-span-1 text-sm font-medium ${i < 3 ? headingText : mutedText}`}>{i + 1}</div>
                   <div className="col-span-3">
-                    <p className={`font-medium text-sm ${headingText}`}>{u.name}</p>
+                    <Link href={`/user/${u._id}`} className={`font-medium text-sm hover:underline ${headingText}`}>
+                      {u.name}
+                    </Link>
                     {u.semester && <p className={`text-[11px] ${mutedText}`}>Sem {u.semester}</p>}
                   </div>
                   <div className={`col-span-3 text-xs truncate ${mutedText}`}>{u.college || "—"}</div>
