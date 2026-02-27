@@ -23,6 +23,7 @@ export default function AskNovaPage() {
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
   const [audioLoading, setAudioLoading] = useState(false);
+  const [audioUrl, setAudioUrl] = useState("");
   const [user, setUser] = useState(null);
   const [showExpertChat, setShowExpertChat] = useState(false);
   const { emitEscalation } = useSocket();
