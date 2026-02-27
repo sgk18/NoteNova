@@ -122,9 +122,11 @@
     --input-bg: #f5f5f5;
     --hover-bg: rgba(0, 0, 0, 0.02);
   }
+
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
@@ -191,10 +193,21 @@ body {
 }
 
 /* ===== THEME BACKGROUNDS ===== */
-body.ion-theme { background: #111111; }
-body.galaxy-theme { background: #0f0f1a; }
-body.white-theme { background: #fafafa; }
-body:not(.galaxy-theme):not(.ion-theme):not(.white-theme) { background: #fafafa; }
+body.ion-theme {
+  background: #111111;
+}
+
+body.galaxy-theme {
+  background: #0f0f1a;
+}
+
+body.white-theme {
+  background: #fafafa;
+}
+
+body:not(.galaxy-theme):not(.ion-theme):not(.white-theme) {
+  background: #fafafa;
+}
 
 /* ===== WHITE THEME OVERRIDES ===== */
 body.white-theme .glass,
