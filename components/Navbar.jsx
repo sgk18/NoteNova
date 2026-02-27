@@ -97,6 +97,7 @@ export default function Navbar() {
       { name: "Upload", href: "/upload" },
       { name: "Ask Nova", href: "/ask-nova" },
       { name: "Profile", href: "/profile" },
+      ...(user.role === "admin" ? [{ name: "Admin", href: "/admin" }] : []),
     ]
     : [
       { name: "Home", href: "/" },
@@ -122,6 +123,7 @@ export default function Navbar() {
       { name: "Mock Exam", href: "/mock-exam" },
       { name: "Leaderboard", href: "/leaderboard" },
       { name: "Profile", href: "/profile" },
+      ...(user.role === "admin" ? [{ name: "Admin", href: "/admin" }] : []),
     ]
     : [
       { name: "Home", href: "/" },
@@ -148,12 +150,12 @@ export default function Navbar() {
         : "btn-gradient text-white neon-glow px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300";
     }
     return `px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${pathname === href
-        ? isWhite
-          ? "text-blue-600 bg-blue-50 font-semibold"
-          : "text-cyan-400 bg-white/10 neon-glow"
-        : isWhite
-          ? "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-          : "text-gray-300 hover:text-white hover:bg-white/5"
+      ? isWhite
+        ? "text-blue-600 bg-blue-50 font-semibold"
+        : "text-cyan-400 bg-white/10 neon-glow"
+      : isWhite
+        ? "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+        : "text-gray-300 hover:text-white hover:bg-white/5"
       }`;
   };
 
@@ -199,12 +201,12 @@ export default function Navbar() {
                   <button
                     onClick={() => setExploreOpen(!exploreOpen)}
                     className={`flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${isExploreActive
-                        ? isWhite
-                          ? "text-blue-600 bg-blue-50 font-semibold"
-                          : "text-cyan-400 bg-white/10 neon-glow"
-                        : isWhite
-                          ? "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-                          : "text-gray-300 hover:text-white hover:bg-white/5"
+                      ? isWhite
+                        ? "text-blue-600 bg-blue-50 font-semibold"
+                        : "text-cyan-400 bg-white/10 neon-glow"
+                      : isWhite
+                        ? "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                        : "text-gray-300 hover:text-white hover:bg-white/5"
                       }`}
                   >
                     Explore
@@ -221,12 +223,12 @@ export default function Navbar() {
                           href={l.href}
                           onClick={() => setExploreOpen(false)}
                           className={`block w-full text-left px-4 py-3 text-sm transition-all ${pathname === l.href
-                              ? isWhite
-                                ? "bg-blue-50 text-blue-600 font-semibold"
-                                : "bg-white/10 text-cyan-400 font-semibold"
-                              : isWhite
-                                ? "text-gray-700 hover:bg-gray-50"
-                                : "text-gray-300 hover:bg-white/5"
+                            ? isWhite
+                              ? "bg-blue-50 text-blue-600 font-semibold"
+                              : "bg-white/10 text-cyan-400 font-semibold"
+                            : isWhite
+                              ? "text-gray-700 hover:bg-gray-50"
+                              : "text-gray-300 hover:bg-white/5"
                             }`}
                         >
                           {l.name}
@@ -380,12 +382,12 @@ export default function Navbar() {
                 key={l.href}
                 href={l.href}
                 className={`block px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${l.name === "Login" || l.name === "Register"
-                    ? isWhite ? "bg-neutral-900 text-white mt-1" : "btn-gradient text-white mt-1"
-                    : pathname === l.href
-                      ? isWhite ? "text-blue-600 bg-blue-50 font-semibold" : "text-cyan-400 bg-white/10 font-semibold"
-                      : isWhite
-                        ? "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-                        : "text-gray-300 hover:text-white hover:bg-white/10"
+                  ? isWhite ? "bg-neutral-900 text-white mt-1" : "btn-gradient text-white mt-1"
+                  : pathname === l.href
+                    ? isWhite ? "text-blue-600 bg-blue-50 font-semibold" : "text-cyan-400 bg-white/10 font-semibold"
+                    : isWhite
+                      ? "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                      : "text-gray-300 hover:text-white hover:bg-white/10"
                   }`}
                 onClick={() => setMenuOpen(false)}
               >
