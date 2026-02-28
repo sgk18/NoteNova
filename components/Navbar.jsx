@@ -92,6 +92,7 @@ export default function Navbar() {
       { name: "Bounties", href: "/bounty-board" },
       { name: "Upload", href: "/upload" },
       { name: "Ask Nova", href: "/ask-nova" },
+      { name: "Messages", href: "/messages" },
       { name: "Mock Exam", href: "/mock-exam" },
       { name: "Leaderboard", href: "/leaderboard" },
       { name: "Profile", href: "/profile" },
