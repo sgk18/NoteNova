@@ -2,6 +2,11 @@ import { NextResponse } from "next/server";
 import dbConnect from "@/lib/db";
 import Resource from "@/models/Resource";
 import User from "@/models/User";
+import Bookmark from "@/models/Bookmark";
+import Rating from "@/models/Rating";
+import Doubt from "@/models/Doubt";
+import FlashcardProgress from "@/models/FlashcardProgress";
+import Notification from "@/models/Notification";
 import { authenticateAdmin } from "@/middleware/adminMiddleware";
 import { UTApi } from "uploadthing/server";
 
@@ -24,7 +29,7 @@ export async function GET(request) {
         const search = searchParams.get("search") || "";
         const resourceType = searchParams.get("resourceType") || "";
 
-        const query = {};
+        const query = { isPublic: true };
         if (search) {
             query.$or = [
                 { title: { $regex: search, $options: "i" } },
@@ -42,8 +47,9 @@ export async function GET(request) {
             .lean();
 
         // Get summary stats
-        const totalCount = await Resource.countDocuments();
+        const totalCount = await Resource.countDocuments({ isPublic: true });
         const typeCounts = await Resource.aggregate([
+            { $match: { isPublic: true } },
             { $group: { _id: "$resourceType", count: { $sum: 1 } } },
         ]);
 
@@ -102,6 +108,15 @@ export async function DELETE(request) {
                 // Continue with DB deletion even if storage deletion fails
             }
         }
+
+        // Cascade-delete all related data from all users
+        await Promise.all([
+            Bookmark.deleteMany({ resourceId: resourceId }),
+            Rating.deleteMany({ resourceId: resourceId }),
+            Doubt.deleteMany({ resourceId: resourceId }),
+            FlashcardProgress.deleteMany({ resourceId: resourceId }),
+            Notification.deleteMany({ resourceId: resourceId }),
+        ]);
 
         // Delete from MongoDB
         await Resource.findByIdAndDelete(resourceId);
