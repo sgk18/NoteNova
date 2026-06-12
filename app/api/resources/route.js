@@ -127,17 +127,17 @@ export async function POST(request) {
     await dbConnect();
     const authHeader = request.headers.get("authorization");
     let userId = "anonymous_for_now";
-    
+
     if (authHeader) {
       const decoded = verifyToken(authHeader.split(" ")[1]);
       if (decoded) userId = decoded.userId;
     }
 
     const body = await request.json();
-    const { 
-      title, description, subject, semester, department, 
-      resourceType, yearBatch, tags, isPublic, 
-      fileUrl, fileType, notebookLMLink 
+    const {
+      title, description, subject, semester, department,
+      resourceType, yearBatch, tags, isPublic,
+      fileUrl, fileType, notebookLMLink
     } = body;
 
     if (!title || !fileUrl) {
@@ -222,7 +222,9 @@ export async function DELETE(request) {
 
     const resource = await Resource.findById(resourceId);
     if (!resource) return NextResponse.json({ error: "Not found" }, { status: 404 });
-    if (resource.uploadedBy.toString() !== decoded.userId) {
+    // Allow admin to delete any resource; otherwise only the uploader can delete
+    const isAdmin = decoded.role === "admin";
+    if (!isAdmin && resource.uploadedBy.toString() !== decoded.userId) {
       return NextResponse.json({ error: "Only the uploader can delete" }, { status: 403 });
     }
 
