@@ -1,0 +1,4008 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSC263-3 — Database Management Systems Notes</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+/* ============================================================
+   CSS CUSTOM PROPERTIES
+   ============================================================ */
+:root {
+  --font-sans: 'Georgia', 'Times New Roman', serif;
+  --font-mono: 'Courier New', 'Lucida Console', monospace;
+  --font-heading: Georgia, serif;
+
+  --bg: #fafaf8;
+  --bg-secondary: #f0efe9;
+  --bg-card: #ffffff;
+  --sidebar-bg: #1a1a2e;
+  --sidebar-text: #c8c8d8;
+  --sidebar-active: #e8b86d;
+  --sidebar-hover: rgba(232, 184, 109, 0.15);
+  --border: #e2e0d6;
+  --border-strong: #c8c5b8;
+
+  --text-primary: #1a1a1e;
+  --text-secondary: #5a5a6e;
+  --text-muted: #8a8a9a;
+
+  --accent: #2563eb;
+  --accent-light: #dbeafe;
+  --accent-dark: #1d4ed8;
+  --green: #059669;
+  --green-light: #d1fae5;
+  --amber: #d97706;
+  --amber-light: #fef3c7;
+  --red: #dc2626;
+  --red-light: #fee2e2;
+  --purple: #7c3aed;
+  --purple-light: #ede9fe;
+
+  --code-bg: #1e1e2e;
+  --code-text: #cdd6f4;
+  --code-keyword: #89b4fa;
+  --code-string: #a6e3a1;
+  --code-comment: #6c7086;
+  --code-function: #89dceb;
+  --code-number: #fab387;
+  --code-operator: #f38ba8;
+
+  --sidebar-width: 280px;
+  --header-height: 60px;
+  --radius: 8px;
+  --radius-lg: 12px;
+  --shadow: 0 1px 4px rgba(0,0,0,0.08);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.1);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
+
+  --transition: 0.2s ease;
+}
+
+[data-theme="dark"] {
+  --bg: #0f0f17;
+  --bg-secondary: #1a1a2a;
+  --bg-card: #1e1e30;
+  --border: #2a2a3e;
+  --border-strong: #3a3a54;
+  --text-primary: #e8e8f0;
+  --text-secondary: #a8a8c0;
+  --text-muted: #6868808;
+  --accent-light: #1e2d4e;
+  --green-light: #0a2e1e;
+  --amber-light: #2e1e0a;
+  --red-light: #2e0a0a;
+  --purple-light: #1e0a2e;
+}
+
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; font-size: 16px; }
+
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text-primary);
+  line-height: 1.7;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  transition: background var(--transition), color var(--transition);
+}
+
+/* ============================================================
+   SCROLL PROGRESS BAR
+   ============================================================ */
+#progress-bar {
+  position: fixed;
+  top: 0; left: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent), var(--sidebar-active));
+  width: 0%;
+  z-index: 9999;
+  transition: width 0.1s linear;
+}
+
+/* ============================================================
+   TOP HEADER
+   ============================================================ */
+header.top-header {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: var(--header-height);
+  background: var(--sidebar-bg);
+  display: flex;
+  align-items: center;
+  padding: 0 1.5rem;
+  gap: 1rem;
+  z-index: 1000;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+}
+
+.header-logo {
+  width: 32px; height: 32px;
+  background: linear-gradient(135deg, var(--accent), var(--sidebar-active));
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; color: white; font-size: 0.8rem;
+}
+
+.header-title {
+  color: white;
+  font-weight: 600;
+  font-size: 0.95rem;
+  font-family: var(--font-heading);
+}
+
+.header-subtitle {
+  color: var(--sidebar-text);
+  font-size: 0.75rem;
+  font-family: var(--font-sans);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 6px;
+  padding: 0.35rem 0.75rem;
+  gap: 0.5rem;
+}
+
+.search-box input {
+  background: none;
+  border: none;
+  outline: none;
+  color: white;
+  font-size: 0.85rem;
+  width: 200px;
+  font-family: var(--font-sans);
+}
+
+.search-box input::placeholder { color: rgba(255,255,255,0.4); }
+
+.search-icon { color: rgba(255,255,255,0.5); font-size: 0.9rem; }
+
+.btn-icon {
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+  width: 34px; height: 34px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem;
+  transition: background var(--transition);
+}
+
+.btn-icon:hover { background: rgba(255,255,255,0.2); }
+
+#menu-toggle { display: none; }
+
+/* ============================================================
+   LAYOUT
+   ============================================================ */
+.layout {
+  display: flex;
+  margin-top: var(--header-height);
+  flex: 1;
+}
+
+/* ============================================================
+   SIDEBAR
+   ============================================================ */
+aside.sidebar {
+  width: var(--sidebar-width);
+  background: var(--sidebar-bg);
+  position: fixed;
+  top: var(--header-height);
+  bottom: 0;
+  left: 0;
+  overflow-y: auto;
+  z-index: 900;
+  transition: transform var(--transition);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.1) transparent;
+}
+
+aside.sidebar::-webkit-scrollbar { width: 4px; }
+aside.sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+
+.sidebar-section {
+  padding: 1rem 0;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.sidebar-section-title {
+  text-transform: uppercase;
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  color: rgba(255,255,255,0.3);
+  padding: 0 1.25rem 0.5rem;
+  font-family: var(--font-sans);
+  font-weight: 600;
+}
+
+.sidebar nav a {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.4rem 1.25rem;
+  color: var(--sidebar-text);
+  text-decoration: none;
+  font-size: 0.82rem;
+  transition: all var(--transition);
+  border-left: 2px solid transparent;
+  line-height: 1.4;
+  font-family: var(--font-sans);
+}
+
+.sidebar nav a:hover {
+  color: white;
+  background: var(--sidebar-hover);
+}
+
+.sidebar nav a.active {
+  color: var(--sidebar-active);
+  background: rgba(232, 184, 109, 0.1);
+  border-left-color: var(--sidebar-active);
+  font-weight: 600;
+}
+
+.sidebar nav a .nav-icon {
+  font-size: 0.9rem;
+  opacity: 0.7;
+  flex-shrink: 0;
+}
+
+.sidebar nav a.sub-item {
+  padding-left: 2.5rem;
+  font-size: 0.78rem;
+  opacity: 0.85;
+}
+
+/* ============================================================
+   MAIN CONTENT
+   ============================================================ */
+main {
+  margin-left: var(--sidebar-width);
+  flex: 1;
+  padding: 2.5rem 3rem 4rem;
+  max-width: 960px;
+}
+
+/* ============================================================
+   DOCUMENT HEADER
+   ============================================================ */
+.doc-header {
+  margin-bottom: 3rem;
+  padding-bottom: 2rem;
+  border-bottom: 2px solid var(--border);
+}
+
+.course-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--accent-light);
+  color: var(--accent);
+  padding: 0.3rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+  font-family: var(--font-sans);
+}
+
+.doc-title {
+  font-size: 2.4rem;
+  font-weight: 700;
+  font-family: var(--font-heading);
+  line-height: 1.2;
+  margin-bottom: 0.75rem;
+  color: var(--text-primary);
+}
+
+.doc-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.meta-tag {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.3rem 0.75rem;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+}
+
+.revision-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.tag {
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  font-family: var(--font-sans);
+}
+.tag-exam { background: var(--red-light); color: var(--red); }
+.tag-viva { background: var(--purple-light); color: var(--purple); }
+.tag-lab { background: var(--green-light); color: var(--green); }
+.tag-cheatsheet { background: var(--amber-light); color: var(--amber); }
+
+/* ============================================================
+   SECTIONS
+   ============================================================ */
+section {
+  margin-bottom: 3.5rem;
+  scroll-margin-top: calc(var(--header-height) + 1rem);
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid var(--border);
+}
+
+.section-number {
+  background: var(--accent);
+  color: white;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  font-family: var(--font-sans);
+}
+
+.section-number.green { background: var(--green); }
+.section-number.amber { background: var(--amber); }
+.section-number.purple { background: var(--purple); }
+.section-number.red { background: var(--red); }
+
+h1 { font-size: 1.9rem; font-family: var(--font-heading); font-weight: 700; margin-bottom: 1rem; }
+h2 { font-size: 1.45rem; font-family: var(--font-heading); font-weight: 700; margin: 1.8rem 0 0.8rem; color: var(--text-primary); }
+h3 { font-size: 1.15rem; font-family: var(--font-heading); font-weight: 600; margin: 1.4rem 0 0.6rem; color: var(--text-primary); }
+h4 { font-size: 1rem; font-family: var(--font-heading); font-weight: 600; margin: 1rem 0 0.4rem; color: var(--text-secondary); }
+
+p { margin-bottom: 0.9rem; color: var(--text-primary); }
+ul, ol { margin: 0.5rem 0 1rem 1.5rem; }
+li { margin-bottom: 0.3rem; }
+
+strong { color: var(--text-primary); font-weight: 700; }
+em { color: var(--accent); font-style: italic; }
+
+/* ============================================================
+   COLLAPSIBLE SECTIONS
+   ============================================================ */
+.collapsible {
+  margin: 1rem 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.collapsible-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.85rem 1.25rem;
+  background: var(--bg-secondary);
+  cursor: pointer;
+  user-select: none;
+  transition: background var(--transition);
+}
+
+.collapsible-header:hover { background: var(--border); }
+
+.collapsible-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--font-heading);
+}
+
+.collapsible-icon {
+  transition: transform var(--transition);
+  font-size: 0.8rem;
+}
+
+.collapsible.open .collapsible-icon { transform: rotate(90deg); }
+
+.collapsible-body {
+  padding: 1.25rem;
+  display: none;
+  border-top: 1px solid var(--border);
+}
+
+.collapsible.open .collapsible-body { display: block; }
+
+/* ============================================================
+   CODE BLOCKS
+   ============================================================ */
+.code-wrapper {
+  position: relative;
+  margin: 1rem 0;
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+}
+
+.code-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #13131f;
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.code-lang {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(255,255,255,0.4);
+  font-family: var(--font-mono);
+}
+
+.copy-btn {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 4px;
+  color: rgba(255,255,255,0.6);
+  cursor: pointer;
+  font-size: 0.72rem;
+  padding: 0.2rem 0.6rem;
+  transition: all var(--transition);
+  font-family: var(--font-sans);
+}
+
+.copy-btn:hover { background: rgba(255,255,255,0.15); color: white; }
+.copy-btn.copied { background: var(--green); color: white; border-color: var(--green); }
+
+pre {
+  background: var(--code-bg) !important;
+  padding: 1.25rem;
+  overflow-x: auto;
+  margin: 0;
+  line-height: 1.6;
+}
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--code-text);
+}
+
+/* Inline code */
+p code, li code, td code {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.1em 0.4em;
+  font-size: 0.82em;
+  color: var(--accent);
+}
+
+/* SQL Syntax Highlighting */
+.kw { color: var(--code-keyword); font-weight: 600; }
+.fn { color: var(--code-function); }
+.str { color: var(--code-string); }
+.num { color: var(--code-number); }
+.cmt { color: var(--code-comment); font-style: italic; }
+.op { color: var(--code-operator); }
+.type { color: #f5c2e7; }
+
+/* ============================================================
+   TABLES
+   ============================================================ */
+.table-wrapper {
+  overflow-x: auto;
+  margin: 1rem 0;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  font-family: var(--font-sans);
+}
+
+thead th {
+  background: var(--sidebar-bg);
+  color: white;
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+tbody tr {
+  border-bottom: 1px solid var(--border);
+  transition: background var(--transition);
+}
+
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: var(--bg-secondary); }
+
+tbody td {
+  padding: 0.7rem 1rem;
+  color: var(--text-primary);
+  vertical-align: top;
+}
+
+tbody tr:nth-child(even) { background: var(--bg-secondary); }
+tbody tr:nth-child(even):hover { background: var(--border); }
+
+/* ============================================================
+   CALLOUT BOXES
+   ============================================================ */
+.callout {
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  margin: 1rem 0;
+  border-left: 4px solid;
+  display: flex;
+  gap: 0.75rem;
+}
+
+.callout-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 0.1rem; }
+.callout-body { flex: 1; }
+.callout-title { font-weight: 700; margin-bottom: 0.3rem; font-family: var(--font-heading); }
+
+.callout.info { background: var(--accent-light); border-color: var(--accent); }
+.callout.info .callout-title { color: var(--accent-dark); }
+
+.callout.success { background: var(--green-light); border-color: var(--green); }
+.callout.success .callout-title { color: var(--green); }
+
+.callout.warning { background: var(--amber-light); border-color: var(--amber); }
+.callout.warning .callout-title { color: var(--amber); }
+
+.callout.danger { background: var(--red-light); border-color: var(--red); }
+.callout.danger .callout-title { color: var(--red); }
+
+.callout.tip { background: var(--purple-light); border-color: var(--purple); }
+.callout.tip .callout-title { color: var(--purple); }
+
+/* ============================================================
+   DEFINITION CARDS
+   ============================================================ */
+.def-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.def-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem;
+  box-shadow: var(--shadow);
+  border-top: 3px solid var(--accent);
+}
+
+.def-card.green { border-top-color: var(--green); }
+.def-card.amber { border-top-color: var(--amber); }
+.def-card.purple { border-top-color: var(--purple); }
+.def-card.red { border-top-color: var(--red); }
+
+.def-term {
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin-bottom: 0.4rem;
+  font-family: var(--font-heading);
+  color: var(--text-primary);
+}
+
+.def-desc {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* ============================================================
+   QUIZ / EXAM BOXES
+   ============================================================ */
+.exam-box {
+  background: linear-gradient(135deg, #1a1a2e, #16213e);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.exam-box-title {
+  color: var(--sidebar-active);
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-sans);
+}
+
+.exam-q {
+  color: #e0e0f0;
+  font-size: 0.88rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  font-family: var(--font-sans);
+}
+
+.exam-q:last-child { border-bottom: none; }
+.exam-q strong { color: var(--sidebar-active); }
+
+/* ============================================================
+   MEMORY TRICKS
+   ============================================================ */
+.memory-trick {
+  background: linear-gradient(135deg, var(--purple-light), var(--accent-light));
+  border: 1px solid var(--purple);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  margin: 1rem 0;
+}
+
+.memory-trick-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--purple);
+  font-weight: 700;
+  margin-bottom: 0.4rem;
+  font-family: var(--font-sans);
+}
+
+/* ============================================================
+   MERMAID DIAGRAMS
+   ============================================================ */
+.diagram-wrapper {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+  overflow-x: auto;
+  text-align: center;
+}
+
+.diagram-title {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-align: center;
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-family: var(--font-sans);
+}
+
+/* ============================================================
+   COMPARISON VISUAL
+   ============================================================ */
+.compare-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.compare-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.compare-header {
+  padding: 0.75rem 1rem;
+  font-weight: 700;
+  font-size: 0.9rem;
+  font-family: var(--font-heading);
+}
+
+.compare-body {
+  padding: 0.75rem 1rem;
+  font-size: 0.83rem;
+}
+
+.compare-card.blue .compare-header { background: var(--accent); color: white; }
+.compare-card.green .compare-header { background: var(--green); color: white; }
+.compare-card.amber .compare-header { background: var(--amber); color: white; }
+.compare-card.purple .compare-header { background: var(--purple); color: white; }
+
+.compare-item {
+  padding: 0.4rem 0;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.compare-item:last-child { border-bottom: none; }
+.compare-item::before { content: "✓"; color: var(--green); flex-shrink: 0; font-weight: 700; }
+
+/* ============================================================
+   STEPS / PROCEDURE
+   ============================================================ */
+.steps {
+  counter-reset: step;
+  margin: 1rem 0;
+}
+
+.step {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  counter-increment: step;
+}
+
+.step-num {
+  background: var(--accent);
+  color: white;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.78rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  font-family: var(--font-sans);
+}
+
+.step-body { flex: 1; padding-top: 0.15rem; }
+.step-title { font-weight: 600; margin-bottom: 0.25rem; font-family: var(--font-heading); }
+
+/* ============================================================
+   NORMALIZATION TABLES
+   ============================================================ */
+.norm-before-after {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.norm-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px 4px 0 0;
+  font-family: var(--font-sans);
+}
+
+.norm-label.bad { background: var(--red); color: white; }
+.norm-label.good { background: var(--green); color: white; }
+
+/* ============================================================
+   BACK TO TOP
+   ============================================================ */
+#back-to-top {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 42px; height: 42px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem;
+  box-shadow: var(--shadow-md);
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all var(--transition);
+  z-index: 500;
+}
+
+#back-to-top.visible { opacity: 1; transform: translateY(0); }
+#back-to-top:hover { background: var(--accent-dark); transform: translateY(-2px); }
+
+/* ============================================================
+   SEARCH HIGHLIGHT
+   ============================================================ */
+.search-highlight { background: #fde68a; color: #1a1a1e; border-radius: 2px; padding: 0 2px; }
+
+/* ============================================================
+   CHEAT SHEET SECTION
+   ============================================================ */
+.cheat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.cheat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+.cheat-card-header {
+  background: var(--sidebar-bg);
+  color: var(--sidebar-active);
+  padding: 0.6rem 1rem;
+  font-weight: 700;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-family: var(--font-sans);
+}
+
+.cheat-card-body {
+  padding: 0.75rem;
+}
+
+.cheat-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.35rem 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.8rem;
+  font-family: var(--font-sans);
+}
+
+.cheat-item:last-child { border-bottom: none; }
+.cheat-key { color: var(--text-secondary); }
+.cheat-val { font-family: var(--font-mono); color: var(--accent); font-size: 0.75rem; }
+
+/* ============================================================
+   PRINT STYLES
+   ============================================================ */
+@media print {
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+
+  body { font-size: 11pt; background: white !important; color: black !important; }
+
+  header.top-header, aside.sidebar, #back-to-top, #progress-bar,
+  .copy-btn, .btn-icon, .search-box, #menu-toggle { display: none !important; }
+
+  main {
+    margin-left: 0 !important;
+    padding: 0 !important;
+    max-width: 100% !important;
+  }
+
+  section { page-break-inside: avoid; margin-bottom: 2rem; }
+  h1, h2, h3, h4 { page-break-after: avoid; }
+  table { page-break-inside: avoid; }
+  pre { page-break-inside: avoid; }
+  .collapsible-body { display: block !important; }
+  .diagram-wrapper { page-break-inside: avoid; }
+
+  /* Page numbers */
+  @page {
+    margin: 2cm;
+    @bottom-center {
+      content: "CSC263-3 DBMS Notes — Page " counter(page) " of " counter(pages);
+      font-size: 9pt;
+      color: #666;
+    }
+    @top-right {
+      content: "Database Management Systems";
+      font-size: 9pt;
+      color: #666;
+    }
+  }
+
+  .exam-box {
+    background: #f0f0f0 !important;
+    border: 1px solid #999 !important;
+  }
+
+  .exam-box-title { color: #333 !important; }
+  .exam-q { color: #111 !important; }
+
+  pre, code { background: #f5f5f5 !important; color: #111 !important; }
+  .kw { color: #0000cc !important; }
+  .str { color: #006600 !important; }
+  .cmt { color: #888 !important; }
+
+  .collapsible-header { background: #eee !important; }
+  thead th { background: #333 !important; color: white !important; }
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 900px) {
+  :root { --sidebar-width: 0px; }
+
+  aside.sidebar {
+    transform: translateX(-100%);
+    width: 280px;
+  }
+
+  aside.sidebar.open {
+    transform: translateX(0);
+    width: 280px;
+    box-shadow: var(--shadow-lg);
+  }
+
+  main { margin-left: 0; padding: 1.5rem; }
+  #menu-toggle { display: flex !important; }
+  .norm-before-after, .compare-grid { grid-template-columns: 1fr; }
+  .search-box input { width: 120px; }
+  .doc-title { font-size: 1.7rem; }
+}
+
+@media (max-width: 600px) {
+  main { padding: 1rem; }
+  .cheat-grid { grid-template-columns: 1fr; }
+  .def-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     SCROLL PROGRESS BAR
+     ============================================================ -->
+<div id="progress-bar"></div>
+
+<!-- ============================================================
+     TOP HEADER
+     ============================================================ -->
+<header class="top-header">
+  <button class="btn-icon" id="menu-toggle" onclick="toggleSidebar()" aria-label="Toggle menu">☰</button>
+  <div class="header-brand">
+    <div class="header-logo">DB</div>
+    <div>
+      <div class="header-title">Database Management Systems</div>
+      <div class="header-subtitle">CSC263-3 · Exam-Ready Notes</div>
+    </div>
+  </div>
+  <div class="header-actions">
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="search-input" placeholder="Search topics..." oninput="searchContent(this.value)">
+    </div>
+    <button class="btn-icon" onclick="toggleTheme()" id="theme-btn" title="Toggle dark/light mode">🌙</button>
+    <button class="btn-icon" onclick="window.print()" title="Print / Save as PDF">🖨️</button>
+  </div>
+</header>
+
+<!-- ============================================================
+     LAYOUT
+     ============================================================ -->
+<div class="layout">
+
+<!-- ============================================================
+     SIDEBAR NAVIGATION
+     ============================================================ -->
+<aside class="sidebar" id="sidebar">
+  <nav>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Overview</div>
+      <a href="#overview" class="nav-link"><span class="nav-icon">📋</span> Course Overview</a>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Unit 1</div>
+      <a href="#unit1" class="nav-link"><span class="nav-icon">📖</span> Intro to DBMS</a>
+      <a href="#unit1-data" class="nav-link sub-item">Data & Information</a>
+      <a href="#unit1-dbms" class="nav-link sub-item">What is DBMS?</a>
+      <a href="#unit1-characteristics" class="nav-link sub-item">Characteristics</a>
+      <a href="#unit1-users" class="nav-link sub-item">Database Users</a>
+      <a href="#unit1-architecture" class="nav-link sub-item">3-Schema Architecture</a>
+      <a href="#unit1-rdbms" class="nav-link sub-item">RDBMS & MySQL</a>
+      <a href="#unit1-ddl" class="nav-link sub-item">DDL Commands</a>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Unit 2</div>
+      <a href="#unit2" class="nav-link"><span class="nav-icon">🔗</span> Relational Model & ER</a>
+      <a href="#unit2-relational" class="nav-link sub-item">Relational Model</a>
+      <a href="#unit2-keys" class="nav-link sub-item">Keys</a>
+      <a href="#unit2-constraints" class="nav-link sub-item">Integrity Constraints</a>
+      <a href="#unit2-er" class="nav-link sub-item">ER Model</a>
+      <a href="#unit2-eer" class="nav-link sub-item">EER Model</a>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Unit 3</div>
+      <a href="#unit3" class="nav-link"><span class="nav-icon">📐</span> Normalization</a>
+      <a href="#unit3-fd" class="nav-link sub-item">Functional Dependencies</a>
+      <a href="#unit3-1nf" class="nav-link sub-item">1NF</a>
+      <a href="#unit3-2nf" class="nav-link sub-item">2NF</a>
+      <a href="#unit3-3nf" class="nav-link sub-item">3NF</a>
+      <a href="#unit3-bcnf" class="nav-link sub-item">BCNF</a>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Unit 4</div>
+      <a href="#unit4" class="nav-link"><span class="nav-icon">💾</span> SQL</a>
+      <a href="#unit4-ddl" class="nav-link sub-item">DDL</a>
+      <a href="#unit4-dml" class="nav-link sub-item">DML</a>
+      <a href="#unit4-dql" class="nav-link sub-item">DQL & Queries</a>
+      <a href="#unit4-joins" class="nav-link sub-item">Joins</a>
+      <a href="#unit4-functions" class="nav-link sub-item">Functions</a>
+      <a href="#unit4-views" class="nav-link sub-item">Views & Indexes</a>
+      <a href="#unit4-procedures" class="nav-link sub-item">Procedures & Triggers</a>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Unit 5</div>
+      <a href="#unit5" class="nav-link"><span class="nav-icon">🔄</span> Transactions & NoSQL</a>
+      <a href="#unit5-transactions" class="nav-link sub-item">Transactions & ACID</a>
+      <a href="#unit5-concurrency" class="nav-link sub-item">Concurrency Control</a>
+      <a href="#unit5-nosql" class="nav-link sub-item">NoSQL & MongoDB</a>
+      <a href="#unit5-crud" class="nav-link sub-item">MongoDB CRUD</a>
+      <a href="#unit5-aggregation" class="nav-link sub-item">Aggregation Pipeline</a>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Special Sections</div>
+      <a href="#cheatsheet-sql" class="nav-link"><span class="nav-icon">⚡</span> SQL Cheat Sheet</a>
+      <a href="#cheatsheet-mongo" class="nav-link"><span class="nav-icon">🍃</span> MongoDB Cheat Sheet</a>
+      <a href="#exam-questions" class="nav-link"><span class="nav-icon">📝</span> 50 Exam Questions</a>
+      <a href="#viva" class="nav-link"><span class="nav-icon">🎤</span> Viva Questions</a>
+      <a href="#last-minute" class="nav-link"><span class="nav-icon">⏰</span> Last Minute Revision</a>
+      <a href="#key-differences" class="nav-link"><span class="nav-icon">📊</span> Key Differences</a>
+      <a href="#lab-programs" class="nav-link"><span class="nav-icon">🧪</span> Lab Programs</a>
+    </div>
+  </nav>
+</aside>
+
+<!-- ============================================================
+     MAIN CONTENT AREA
+     ============================================================ -->
+<main id="main-content">
+
+<!-- DOCUMENT HEADER -->
+<div class="doc-header">
+  <div class="course-badge">📚 CSC263-3</div>
+  <h1 class="doc-title">Database Management Systems</h1>
+  <p style="color: var(--text-secondary); font-size: 0.95rem;">
+    Comprehensive exam-ready notes covering all 5 units — DBMS fundamentals, Relational Model, Normalization, SQL, Transactions, and MongoDB NoSQL.
+  </p>
+  <div class="doc-meta">
+    <span class="meta-tag">📅 5 Units</span>
+    <span class="meta-tag">💾 MySQL + MongoDB</span>
+    <span class="meta-tag">📝 50 Exam Questions</span>
+    <span class="meta-tag">🔬 Lab Programs</span>
+    <span class="meta-tag">🎤 Viva Prep</span>
+  </div>
+  <div class="revision-tags">
+    <span class="tag tag-exam">Exam Ready</span>
+    <span class="tag tag-viva">Viva Prep</span>
+    <span class="tag tag-lab">Lab Manual</span>
+    <span class="tag tag-cheatsheet">Cheat Sheet</span>
+  </div>
+</div>
+
+<!-- ============================================================
+     OVERVIEW
+     ============================================================ -->
+<section id="overview">
+  <div class="section-header">
+    <div class="section-number">📋</div>
+    <h1>Course Overview</h1>
+  </div>
+
+  <div class="def-grid">
+    <div class="def-card">
+      <div class="def-term">Unit 1 — Intro to DBMS</div>
+      <div class="def-desc">Data, Information, DBMS concepts, 3-schema architecture, RDBMS, MySQL basics, DDL commands.</div>
+    </div>
+    <div class="def-card green">
+      <div class="def-term">Unit 2 — Relational & ER Model</div>
+      <div class="def-desc">Relations, Tuples, Keys, Integrity Constraints, ER diagrams, EER, Specialization, Generalization.</div>
+    </div>
+    <div class="def-card amber">
+      <div class="def-term">Unit 3 — Normalization</div>
+      <div class="def-desc">Functional Dependencies, 1NF, 2NF, 3NF, BCNF, anomalies, denormalization.</div>
+    </div>
+    <div class="def-card purple">
+      <div class="def-term">Unit 4 — SQL</div>
+      <div class="def-desc">DDL, DML, DQL, Joins, Subqueries, Views, Indexes, Stored Procedures, Triggers.</div>
+    </div>
+    <div class="def-card red">
+      <div class="def-term">Unit 5 — Transactions & NoSQL</div>
+      <div class="def-desc">ACID properties, Transaction states, Concurrency control, NoSQL, MongoDB CRUD & Aggregation.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     UNIT 1 — INTRODUCTION TO DBMS
+     ============================================================ -->
+<section id="unit1">
+  <div class="section-header">
+    <div class="section-number">1</div>
+    <h1>Unit 1 — Introduction to DBMS</h1>
+  </div>
+
+  <!-- Data & Information -->
+  <h2 id="unit1-data">1.1 Data, Information & Database</h2>
+
+  <div class="def-grid">
+    <div class="def-card">
+      <div class="def-term">Data</div>
+      <div class="def-desc">Raw, unprocessed facts and figures without context. Example: 9876543210, "Alice", 25</div>
+    </div>
+    <div class="def-card green">
+      <div class="def-term">Information</div>
+      <div class="def-desc">Processed, organized data that has meaning and context. Example: "Alice's phone number is 9876543210."</div>
+    </div>
+    <div class="def-card amber">
+      <div class="def-term">Database</div>
+      <div class="def-desc">An organized collection of structured data stored electronically. Like a folder of related files.</div>
+    </div>
+    <div class="def-card purple">
+      <div class="def-term">DBMS</div>
+      <div class="def-desc">Software system used to create, manage and interact with databases. Mediates between users and data.</div>
+    </div>
+  </div>
+
+  <div class="memory-trick">
+    <div class="memory-trick-label">🧠 Memory Trick</div>
+    <strong>Data → Process → Information → Store → Database → Manage → DBMS</strong><br>
+    Think: Raw wheat → Mill → Flour → Store in silo → Managed by a miller (DBMS)
+  </div>
+
+  <!-- What is DBMS -->
+  <h2 id="unit1-dbms">1.2 What is DBMS?</h2>
+  <p>A <strong>Database Management System (DBMS)</strong> is software that interacts with end users, applications, and the database itself to capture, store, and analyze data. It provides a systematic way to create, retrieve, update and manage data.</p>
+
+  <div class="callout info">
+    <span class="callout-icon">ℹ️</span>
+    <div class="callout-body">
+      <div class="callout-title">Key Insight</div>
+      If you know one DBMS (like MySQL), you can easily transition to another (like PostgreSQL or Oracle), as they share similar concepts and functionalities.
+    </div>
+  </div>
+
+  <h3>Objectives of DBMS</h3>
+  <ul>
+    <li><strong>Data Independence:</strong> Insulate users from hardware/storage changes</li>
+    <li><strong>Data Integrity:</strong> Enforce accuracy and consistency of data</li>
+    <li><strong>Data Security:</strong> Control access to sensitive data</li>
+    <li><strong>Data Sharing:</strong> Allow multiple users concurrent access</li>
+    <li><strong>Reduce Redundancy:</strong> Eliminate duplicate data</li>
+    <li><strong>Backup & Recovery:</strong> Protect against data loss</li>
+  </ul>
+
+  <!-- Characteristics -->
+  <h2 id="unit1-characteristics">1.3 Characteristics of DBMS</h2>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>Characteristic</th><th>Description</th><th>Example</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Self-describing</td><td>Contains its own description (metadata/catalog)</td><td>INFORMATION_SCHEMA in MySQL</td></tr>
+        <tr><td>Insulation (Data Abstraction)</td><td>Users interact without knowing storage details</td><td>Write SQL, not file reads</td></tr>
+        <tr><td>Multiple Views</td><td>Different users see different subsets of data</td><td>Admin vs Student view</td></tr>
+        <tr><td>Multiuser Access</td><td>Concurrent access with concurrency control</td><td>Banking system</td></tr>
+        <tr><td>Data Sharing</td><td>Data can be shared across applications</td><td>ERP systems</td></tr>
+        <tr><td>Persistent Storage</td><td>Data survives after program terminates</td><td>Unlike RAM</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Advantages of DBMS</h3>
+  <div class="compare-grid">
+    <div class="compare-card blue">
+      <div class="compare-header">✅ Advantages of DBMS</div>
+      <div class="compare-body">
+        <div class="compare-item">Reduced data redundancy</div>
+        <div class="compare-item">Data consistency and integrity</div>
+        <div class="compare-item">Data sharing among multiple users</div>
+        <div class="compare-item">Improved security and access control</div>
+        <div class="compare-item">Backup and recovery support</div>
+        <div class="compare-item">Data independence</div>
+      </div>
+    </div>
+    <div class="compare-card red">
+      <div class="compare-header">❌ Limitations of DBMS</div>
+      <div class="compare-body">
+        <div class="compare-item">High initial cost and complexity</div>
+        <div class="compare-item">Requires trained database administrators</div>
+        <div class="compare-item">Overhead for small/simple applications</div>
+        <div class="compare-item">Single point of failure risk</div>
+        <div class="compare-item">Performance overhead vs flat files</div>
+        <div class="compare-item">Hardware and software requirements</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Database Users -->
+  <h2 id="unit1-users">1.4 Database Users</h2>
+
+  <div class="def-grid">
+    <div class="def-card">
+      <div class="def-term">Database Administrator (DBA)</div>
+      <div class="def-desc">Manages the entire DBMS — creates schemas, grants permissions, handles backup/recovery, tunes performance.</div>
+    </div>
+    <div class="def-card green">
+      <div class="def-term">Application Programmers</div>
+      <div class="def-desc">Write application programs that access the database via DML embedded in host languages (Java, Python, PHP).</div>
+    </div>
+    <div class="def-card amber">
+      <div class="def-term">End Users</div>
+      <div class="def-desc">Use applications to interact with the database. Naive users use pre-built interfaces; sophisticated users write SQL.</div>
+    </div>
+    <div class="def-card purple">
+      <div class="def-term">System Analysts / Designers</div>
+      <div class="def-desc">Analyze requirements, design the conceptual schema and map business rules to database structures.</div>
+    </div>
+  </div>
+
+  <!-- Three Schema Architecture -->
+  <h2 id="unit1-architecture">1.5 Three Schema Architecture (ANSI/SPARC)</h2>
+  <p>The three-schema architecture separates the database into three levels to achieve data independence:</p>
+
+  <div class="diagram-wrapper">
+    <div class="diagram-title">Three-Schema Architecture</div>
+    <div class="mermaid">
+graph TD
+    A["👤 Users / Application Programs"] --> B["External Level<br/>(View Level)<br/>Multiple user views"]
+    B --> C["Conceptual Level<br/>(Logical Level)<br/>Community view - tables, relations"]
+    C --> D["Internal Level<br/>(Physical Level)<br/>Physical storage structures"]
+    D --> E["💽 Physical Database"]
+
+    style A fill:#2563eb,color:#fff,stroke:none
+    style B fill:#7c3aed,color:#fff,stroke:none
+    style C fill:#059669,color:#fff,stroke:none
+    style D fill:#d97706,color:#fff,stroke:none
+    style E fill:#dc2626,color:#fff,stroke:none
+    </div>
+  </div>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>Level</th><th>Also Called</th><th>Description</th><th>Examples</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>External</strong></td><td>View Level</td><td>What individual users see. Multiple views possible.</td><td>Student view, Admin view</td></tr>
+        <tr><td><strong>Conceptual</strong></td><td>Logical Level</td><td>Overall logical structure of the entire database. Tables, relationships.</td><td>CREATE TABLE students...</td></tr>
+        <tr><td><strong>Internal</strong></td><td>Physical Level</td><td>Physical storage: indexes, file organization, storage allocation.</td><td>B-trees, file blocks</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout success">
+    <span class="callout-icon">✅</span>
+    <div class="callout-body">
+      <div class="callout-title">Data Independence</div>
+      <strong>Logical Independence:</strong> Change conceptual schema without changing external schemas.<br>
+      <strong>Physical Independence:</strong> Change internal schema without changing conceptual schema.
+    </div>
+  </div>
+
+  <!-- RDBMS & MySQL -->
+  <h2 id="unit1-rdbms">1.6 RDBMS & MySQL Basics</h2>
+
+  <p><strong>RDBMS (Relational DBMS)</strong> stores data in tables (relations) with rows and columns, and uses SQL to interact with data. Examples: MySQL, PostgreSQL, Oracle, SQL Server.</p>
+
+  <div class="compare-grid">
+    <div class="compare-card blue">
+      <div class="compare-header">File System</div>
+      <div class="compare-body">
+        <div class="compare-item">Data stored in OS files</div>
+        <div class="compare-item">No concurrent access control</div>
+        <div class="compare-item">No query language</div>
+        <div class="compare-item">Data redundancy common</div>
+        <div class="compare-item">No integrity constraints</div>
+      </div>
+    </div>
+    <div class="compare-card green">
+      <div class="compare-header">DBMS (RDBMS)</div>
+      <div class="compare-body">
+        <div class="compare-item">Data stored in structured tables</div>
+        <div class="compare-item">Full concurrency control</div>
+        <div class="compare-item">SQL query language</div>
+        <div class="compare-item">Controlled redundancy</div>
+        <div class="compare-item">Integrity constraints enforced</div>
+      </div>
+    </div>
+  </div>
+
+  <h3>MySQL Key Commands</h3>
+
+  <div class="code-wrapper">
+    <div class="code-header">
+      <span class="code-lang">SQL — MySQL Basics</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    </div>
+    <pre><code><span class="cmt">-- Show all databases</span>
+<span class="kw">SHOW</span> DATABASES;
+
+<span class="cmt">-- Create a database</span>
+<span class="kw">CREATE DATABASE</span> college;
+
+<span class="cmt">-- Select/use a database</span>
+<span class="kw">USE</span> college;
+
+<span class="cmt">-- Show tables in current database</span>
+<span class="kw">SHOW</span> TABLES;
+
+<span class="cmt">-- Drop a database (CAUTION!)</span>
+<span class="kw">DROP DATABASE</span> college;</code></pre>
+  </div>
+
+  <!-- DDL Commands -->
+  <h2 id="unit1-ddl">1.7 DDL Commands</h2>
+  <p><strong>DDL (Data Definition Language)</strong> — defines and modifies database structure. Changes are auto-committed.</p>
+
+  <div class="code-wrapper">
+    <div class="code-header">
+      <span class="code-lang">SQL — DDL: CREATE TABLE</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    </div>
+    <pre><code><span class="kw">CREATE TABLE</span> students (
+    id        <span class="type">INT</span> <span class="kw">AUTO_INCREMENT PRIMARY KEY</span>,
+    name      <span class="type">VARCHAR</span>(<span class="num">100</span>) <span class="kw">NOT NULL</span>,
+    email     <span class="type">VARCHAR</span>(<span class="num">100</span>) <span class="kw">UNIQUE NOT NULL</span>,
+    gender    <span class="type">ENUM</span>(<span class="str">'Male'</span>, <span class="str">'Female'</span>, <span class="str">'Other'</span>),
+    dob       <span class="type">DATE</span>,
+    salary    <span class="type">INT</span> <span class="kw">DEFAULT</span> <span class="num">50000</span>,
+    is_active <span class="type">BOOLEAN</span> <span class="kw">DEFAULT</span> <span class="kw">TRUE</span>,
+    created_at <span class="type">TIMESTAMP</span> <span class="kw">DEFAULT CURRENT_TIMESTAMP</span>
+);</code></pre>
+  </div>
+
+  <div class="code-wrapper">
+    <div class="code-header">
+      <span class="code-lang">SQL — DDL: ALTER, DROP, TRUNCATE</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    </div>
+    <pre><code><span class="cmt">-- Add a column</span>
+<span class="kw">ALTER TABLE</span> students <span class="kw">ADD COLUMN</span> city <span class="type">VARCHAR</span>(<span class="num">100</span>);
+
+<span class="cmt">-- Drop a column</span>
+<span class="kw">ALTER TABLE</span> students <span class="kw">DROP COLUMN</span> city;
+
+<span class="cmt">-- Modify column type</span>
+<span class="kw">ALTER TABLE</span> students <span class="kw">MODIFY COLUMN</span> name <span class="type">VARCHAR</span>(<span class="num">150</span>);
+
+<span class="cmt">-- Rename a column (CHANGE: rename + retype)</span>
+<span class="kw">ALTER TABLE</span> students <span class="kw">CHANGE COLUMN</span> salary income <span class="type">BIGINT</span>;
+
+<span class="cmt">-- Rename a table</span>
+<span class="kw">RENAME TABLE</span> students <span class="kw">TO</span> users;
+
+<span class="cmt">-- Remove all rows but keep structure</span>
+<span class="kw">TRUNCATE TABLE</span> students;
+
+<span class="cmt">-- Remove table completely</span>
+<span class="kw">DROP TABLE</span> students;</code></pre>
+  </div>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>DDL Command</th><th>Purpose</th><th>Reversible?</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>CREATE</code></td><td>Create database/table/index/view</td><td>Yes (DROP)</td></tr>
+        <tr><td><code>ALTER</code></td><td>Modify table structure</td><td>Partially</td></tr>
+        <tr><td><code>DROP</code></td><td>Delete database/table entirely</td><td>No</td></tr>
+        <tr><td><code>TRUNCATE</code></td><td>Remove all rows, keep structure</td><td>No</td></tr>
+        <tr><td><code>RENAME</code></td><td>Rename a table</td><td>Yes</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>SELECT with LIMIT, ORDER BY, DISTINCT</h3>
+
+  <div class="code-wrapper">
+    <div class="code-header">
+      <span class="code-lang">SQL — Query Clauses</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    </div>
+    <pre><code><span class="cmt">-- ORDER BY: Sort ascending/descending</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> users <span class="kw">ORDER BY</span> name <span class="kw">ASC</span>;
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> users <span class="kw">ORDER BY</span> salary <span class="kw">DESC</span>;
+
+<span class="cmt">-- LIMIT: Get top N rows</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> users <span class="kw">LIMIT</span> <span class="num">5</span>;
+
+<span class="cmt">-- LIMIT with OFFSET: Skip rows (pagination)</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> users <span class="kw">LIMIT</span> <span class="num">10</span> <span class="kw">OFFSET</span> <span class="num">5</span>;  <span class="cmt">-- skip 5, get 10</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> users <span class="kw">LIMIT</span> <span class="num">5</span>, <span class="num">10</span>;         <span class="cmt">-- same: LIMIT offset, count</span>
+
+<span class="cmt">-- DISTINCT: Unique values only</span>
+<span class="kw">SELECT DISTINCT</span> gender <span class="kw">FROM</span> users;
+<span class="kw">SELECT DISTINCT</span> city <span class="kw">FROM</span> users;</code></pre>
+  </div>
+
+  <!-- Unit 1 Exam Box -->
+  <div class="exam-box">
+    <div class="exam-box-title">📝 Unit 1 — Important Exam Questions</div>
+    <div class="exam-q"><strong>Q1.</strong> What is the difference between Data and Information? Give examples.</div>
+    <div class="exam-q"><strong>Q2.</strong> Explain the three-level schema architecture of DBMS with a diagram.</div>
+    <div class="exam-q"><strong>Q3.</strong> Compare DBMS with File System. List at least 5 differences.</div>
+    <div class="exam-q"><strong>Q4.</strong> What are the advantages and disadvantages of DBMS?</div>
+    <div class="exam-q"><strong>Q5.</strong> Explain the different types of database users with roles.</div>
+    <div class="exam-q"><strong>Q6.</strong> Write DDL commands to create a table with 5 constraints. Explain each constraint.</div>
+    <div class="exam-q"><strong>Q7.</strong> What is the difference between TRUNCATE and DELETE? Between DROP and TRUNCATE?</div>
+    <div class="exam-q"><strong>Q8.</strong> Explain LIMIT, ORDER BY, and DISTINCT with examples.</div>
+  </div>
+</section>
+
+<!-- ============================================================
+     UNIT 2 — RELATIONAL MODEL, ER & EER
+     ============================================================ -->
+<section id="unit2">
+  <div class="section-header">
+    <div class="section-number green">2</div>
+    <h1>Unit 2 — Relational Model, ER & EER Modeling</h1>
+  </div>
+
+  <h2 id="unit2-relational">2.1 Relational Model Concepts</h2>
+
+  <div class="def-grid">
+    <div class="def-card">
+      <div class="def-term">Relation</div>
+      <div class="def-desc">A table with rows and columns. Represents an entity. Formally, a subset of the Cartesian product of domains.</div>
+    </div>
+    <div class="def-card green">
+      <div class="def-term">Tuple</div>
+      <div class="def-desc">A single row in a relation. Represents one record/instance of an entity. Formally an ordered list of values.</div>
+    </div>
+    <div class="def-card amber">
+      <div class="def-term">Attribute</div>
+      <div class="def-desc">A column in a relation. Represents a property of the entity. Has a name and a domain.</div>
+    </div>
+    <div class="def-card purple">
+      <div class="def-term">Domain</div>
+      <div class="def-desc">The set of allowed values for an attribute. Example: domain of "gender" = {Male, Female, Other}</div>
+    </div>
+    <div class="def-card red">
+      <div class="def-term">Degree</div>
+      <div class="def-desc">Number of attributes (columns) in a relation.</div>
+    </div>
+    <div class="def-card">
+      <div class="def-term">Cardinality</div>
+      <div class="def-desc">Number of tuples (rows) in a relation at any point.</div>
+    </div>
+  </div>
+
+  <h3>Relational Model Example</h3>
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>StudentID <span style="font-weight:400;color:#aaa">(PK)</span></th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Gender</th>
+          <th>DeptID <span style="font-weight:400;color:#aaa">(FK)</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>101</td><td>Alice</td><td>alice@college.edu</td><td>Female</td><td>CS</td></tr>
+        <tr><td>102</td><td>Bob</td><td>bob@college.edu</td><td>Male</td><td>IT</td></tr>
+        <tr><td>103</td><td>Carol</td><td>carol@college.edu</td><td>Female</td><td>CS</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="font-size:0.82rem;color:var(--text-muted)">Degree = 5 (5 attributes), Cardinality = 3 (3 tuples)</p>
+
+  <!-- Keys -->
+  <h2 id="unit2-keys">2.2 Types of Keys</h2>
+
+  <div class="def-grid">
+    <div class="def-card">
+      <div class="def-term">Super Key</div>
+      <div class="def-desc">Any attribute or set of attributes that uniquely identifies a tuple. Includes candidate keys and more.</div>
+    </div>
+    <div class="def-card green">
+      <div class="def-term">Candidate Key</div>
+      <div class="def-desc">Minimal super key — no proper subset can uniquely identify tuples. A table may have multiple candidate keys.</div>
+    </div>
+    <div class="def-card amber">
+      <div class="def-term">Primary Key</div>
+      <div class="def-desc">One candidate key chosen by DBA to uniquely identify each row. Cannot be NULL. One per table.</div>
+    </div>
+    <div class="def-card purple">
+      <div class="def-term">Alternate Key</div>
+      <div class="def-desc">Candidate keys that were not chosen as the primary key. Also called secondary keys.</div>
+    </div>
+    <div class="def-card red">
+      <div class="def-term">Foreign Key</div>
+      <div class="def-desc">An attribute in one table that references the primary key in another table. Establishes relationships.</div>
+    </div>
+    <div class="def-card">
+      <div class="def-term">Composite Key</div>
+      <div class="def-desc">A primary key made up of two or more attributes (columns) together uniquely identifying a row.</div>
+    </div>
+  </div>
+
+  <div class="memory-trick">
+    <div class="memory-trick-label">🧠 Memory Trick — Key Hierarchy</div>
+    <strong>Super Key → Candidate Key → Primary Key → Foreign Key</strong><br>
+    Think: All athletes → Finalists → Winner → Ambassador (refers back to team)
+  </div>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>Key Type</th><th>Unique?</th><th>NULL?</th><th>Count</th><th>Example</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Super Key</td><td>Yes</td><td>Allowed</td><td>Many</td><td>{ID}, {ID, Name}</td></tr>
+        <tr><td>Candidate Key</td><td>Yes</td><td>Not allowed</td><td>One or more</td><td>ID, Email</td></tr>
+        <tr><td>Primary Key</td><td>Yes</td><td>Not allowed</td><td>Only one</td><td>StudentID</td></tr>
+        <tr><td>Alternate Key</td><td>Yes</td><td>Not allowed</td><td>Remaining CKs</td><td>Email (if PK is ID)</td></tr>
+        <tr><td>Foreign Key</td><td>No</td><td>Allowed</td><td>Many</td><td>DeptID → Dept.ID</td></tr>
+        <tr><td>Composite Key</td><td>Together</td><td>Depends</td><td>One</td><td>(CourseID, StudentID)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Integrity Constraints -->
+  <h2 id="unit2-constraints">2.3 Integrity Constraints</h2>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>Constraint</th><th>Definition</th><th>SQL Example</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Domain</strong></td><td>Values must belong to attribute's domain</td><td><code>ENUM('M','F')</code>, <code>INT</code></td></tr>
+        <tr><td><strong>Entity Integrity</strong></td><td>Primary key cannot be NULL</td><td><code>PRIMARY KEY</code></td></tr>
+        <tr><td><strong>Referential Integrity</strong></td><td>FK value must exist in referenced table or be NULL</td><td><code>FOREIGN KEY ... REFERENCES</code></td></tr>
+        <tr><td><strong>Key Constraint</strong></td><td>Primary key must be unique</td><td><code>UNIQUE</code></td></tr>
+        <tr><td><strong>NOT NULL</strong></td><td>Column cannot hold NULL</td><td><code>NOT NULL</code></td></tr>
+        <tr><td><strong>CHECK</strong></td><td>Values must satisfy a condition</td><td><code>CHECK (age > 18)</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="code-wrapper">
+    <div class="code-header">
+      <span class="code-lang">SQL — Foreign Key with Referential Actions</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    </div>
+    <pre><code><span class="kw">CREATE TABLE</span> addresses (
+    id      <span class="type">INT</span> <span class="kw">AUTO_INCREMENT PRIMARY KEY</span>,
+    user_id <span class="type">INT</span>,
+    city    <span class="type">VARCHAR</span>(<span class="num">100</span>),
+    <span class="kw">CONSTRAINT</span> fk_user
+        <span class="kw">FOREIGN KEY</span> (user_id)
+        <span class="kw">REFERENCES</span> users(id)
+        <span class="kw">ON DELETE CASCADE</span>    <span class="cmt">-- delete addresses if user deleted</span>
+        <span class="kw">ON UPDATE CASCADE</span>    <span class="cmt">-- update FK if parent PK changes</span>
+);</code></pre>
+  </div>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>ON DELETE Option</th><th>Behavior</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>CASCADE</code></td><td>Automatically delete child rows when parent deleted</td></tr>
+        <tr><td><code>SET NULL</code></td><td>Set FK to NULL in child when parent deleted</td></tr>
+        <tr><td><code>RESTRICT</code></td><td>Prevent deletion of parent if child exists (default)</td></tr>
+        <tr><td><code>NO ACTION</code></td><td>Same as RESTRICT but checked at end of statement</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ER Model -->
+  <h2 id="unit2-er">2.4 Entity-Relationship (ER) Model</h2>
+
+  <div class="def-grid">
+    <div class="def-card">
+      <div class="def-term">Entity</div>
+      <div class="def-desc">A real-world object or concept that has independent existence. Represented by a rectangle. E.g., Student, Course.</div>
+    </div>
+    <div class="def-card green">
+      <div class="def-term">Attribute</div>
+      <div class="def-desc">Property of an entity. Represented by an ellipse. Types: simple, composite, multivalued, derived, key attribute.</div>
+    </div>
+    <div class="def-card amber">
+      <div class="def-term">Relationship</div>
+      <div class="def-desc">Association between two or more entities. Represented by a diamond. Can have attributes too.</div>
+    </div>
+    <div class="def-card purple">
+      <div class="def-term">Weak Entity</div>
+      <div class="def-desc">Cannot be uniquely identified by its own attributes alone. Depends on a strong entity (owner). Double rectangle.</div>
+    </div>
+  </div>
+
+  <h3>Attribute Types</h3>
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>Attribute Type</th><th>Description</th><th>ER Symbol</th><th>Example</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Simple (Atomic)</td><td>Cannot be subdivided</td><td>Single ellipse</td><td>Age, Gender</td></tr>
+        <tr><td>Composite</td><td>Divisible into sub-parts</td><td>Ellipse with sub-ellipses</td><td>Name → (First, Last)</td></tr>
+        <tr><td>Multivalued</td><td>Multiple values possible</td><td>Double ellipse</td><td>Phone numbers, Skills</td></tr>
+        <tr><td>Derived</td><td>Computed from other attributes</td><td>Dashed ellipse</td><td>Age (from DOB)</td></tr>
+        <tr><td>Key Attribute</td><td>Uniquely identifies entity</td><td>Underlined ellipse</td><td>StudentID, EmpNo</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Relationship Cardinality</h3>
+
+  <div class="diagram-wrapper">
+    <div class="diagram-title">ER Diagram — University System</div>
+    <div class="mermaid">
+erDiagram
+    STUDENT {
+        int StudentID PK
+        string Name
+        string Email
+        date DOB
+    }
+    COURSE {
+        int CourseID PK
+        string CourseName
+        int Credits
+    }
+    DEPARTMENT {
+        string DeptID PK
+        string DeptName
+        string HOD
+    }
+    PROFESSOR {
+        int ProfID PK
+        string ProfName
+        string Specialization
+    }
+
+    STUDENT }o--o{ COURSE : "ENROLLS (M:N)"
+    STUDENT }o--|| DEPARTMENT : "BELONGS TO (M:1)"
+    PROFESSOR ||--o{ COURSE : "TEACHES (1:M)"
+    DEPARTMENT ||--o{ PROFESSOR : "EMPLOYS (1:M)"
+    </div>
+  </div>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>Cardinality</th><th>Notation</th><th>Meaning</th><th>Example</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>One-to-One (1:1)</td><td>1 — 1</td><td>One entity A relates to one entity B</td><td>Employee ↔ Locker</td></tr>
+        <tr><td>One-to-Many (1:N)</td><td>1 — *</td><td>One entity A relates to many entity B</td><td>Dept → Employees</td></tr>
+        <tr><td>Many-to-One (N:1)</td><td>* — 1</td><td>Many entity A relate to one entity B</td><td>Students → Dept</td></tr>
+        <tr><td>Many-to-Many (M:N)</td><td>* — *</td><td>Many A relate to many B</td><td>Students ↔ Courses</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- EER Model -->
+  <h2 id="unit2-eer">2.5 EER Model — Extended ER</h2>
+
+  <div class="def-grid">
+    <div class="def-card">
+      <div class="def-term">Specialization</div>
+      <div class="def-desc">Top-down process. A superclass entity is divided into subclasses based on some distinguishing characteristic. (IS-A relationship)</div>
+    </div>
+    <div class="def-card green">
+      <div class="def-term">Generalization</div>
+      <div class="def-desc">Bottom-up process. Multiple entity types are combined into a higher-level entity type (superclass).</div>
+    </div>
+    <div class="def-card amber">
+      <div class="def-term">Inheritance</div>
+      <div class="def-desc">Subclasses inherit all attributes and relationships of the superclass. Can also have their own specific attributes.</div>
+    </div>
+    <div class="def-card purple">
+      <div class="def-term">Aggregation</div>
+      <div class="def-desc">A relationship between a relationship and an entity. Used when a relationship itself needs to participate in another relationship.</div>
+    </div>
+  </div>
+
+  <div class="diagram-wrapper">
+    <div class="diagram-title">EER — Specialization/Generalization</div>
+    <div class="mermaid">
+graph TD
+    PERSON["PERSON<br/>name, dob, gender"] --> STUDENT["STUDENT<br/>studentID, GPA"]
+    PERSON --> EMPLOYEE["EMPLOYEE<br/>empID, salary"]
+    EMPLOYEE --> FACULTY["FACULTY<br/>rank, publications"]
+    EMPLOYEE --> STAFF["STAFF<br/>position, department"]
+
+    style PERSON fill:#2563eb,color:#fff,stroke:none
+    style STUDENT fill:#7c3aed,color:#fff,stroke:none
+    style EMPLOYEE fill:#059669,color:#fff,stroke:none
+    style FACULTY fill:#d97706,color:#fff,stroke:none
+    style STAFF fill:#dc2626,color:#fff,stroke:none
+    </div>
+  </div>
+
+  <h3>Converting ER to Relational Schema</h3>
+
+  <div class="collapsible open">
+    <div class="collapsible-header" onclick="toggleCollapsible(this)">
+      <div class="collapsible-title">📋 ER-to-Relational Conversion Rules</div>
+      <span class="collapsible-icon">▶</span>
+    </div>
+    <div class="collapsible-body">
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <div class="step-title">Strong Entity → Table</div>
+            Each strong entity becomes a table. Key attribute becomes primary key. Simple attributes become columns.
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <div class="step-title">Weak Entity → Table with FK</div>
+            Weak entity becomes a table. Include the PK of the owner entity as FK + partial key as composite PK.
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <div class="step-title">1:1 Relationship</div>
+            Add FK of one entity into the other table (preferably with total participation side).
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <div class="step-title">1:N Relationship</div>
+            Add PK of the "1" side as FK into the "N" side table.
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">5</div>
+          <div class="step-body">
+            <div class="step-title">M:N Relationship</div>
+            Create a new junction/bridge table with PKs of both entities as FKs. Together they form the composite PK.
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">6</div>
+          <div class="step-body">
+            <div class="step-title">Multivalued Attribute</div>
+            Create a separate table with the entity's PK + the multivalued attribute column.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="exam-box">
+    <div class="exam-box-title">📝 Unit 2 — Important Exam Questions</div>
+    <div class="exam-q"><strong>Q1.</strong> Define Relation, Tuple, Attribute, Domain, Degree, Cardinality.</div>
+    <div class="exam-q"><strong>Q2.</strong> Explain all types of keys with examples: Super, Candidate, Primary, Alternate, Foreign, Composite.</div>
+    <div class="exam-q"><strong>Q3.</strong> Explain the four types of integrity constraints in the Relational Model.</div>
+    <div class="exam-q"><strong>Q4.</strong> Draw an ER diagram for a Library Management System.</div>
+    <div class="exam-q"><strong>Q5.</strong> What is a Weak Entity? How is it different from a Strong Entity?</div>
+    <div class="exam-q"><strong>Q6.</strong> Explain Specialization and Generalization in EER with diagrams.</div>
+    <div class="exam-q"><strong>Q7.</strong> Convert the ER diagram of a Student-Course system to a Relational Schema.</div>
+    <div class="exam-q"><strong>Q8.</strong> What is ON DELETE CASCADE? Explain all referential actions.</div>
+  </div>
+</section>
+
+<!-- ============================================================
+     UNIT 3 — NORMALIZATION
+     ============================================================ -->
+<section id="unit3">
+  <div class="section-header">
+    <div class="section-number amber">3</div>
+    <h1>Unit 3 — Normalization</h1>
+  </div>
+
+  <div class="callout info">
+    <span class="callout-icon">ℹ️</span>
+    <div class="callout-body">
+      <div class="callout-title">What is Normalization?</div>
+      Normalization is the process of organizing a relational database to reduce data redundancy and improve data integrity, by decomposing tables into smaller tables while preserving the logical relationship between data.
+    </div>
+  </div>
+
+  <h3>Why Normalize? — Update Anomalies</h3>
+  <div class="def-grid">
+    <div class="def-card red">
+      <div class="def-term">Insertion Anomaly</div>
+      <div class="def-desc">Cannot insert some data without inserting other (possibly unrelated) data. E.g., Can't add a new dept without a student.</div>
+    </div>
+    <div class="def-card amber">
+      <div class="def-term">Update Anomaly</div>
+      <div class="def-desc">Updating one fact requires updating multiple rows. E.g., Change dept name in 100 student rows.</div>
+    </div>
+    <div class="def-card purple">
+      <div class="def-term">Deletion Anomaly</div>
+      <div class="def-desc">Deleting a row unintentionally deletes other important data. E.g., Deleting the last student in a dept deletes dept info.</div>
+    </div>
+  </div>
+
+  <!-- Functional Dependencies -->
+  <h2 id="unit3-fd">3.1 Functional Dependencies</h2>
+
+  <p>A <strong>Functional Dependency (FD)</strong> X → Y means: for every valid relation state, the value of X uniquely determines the value of Y.</p>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>FD Type</th><th>Definition</th><th>Example</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Trivial FD</strong></td><td>Y is a subset of X: X → Y</td><td>{A,B} → A</td></tr>
+        <tr><td><strong>Non-trivial FD</strong></td><td>Y is not a subset of X</td><td>StudentID → Name</td></tr>
+        <tr><td><strong>Full FD</strong></td><td>X → Y and removal of any attribute from X breaks it</td><td>{SID,CID} → Grade</td></tr>
+        <tr><td><strong>Partial FD</strong></td><td>X → Y but a proper subset of X also determines Y</td><td>{SID,CID} → StudentName (partial: SID→Name)</td></tr>
+        <tr><td><strong>Transitive FD</strong></td><td>X → Y and Y → Z implies X → Z (Y is not a key)</td><td>SID→DeptID→DeptName</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 1NF -->
+  <h2 id="unit3-1nf">3.2 First Normal Form (1NF)</h2>
+
+  <div class="callout success">
+    <span class="callout-icon">✅</span>
+    <div class="callout-body">
+      <div class="callout-title">1NF Rule</div>
+      A relation is in 1NF if: All attributes contain only atomic (single, indivisible) values. No repeating groups or multivalued attributes.
+    </div>
+  </div>
+
+  <div class="norm-before-after">
+    <div>
+      <div class="norm-label bad">❌ Violates 1NF</div>
+      <div class="table-wrapper" style="margin:0">
+        <table>
+          <thead><tr><th>StudentID</th><th>Name</th><th>Courses</th></tr></thead>
+          <tbody>
+            <tr><td>101</td><td>Alice</td><td>Math, Science, English</td></tr>
+            <tr><td>102</td><td>Bob</td><td>Math, Hindi</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div>
+      <div class="norm-label good">✅ In 1NF</div>
+      <div class="table-wrapper" style="margin:0">
+        <table>
+          <thead><tr><th>StudentID</th><th>Name</th><th>Course</th></tr></thead>
+          <tbody>
+            <tr><td>101</td><td>Alice</td><td>Math</td></tr>
+            <tr><td>101</td><td>Alice</td><td>Science</td></tr>
+            <tr><td>101</td><td>Alice</td><td>English</td></tr>
+            <tr><td>102</td><td>Bob</td><td>Math</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2NF -->
+  <h2 id="unit3-2nf">3.3 Second Normal Form (2NF)</h2>
+
+  <div class="callout success">
+    <span class="callout-icon">✅</span>
+    <div class="callout-body">
+      <div class="callout-title">2NF Rule</div>
+      A relation is in 2NF if: It is in 1NF AND every non-key attribute is <strong>fully functionally dependent</strong> on the entire primary key (no partial dependencies).
+    </div>
+  </div>
+
+  <div class="norm-before-after">
+    <div>
+      <div class="norm-label bad">❌ Violates 2NF</div>
+      <p style="font-size:0.78rem;padding:0.5rem;color:var(--text-secondary)">PK = {SID, CID}; StudentName depends only on SID (partial FD)</p>
+      <div class="table-wrapper" style="margin:0">
+        <table>
+          <thead><tr><th>SID</th><th>CID</th><th>StudentName</th><th>CourseName</th><th>Grade</th></tr></thead>
+          <tbody>
+            <tr><td>101</td><td>C1</td><td>Alice</td><td>Math</td><td>A</td></tr>
+            <tr><td>101</td><td>C2</td><td>Alice</td><td>Science</td><td>B</td></tr>
+            <tr><td>102</td><td>C1</td><td>Bob</td><td>Math</td><td>A+</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div>
+      <div class="norm-label good">✅ In 2NF (Decomposed)</div>
+      <p style="font-size:0.78rem;padding:0.5rem;color:var(--text-secondary)">Split into Student, Course, and Enrollment tables</p>
+      <div class="table-wrapper" style="margin:0">
+        <table>
+          <thead><tr><th>SID</th><th>StudentName</th></tr></thead>
+          <tbody><tr><td>101</td><td>Alice</td></tr><tr><td>102</td><td>Bob</td></tr></tbody>
+        </table>
+        <table style="margin-top:4px">
+          <thead><tr><th>CID</th><th>CourseName</th></tr></thead>
+          <tbody><tr><td>C1</td><td>Math</td></tr><tr><td>C2</td><td>Science</td></tr></tbody>
+        </table>
+        <table style="margin-top:4px">
+          <thead><tr><th>SID</th><th>CID</th><th>Grade</th></tr></thead>
+          <tbody><tr><td>101</td><td>C1</td><td>A</td></tr><tr><td>101</td><td>C2</td><td>B</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3NF -->
+  <h2 id="unit3-3nf">3.4 Third Normal Form (3NF)</h2>
+
+  <div class="callout success">
+    <span class="callout-icon">✅</span>
+    <div class="callout-body">
+      <div class="callout-title">3NF Rule</div>
+      A relation is in 3NF if: It is in 2NF AND there are no <strong>transitive dependencies</strong> (non-key attribute depending on another non-key attribute).
+    </div>
+  </div>
+
+  <div class="norm-before-after">
+    <div>
+      <div class="norm-label bad">❌ Violates 3NF</div>
+      <p style="font-size:0.78rem;padding:0.5rem;color:var(--text-secondary)">SID → DeptID → DeptName (transitive!)</p>
+      <div class="table-wrapper" style="margin:0">
+        <table>
+          <thead><tr><th>SID</th><th>Name</th><th>DeptID</th><th>DeptName</th></tr></thead>
+          <tbody>
+            <tr><td>101</td><td>Alice</td><td>CS</td><td>Comp. Science</td></tr>
+            <tr><td>102</td><td>Bob</td><td>IT</td><td>Info. Technology</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div>
+      <div class="norm-label good">✅ In 3NF (Decomposed)</div>
+      <div class="table-wrapper" style="margin:0">
+        <table>
+          <thead><tr><th>SID</th><th>Name</th><th>DeptID</th></tr></thead>
+          <tbody><tr><td>101</td><td>Alice</td><td>CS</td></tr><tr><td>102</td><td>Bob</td><td>IT</td></tr></tbody>
+        </table>
+        <table style="margin-top:4px">
+          <thead><tr><th>DeptID</th><th>DeptName</th></tr></thead>
+          <tbody><tr><td>CS</td><td>Comp. Science</td></tr><tr><td>IT</td><td>Info. Technology</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- BCNF -->
+  <h2 id="unit3-bcnf">3.5 Boyce-Codd Normal Form (BCNF)</h2>
+
+  <div class="callout warning">
+    <span class="callout-icon">⚠️</span>
+    <div class="callout-body">
+      <div class="callout-title">BCNF Rule (Stricter than 3NF)</div>
+      A relation is in BCNF if: For every non-trivial functional dependency X → Y, X must be a <strong>superkey</strong>. Every determinant must be a candidate key.
+    </div>
+  </div>
+
+  <div class="callout info">
+    <span class="callout-icon">💡</span>
+    <div class="callout-body">
+      <div class="callout-title">BCNF vs 3NF</div>
+      3NF allows exceptions: a non-key attribute can determine a prime attribute (part of a candidate key). BCNF does not allow this. Every table in BCNF is also in 3NF, but not vice versa.
+    </div>
+  </div>
+
+  <h3>Normalization Summary</h3>
+
+  <div class="diagram-wrapper">
+    <div class="diagram-title">Normalization Progression</div>
+    <div class="mermaid">
+graph LR
+    A["Unnormalized<br/>(UNF)"] -->|"Remove<br/>multivalued attrs"| B["1NF<br/>Atomic values"]
+    B -->|"Remove<br/>partial FDs"| C["2NF<br/>Full FD on PK"]
+    C -->|"Remove<br/>transitive FDs"| D["3NF<br/>No transitive FD"]
+    D -->|"Every determinant<br/>is a superkey"| E["BCNF<br/>Strongest"]
+
+    style A fill:#dc2626,color:#fff,stroke:none
+    style B fill:#d97706,color:#fff,stroke:none
+    style C fill:#2563eb,color:#fff,stroke:none
+    style D fill:#059669,color:#fff,stroke:none
+    style E fill:#7c3aed,color:#fff,stroke:none
+    </div>
+  </div>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>Normal Form</th><th>Requirement</th><th>Problem Solved</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>1NF</strong></td><td>All atomic values, no repeating groups</td><td>Multivalued attributes</td></tr>
+        <tr><td><strong>2NF</strong></td><td>1NF + No partial dependencies</td><td>Partial FD on composite PK</td></tr>
+        <tr><td><strong>3NF</strong></td><td>2NF + No transitive dependencies</td><td>Transitive FDs</td></tr>
+        <tr><td><strong>BCNF</strong></td><td>Every determinant is a superkey</td><td>Remaining anomalies in 3NF</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Denormalization</h3>
+  <p><strong>Denormalization</strong> is the process of intentionally introducing redundancy into a normalized database to improve read performance. Used in data warehouses and reporting systems where query speed is more important than storage efficiency.</p>
+
+  <div class="exam-box">
+    <div class="exam-box-title">📝 Unit 3 — Important Exam Questions</div>
+    <div class="exam-q"><strong>Q1.</strong> What is normalization? Why is it needed? Explain with anomalies.</div>
+    <div class="exam-q"><strong>Q2.</strong> Define Functional Dependency. Explain trivial, non-trivial, full, partial, and transitive FDs.</div>
+    <div class="exam-q"><strong>Q3.</strong> Normalize a given table from UNF to BCNF step by step.</div>
+    <div class="exam-q"><strong>Q4.</strong> What is the difference between 2NF and 3NF? Give examples.</div>
+    <div class="exam-q"><strong>Q5.</strong> Explain BCNF. How does it differ from 3NF? Give an example where 3NF holds but BCNF doesn't.</div>
+    <div class="exam-q"><strong>Q6.</strong> What is denormalization? When is it used?</div>
+  </div>
+</section>
+
+<!-- ============================================================
+     UNIT 4 — SQL
+     ============================================================ -->
+<section id="unit4">
+  <div class="section-header">
+    <div class="section-number purple">4</div>
+    <h1>Unit 4 — SQL (Structured Query Language)</h1>
+  </div>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>SQL Category</th><th>Commands</th><th>Purpose</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>DDL</strong> — Data Definition</td><td>CREATE, ALTER, DROP, TRUNCATE</td><td>Define/modify database structure</td></tr>
+        <tr><td><strong>DML</strong> — Data Manipulation</td><td>INSERT, UPDATE, DELETE</td><td>Modify data in tables</td></tr>
+        <tr><td><strong>DQL</strong> — Data Query</td><td>SELECT</td><td>Retrieve/query data</td></tr>
+        <tr><td><strong>DCL</strong> — Data Control</td><td>GRANT, REVOKE</td><td>Control permissions</td></tr>
+        <tr><td><strong>TCL</strong> — Transaction Control</td><td>COMMIT, ROLLBACK, SAVEPOINT</td><td>Manage transactions</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- DML -->
+  <h2 id="unit4-dml">4.1 DML — INSERT, UPDATE, DELETE</h2>
+
+  <div class="code-wrapper">
+    <div class="code-header">
+      <span class="code-lang">SQL — INSERT</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    </div>
+    <pre><code><span class="cmt">-- Insert a single row (specifying columns - best practice)</span>
+<span class="kw">INSERT INTO</span> users (name, email, gender, dob)
+<span class="kw">VALUES</span> (<span class="str">'Alice'</span>, <span class="str">'alice@example.com'</span>, <span class="str">'Female'</span>, <span class="str">'1995-05-14'</span>);
+
+<span class="cmt">-- Insert multiple rows at once</span>
+<span class="kw">INSERT INTO</span> users (name, email, gender, dob) <span class="kw">VALUES</span>
+    (<span class="str">'Bob'</span>, <span class="str">'bob@example.com'</span>, <span class="str">'Male'</span>, <span class="str">'1990-11-23'</span>),
+    (<span class="str">'Carol'</span>, <span class="str">'carol@example.com'</span>, <span class="str">'Other'</span>, <span class="str">'1988-02-17'</span>),
+    (<span class="str">'David'</span>, <span class="str">'david@example.com'</span>, <span class="str">'Male'</span>, <span class="str">'2000-08-09'</span>);</code></pre>
+  </div>
+
+  <div class="code-wrapper">
+    <div class="code-header">
+      <span class="code-lang">SQL — UPDATE</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    </div>
+    <pre><code><span class="cmt">-- Update one column</span>
+<span class="kw">UPDATE</span> users <span class="kw">SET</span> name = <span class="str">'Alicia'</span> <span class="kw">WHERE</span> id = <span class="num">1</span>;
+
+<span class="cmt">-- Update multiple columns</span>
+<span class="kw">UPDATE</span> users <span class="kw">SET</span> name = <span class="str">'Robert'</span>, email = <span class="str">'robert@example.com'</span> <span class="kw">WHERE</span> id = <span class="num">2</span>;
+
+<span class="cmt">-- Arithmetic update: increase salary by 10%</span>
+<span class="kw">UPDATE</span> users <span class="kw">SET</span> salary = salary * <span class="num">1.10</span> <span class="kw">WHERE</span> salary &lt; <span class="num">60000</span>;
+
+<span class="cmt">-- WARNING: Without WHERE, updates ALL rows</span>
+<span class="kw">UPDATE</span> users <span class="kw">SET</span> gender = <span class="str">'Other'</span>; <span class="cmt">-- ⚠️ affects every row!</span></code></pre>
+  </div>
+
+  <div class="code-wrapper">
+    <div class="code-header">
+      <span class="code-lang">SQL — DELETE</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    </div>
+    <pre><code><span class="cmt">-- Delete one row</span>
+<span class="kw">DELETE FROM</span> users <span class="kw">WHERE</span> id = <span class="num">3</span>;
+
+<span class="cmt">-- Delete with condition</span>
+<span class="kw">DELETE FROM</span> users <span class="kw">WHERE</span> gender = <span class="str">'Other'</span>;
+
+<span class="cmt">-- Delete all rows (keep table structure)</span>
+<span class="kw">DELETE FROM</span> users;        <span class="cmt">-- slow, logged, rollback-able</span>
+<span class="kw">TRUNCATE TABLE</span> users;    <span class="cmt">-- fast, not rollback-able</span></code></pre>
+  </div>
+
+  <!-- DQL -->
+  <h2 id="unit4-dql">4.2 DQL — SELECT Queries</h2>
+
+  <div class="code-wrapper">
+    <div class="code-header">
+      <span class="code-lang">SQL — Complete SELECT Syntax</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    </div>
+    <pre><code><span class="kw">SELECT</span>   [DISTINCT] column_list
+<span class="kw">FROM</span>     table_name
+[<span class="kw">WHERE</span>    condition]
+[<span class="kw">GROUP BY</span> column(s)]
+[<span class="kw">HAVING</span>   group_condition]
+[<span class="kw">ORDER BY</span> column [ASC|DESC]]
+[<span class="kw">LIMIT</span>    n [OFFSET m]];</code></pre>
+  </div>
+
+  <div class="callout warning">
+    <span class="callout-icon">⚠️</span>
+    <div class="callout-body">
+      <div class="callout-title">SQL Query Execution Order (IMPORTANT for Exams!)</div>
+      FROM → WHERE → GROUP BY → HAVING → SELECT → DISTINCT → ORDER BY → LIMIT
+    </div>
+  </div>
+
+  <div class="code-wrapper">
+    <div class="code-header">
+      <span class="code-lang">SQL — WHERE Operators</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    </div>
+    <pre><code><span class="cmt">-- Comparison operators</span>
+<span class="kw">WHERE</span> salary &gt; <span class="num">50000</span>
+<span class="kw">WHERE</span> gender != <span class="str">'Female'</span>
+<span class="kw">WHERE</span> id <span class="kw">BETWEEN</span> <span class="num">5</span> <span class="kw">AND</span> <span class="num">10</span>
+
+<span class="cmt">-- Pattern matching</span>
+<span class="kw">WHERE</span> name <span class="kw">LIKE</span> <span class="str">'A%'</span>       <span class="cmt">-- starts with A</span>
+<span class="kw">WHERE</span> name <span class="kw">LIKE</span> <span class="str">'%kumar'</span>   <span class="cmt">-- ends with kumar</span>
+<span class="kw">WHERE</span> name <span class="kw">LIKE</span> <span class="str">'%li%'</span>    <span class="cmt">-- contains li</span>
+<span class="kw">WHERE</span> name <span class="kw">LIKE</span> <span class="str">'_a%'</span>     <span class="cmt">-- 2nd char is a</span>
+
+<span class="cmt">-- Set membership</span>
+<span class="kw">WHERE</span> gender <span class="kw">IN</span> (<span class="str">'Male'</span>, <span class="str">'Other'</span>)
+<span class="kw">WHERE</span> id <span class="kw">NOT IN</span> (<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>)
+
+<span class="cmt">-- NULL checks (NEVER use = NULL)</span>
+<span class="kw">WHERE</span> dob <span class="kw">IS NULL</span>
+<span class="kw">WHERE</span> dob <span class="kw">IS NOT NULL</span>
+
+<span class="cmt">-- Logical operators</span>
+<span class="kw">WHERE</span> gender = <span class="str">'Female'</span> <span class="kw">AND</span> salary &gt; <span class="num">60000</span>
+<span class="kw">WHERE</span> gender = <span class="str">'Male'</span> <span class="kw">OR</span> gender = <span class="str">'Other'</span>
+<span class="kw">WHERE NOT</span> gender = <span class="str">'Female'</span></code></pre>
+  </div>
+
+  <h3>GROUP BY and HAVING</h3>
+
+  <div class="code-wrapper">
+    <div class="code-header">
+      <span class="code-lang">SQL — GROUP BY + HAVING</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    </div>
+    <pre><code><span class="cmt">-- Average salary by gender</span>
+<span class="kw">SELECT</span> gender, <span class="fn">AVG</span>(salary) <span class="kw">AS</span> avg_salary
+<span class="kw">FROM</span> users
+<span class="kw">GROUP BY</span> gender;
+
+<span class="cmt">-- HAVING: filter after grouping (WHERE can't use aggregates)</span>
+<span class="kw">SELECT</span> gender, <span class="fn">AVG</span>(salary) <span class="kw">AS</span> avg_salary
+<span class="kw">FROM</span> users
+<span class="kw">GROUP BY</span> gender
+<span class="kw">HAVING</span> <span class="fn">AVG</span>(salary) &gt; <span class="num">75000</span>;
+
+<span class="cmt">-- Count referrals per user (only show &gt;1)</span>
+<span class="kw">SELECT</span> referred_by_id, <span class="fn">COUNT</span>(*) <span class="kw">AS</span> total
+<span class="kw">FROM</span> users
+<span class="kw">WHERE</span> referred_by_id <span class="kw">IS NOT NULL</span>
+<span class="kw">GROUP BY</span> referred_by_id
+<span class="kw">HAVING</span> <span class="fn">COUNT</span>(*) &gt; <span class="num">1</span>;
+
+<span class="cmt">-- ROLLUP: Subtotals and grand total</span>
+<span class="kw">SELECT</span> gender, <span class="fn">COUNT</span>(*) <span class="kw">AS</span> total
+<span class="kw">FROM</span> users
+<span class="kw">GROUP BY</span> gender <span class="kw">WITH ROLLUP</span>;</code></pre>
+  </div>
+
+  <!-- Joins -->
+  <h2 id="unit4-joins">4.3 SQL JOINs</h2>
+
+  <div class="diagram-wrapper">
+    <div class="diagram-title">Types of SQL Joins</div>
+    <div class="mermaid">
+graph LR
+    A["INNER JOIN<br/>Only matching rows"] --> B["LEFT JOIN<br/>All left + matched right"]
+    B --> C["RIGHT JOIN<br/>All right + matched left"]
+    C --> D["FULL OUTER JOIN<br/>All rows from both"]
+    D --> E["SELF JOIN<br/>Table joined with itself"]
+    E --> F["CROSS JOIN<br/>Cartesian product"]
+
+    style A fill:#2563eb,color:#fff,stroke:none
+    style B fill:#059669,color:#fff,stroke:none
+    style C fill:#d97706,color:#fff,stroke:none
+    style D fill:#7c3aed,color:#fff,stroke:none
+    style E fill:#dc2626,color:#fff,stroke:none
+    style F fill:#374151,color:#fff,stroke:none
+    </div>
+  </div>
+
+  <h3>Sample Tables for Joins</h3>
+  <div class="compare-grid">
+    <div>
+      <p style="font-size:0.8rem;font-weight:700;margin-bottom:4px">users table</p>
+      <div class="table-wrapper" style="margin:0">
+        <table>
+          <thead><tr><th>id</th><th>name</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>Aarav</td></tr>
+            <tr><td>2</td><td>Sneha</td></tr>
+            <tr><td>3</td><td>Raj</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div>
+      <p style="font-size:0.8rem;font-weight:700;margin-bottom:4px">addresses table</p>
+      <div class="table-wrapper" style="margin:0">
+        <table>
+          <thead><tr><th>id</th><th>user_id</th><th>city</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>1</td><td>Mumbai</td></tr>
+            <tr><td>2</td><td>2</td><td>Kolkata</td></tr>
+            <tr><td>3</td><td>4</td><td>Delhi</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="code-wrapper">
+    <div class="code-header">
+      <span class="code-lang">SQL — All JOIN Types</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    </div>
+    <pre><code><span class="cmt">-- INNER JOIN: Only rows with matches in BOTH tables</span>
+<span class="cmt">-- Output: Aarav-Mumbai, Sneha-Kolkata (Raj excluded: no address; Delhi excluded: no user)</span>
+<span class="kw">SELECT</span> u.name, a.city
+<span class="kw">FROM</span> users u
+<span class="kw">INNER JOIN</span> addresses a <span class="kw">ON</span> u.id = a.user_id;
+
+<span class="cmt">-- LEFT JOIN: All from left (users) + matching from right</span>
+<span class="cmt">-- Output: Aarav-Mumbai, Sneha-Kolkata, Raj-NULL</span>
+<span class="kw">SELECT</span> u.name, a.city
+<span class="kw">FROM</span> users u
+<span class="kw">LEFT JOIN</span> addresses a <span class="kw">ON</span> u.id = a.user_id;
+
+<span class="cmt">-- RIGHT JOIN: All from right (addresses) + matching from left</span>
+<span class="cmt">-- Output: Aarav-Mumbai, Sneha-Kolkata, NULL-Delhi</span>
+<span class="kw">SELECT</span> u.name, a.city
+<span class="kw">FROM</span> users u
+<span class="kw">RIGHT JOIN</span> addresses a <span class="kw">ON</span> u.id = a.user_id;
+
+<span class="cmt">-- SELF JOIN: Join a table with itself (e.g. referral system)</span>
+<span class="kw">SELECT</span> a.name <span class="kw">AS</span> user_name, b.name <span class="kw">AS</span> referred_by
+<span class="kw">FROM</span> users a
+<span class="kw">LEFT JOIN</span> users b <span class="kw">ON</span> a.referred_by_id = b.id;
+
+<span class="cmt">-- UNION: Combine results from two queries (removes duplicates)</span>
+<span class="kw">SELECT</span> name <span class="kw">FROM</span> users
+<span class="kw">UNION</span>
+<span class="kw">SELECT</span> name <span class="kw">FROM</span> admin_users;
+
+<span class="cmt">-- UNION ALL: Keep duplicates</span>
+<span class="kw">SELECT</span> name <span class="kw">FROM</span> users
+<span class="kw">UNION ALL</span>
+<span class="kw">SELECT</span> name <span class="kw">FROM</span> admin_users;</code></pre>
+  </div>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>JOIN Type</th><th>Left Table Rows</th><th>Right Table Rows</th><th>NULL Rows</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>INNER JOIN</td><td>Only matched</td><td>Only matched</td><td>No NULLs</td></tr>
+        <tr><td>LEFT JOIN</td><td>All rows</td><td>Only matched</td><td>Right side NULLs</td></tr>
+        <tr><td>RIGHT JOIN</td><td>Only matched</td><td>All rows</td><td>Left side NULLs</td></tr>
+        <tr><td>SELF JOIN</td><td>Same table twice with aliases</td><td>—</td><td>Possible</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Functions -->
+  <h2 id="unit4-functions">4.4 SQL Functions</h2>
+
+  <div class="code-wrapper">
+    <div class="code-header">
+      <span class="code-lang">SQL — Aggregate Functions</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    </div>
+    <pre><code><span class="cmt">-- COUNT, SUM, AVG, MIN, MAX</span>
+<span class="kw">SELECT</span> <span class="fn">COUNT</span>(*) <span class="kw">FROM</span> users;
+<span class="kw">SELECT</span> <span class="fn">COUNT</span>(*) <span class="kw">FROM</span> users <span class="kw">WHERE</span> gender = <span class="str">'Female'</span>;
+<span class="kw">SELECT</span> <span class="fn">SUM</span>(salary) <span class="kw">AS</span> total_payroll <span class="kw">FROM</span> users;
+<span class="kw">SELECT</span> <span class="fn">AVG</span>(salary) <span class="kw">AS</span> avg_salary <span class="kw">FROM</span> users;
+<span class="kw">SELECT</span> <span class="fn">MIN</span>(salary), <span class="fn">MAX</span>(salary) <span class="kw">FROM</span> users;
+
+<span class="cmt">-- String Functions</span>
+<span class="kw">SELECT</span> <span class="fn">LENGTH</span>(name) <span class="kw">FROM</span> users;
+<span class="kw">SELECT</span> <span class="fn">UPPER</span>(name), <span class="fn">LOWER</span>(email) <span class="kw">FROM</span> users;
+<span class="kw">SELECT</span> <span class="fn">CONCAT</span>(name, <span class="str">' &lt;'</span>, email, <span class="str">'&gt;'</span>) <span class="kw">AS</span> contact <span class="kw">FROM</span> users;
+
+<span class="cmt">-- Date Functions</span>
+<span class="kw">SELECT</span> <span class="fn">NOW</span>();                      <span class="cmt">-- current datetime</span>
+<span class="kw">SELECT</span> <span class="fn">CURDATE</span>();                   <span class="cmt">-- current date</span>
+<span class="kw">SELECT</span> <span class="fn">YEAR</span>(dob), <span class="fn">MONTH</span>(dob) <span class="kw">FROM</span> users;
+<span class="kw">SELECT</span> <span class="fn">DATEDIFF</span>(<span class="fn">CURDATE</span>(), dob) <span class="kw">AS</span> days_lived <span class="kw">FROM</span> users;
+<span class="kw">SELECT</span> <span class="fn">TIMESTAMPDIFF</span>(<span class="kw">YEAR</span>, dob, <span class="fn">CURDATE</span>()) <span class="kw">AS</span> age <span class="kw">FROM</span> users;
+
+<span class="cmt">-- Math Functions</span>
+<span class="kw">SELECT</span> <span class="fn">ROUND</span>(salary, <span class="num">2</span>), <span class="fn">FLOOR</span>(salary), <span class="fn">CEIL</span>(salary) <span class="kw">FROM</span> users;
+<span class="kw">SELECT</span> <span class="fn">MOD</span>(id, <span class="num">2</span>) <span class="kw">FROM</span> users;
+
+<span class="cmt">-- Conditional: IF()</span>
+<span class="kw">SELECT</span> name, <span class="fn">IF</span>(gender = <span class="str">'Female'</span>, <span class="str">'Yes'</span>, <span class="str">'No'</span>) <span class="kw">AS</span> is_female <span class="kw">FROM</span> users;</code></pre>
+  </div>
+
+  <!-- Subqueries -->
+  <h3>Subqueries</h3>
+
+  <div class="code-wrapper">
+    <div class="code-header">
+      <span class="code-lang">SQL — Subqueries</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    </div>
+    <pre><code><span class="cmt">-- Scalar subquery: returns single value</span>
+<span class="kw">SELECT</span> id, name, salary
+<span class="kw">FROM</span> users
+<span class="kw">WHERE</span> salary &gt; (
+    <span class="kw">SELECT</span> <span class="fn">AVG</span>(salary) <span class="kw">FROM</span> users
+);
+
+<span class="cmt">-- Subquery with IN: returns multiple values</span>
+<span class="kw">SELECT</span> id, name
+<span class="kw">FROM</span> users
+<span class="kw">WHERE</span> referred_by_id <span class="kw">IN</span> (
+    <span class="kw">SELECT</span> id <span class="kw">FROM</span> users <span class="kw">WHERE</span> salary &gt; <span class="num">75000</span>
+);
+
+<span class="cmt">-- Subquery in SELECT (scalar)</span>
+<span class="kw">SELECT</span> name, salary,
+    (<span class="kw">SELECT</span> <span class="fn">AVG</span>(salary) <span class="kw">FROM</span> users) <span class="kw">AS</span> avg_salary
+<span class="kw">FROM</span> users;</code></pre>
+  </div>
+
+  <!-- Views -->
+  <h2 id="unit4-views">4.5 Views & Indexes</h2>
+
+  <div class="code-wrapper">
+    <div class="code-header">
+      <span class="code-lang">SQL — Views</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    </div>
+    <pre><code><span class="cmt">-- Create a view (virtual table)</span>
+<span class="kw">CREATE VIEW</span> high_salary_users <span class="kw">AS</span>
+    <span class="kw">SELECT</span> id, name, salary
+    <span class="kw">FROM</span> users
+    <span class="kw">WHERE</span> salary &gt; <span class="num">70000</span>;
+
+<span class="cmt">-- Query the view like a table</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> high_salary_users;
+
+<span class="cmt">-- Drop a view</span>
+<span class="kw">DROP VIEW</span> high_salary_users;</code></pre>
+  </div>
+
+  <div class="callout info">
+    <span class="callout-icon">ℹ️</span>
+    <div class="callout-body">
+      <div class="callout-title">Views are Always Up-to-Date</div>
+      A view does not store data — it's a stored SELECT query. Every time you query a view, it fetches fresh data from the base tables. Changes to base tables are automatically reflected.
+    </div>
+  </div>
+
+  <div class="code-wrapper">
+    <div class="code-header">
+      <span class="code-lang">SQL — Indexes</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    </div>
+    <pre><code><span class="cmt">-- View existing indexes</span>
+<span class="kw">SHOW INDEXES FROM</span> users;
+
+<span class="cmt">-- Create single-column index</span>
+<span class="kw">CREATE INDEX</span> idx_email <span class="kw">ON</span> users(email);
+
+<span class="cmt">-- Create composite (multi-column) index</span>
+<span class="kw">CREATE INDEX</span> idx_gender_salary <span class="kw">ON</span> users(gender, salary);
+
+<span class="cmt">-- Drop an index</span>
+<span class="kw">DROP INDEX</span> idx_email <span class="kw">ON</span> users;</code></pre>
+  </div>
+
+  <!-- Stored Procedures & Triggers -->
+  <h2 id="unit4-procedures">4.6 Stored Procedures & Triggers</h2>
+
+  <div class="code-wrapper">
+    <div class="code-header">
+      <span class="code-lang">SQL — Stored Procedure</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    </div>
+    <pre><code><span class="cmt">-- Change delimiter to allow ; inside procedure</span>
+<span class="kw">DELIMITER</span> $$
+
+<span class="kw">CREATE PROCEDURE</span> AddUser(
+    <span class="kw">IN</span> p_name   <span class="type">VARCHAR</span>(<span class="num">100</span>),
+    <span class="kw">IN</span> p_email  <span class="type">VARCHAR</span>(<span class="num">100</span>),
+    <span class="kw">IN</span> p_gender <span class="type">ENUM</span>(<span class="str">'Male'</span>, <span class="str">'Female'</span>, <span class="str">'Other'</span>),
+    <span class="kw">IN</span> p_dob    <span class="type">DATE</span>,
+    <span class="kw">IN</span> p_salary <span class="type">INT</span>
+)
+<span class="kw">BEGIN</span>
+    <span class="kw">INSERT INTO</span> users (name, email, gender, date_of_birth, salary)
+    <span class="kw">VALUES</span> (p_name, p_email, p_gender, p_dob, p_salary);
+<span class="kw">END</span>$$
+
+<span class="kw">DELIMITER</span> ;
+
+<span class="cmt">-- Call the procedure</span>
+<span class="kw">CALL</span> AddUser(<span class="str">'Kiran'</span>, <span class="str">'kiran@ex.com'</span>, <span class="str">'Female'</span>, <span class="str">'1994-06-15'</span>, <span class="num">72000</span>);</code></pre>
+  </div>
+
+  <div class="code-wrapper">
+    <div class="code-header">
+      <span class="code-lang">SQL — Triggers</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    </div>
+    <pre><code><span class="cmt">-- Create log table first</span>
+<span class="kw">CREATE TABLE</span> user_log (
+    id         <span class="type">INT</span> <span class="kw">AUTO_INCREMENT PRIMARY KEY</span>,
+    user_id    <span class="type">INT</span>,
+    name       <span class="type">VARCHAR</span>(<span class="num">100</span>),
+    created_on <span class="type">TIMESTAMP</span> <span class="kw">DEFAULT CURRENT_TIMESTAMP</span>
+);
+
+<span class="kw">DELIMITER</span> $$
+
+<span class="cmt">-- Trigger: fires AFTER a new user is inserted</span>
+<span class="kw">CREATE TRIGGER</span> after_user_insert
+<span class="kw">AFTER INSERT ON</span> users
+<span class="kw">FOR EACH ROW</span>
+<span class="kw">BEGIN</span>
+    <span class="kw">INSERT INTO</span> user_log (user_id, name)
+    <span class="kw">VALUES</span> (<span class="kw">NEW</span>.id, <span class="kw">NEW</span>.name);
+<span class="kw">END</span>$$
+
+<span class="kw">DELIMITER</span> ;
+
+<span class="cmt">-- Drop a trigger</span>
+<span class="kw">DROP TRIGGER IF EXISTS</span> after_user_insert;</code></pre>
+  </div>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>Trigger Keyword</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>BEFORE INSERT</code></td><td>Fires before a row is inserted</td></tr>
+        <tr><td><code>AFTER INSERT</code></td><td>Fires after a row is inserted</td></tr>
+        <tr><td><code>BEFORE UPDATE</code></td><td>Fires before a row is updated</td></tr>
+        <tr><td><code>AFTER UPDATE</code></td><td>Fires after a row is updated</td></tr>
+        <tr><td><code>NEW.column</code></td><td>Refers to the new value (INSERT/UPDATE)</td></tr>
+        <tr><td><code>OLD.column</code></td><td>Refers to the old value (UPDATE/DELETE)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="exam-box">
+    <div class="exam-box-title">📝 Unit 4 — Important Exam Questions</div>
+    <div class="exam-q"><strong>Q1.</strong> What is the difference between WHERE and HAVING? With examples.</div>
+    <div class="exam-q"><strong>Q2.</strong> Explain all types of JOINs with examples and output tables.</div>
+    <div class="exam-q"><strong>Q3.</strong> Write SQL to find the second highest salary from a table.</div>
+    <div class="exam-q"><strong>Q4.</strong> What is a View? How does it differ from a Table?</div>
+    <div class="exam-q"><strong>Q5.</strong> What is an Index? When should you create one? What are the trade-offs?</div>
+    <div class="exam-q"><strong>Q6.</strong> Explain Stored Procedures. Why change the DELIMITER?</div>
+    <div class="exam-q"><strong>Q7.</strong> What is a Trigger? Write a trigger to log every DELETE operation.</div>
+    <div class="exam-q"><strong>Q8.</strong> Write a subquery to find employees earning more than average salary.</div>
+  </div>
+</section>
+
+<!-- ============================================================
+     UNIT 5 — TRANSACTIONS & NOSQL
+     ============================================================ -->
+<section id="unit5">
+  <div class="section-header">
+    <div class="section-number red">5</div>
+    <h1>Unit 5 — Transactions & NoSQL / MongoDB</h1>
+  </div>
+
+  <h2 id="unit5-transactions">5.1 Transactions & ACID Properties</h2>
+
+  <div class="callout info">
+    <span class="callout-icon">ℹ️</span>
+    <div class="callout-body">
+      <div class="callout-title">What is a Transaction?</div>
+      A <strong>transaction</strong> is a logical unit of work that contains one or more SQL statements. It must either execute completely or not execute at all (atomicity).
+    </div>
+  </div>
+
+  <div class="def-grid">
+    <div class="def-card">
+      <div class="def-term">Atomicity (A)</div>
+      <div class="def-desc">All operations in a transaction succeed or all fail (roll back). No partial execution. "All or nothing."</div>
+    </div>
+    <div class="def-card green">
+      <div class="def-term">Consistency (C)</div>
+      <div class="def-desc">Transaction brings the database from one valid state to another valid state. Integrity constraints are maintained.</div>
+    </div>
+    <div class="def-card amber">
+      <div class="def-term">Isolation (I)</div>
+      <div class="def-desc">Concurrent transactions execute as if they were serial. Intermediate states are invisible to other transactions.</div>
+    </div>
+    <div class="def-card red">
+      <div class="def-term">Durability (D)</div>
+      <div class="def-desc">Once committed, changes are permanent even if the system crashes. Written to non-volatile storage.</div>
+    </div>
+  </div>
+
+  <div class="memory-trick">
+    <div class="memory-trick-label">🧠 Memory Trick</div>
+    <strong>ACID</strong> — like acid, it either reacts completely or doesn't react at all. No half-reactions!<br>
+    <strong>A</strong>ll or nothing, <strong>C</strong>onsistently valid, <strong>I</strong>solated from others, <strong>D</strong>urable forever.
+  </div>
+
+  <h3>Transaction States</h3>
+
+  <div class="diagram-wrapper">
+    <div class="diagram-title">Transaction State Diagram</div>
+    <div class="mermaid">
+stateDiagram-v2
+    [*] --> Active : BEGIN / START
+    Active --> PartiallyCommitted : Last operation executed
+    Active --> Failed : Error/Abort
+    PartiallyCommitted --> Committed : COMMIT (writes to disk)
+    PartiallyCommitted --> Failed : Error during commit
+    Failed --> Aborted : ROLLBACK complete
+    Committed --> [*]
+    Aborted --> [*]
+    Aborted --> Active : Restart transaction
+    </div>
+  </div>
+
+  <h3>MySQL Transaction Commands</h3>
+
+  <div class="code-wrapper">
+    <div class="code-header">
+      <span class="code-lang">SQL — Transactions</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    </div>
+    <pre><code><span class="cmt">-- Disable AutoCommit (every statement is auto-committed by default)</span>
+<span class="kw">SET</span> autocommit = <span class="num">0</span>;
+
+<span class="cmt">-- Make some changes</span>
+<span class="kw">UPDATE</span> accounts <span class="kw">SET</span> balance = balance - <span class="num">1000</span> <span class="kw">WHERE</span> id = <span class="num">1</span>; <span class="cmt">-- debit</span>
+<span class="kw">UPDATE</span> accounts <span class="kw">SET</span> balance = balance + <span class="num">1000</span> <span class="kw">WHERE</span> id = <span class="num">2</span>; <span class="cmt">-- credit</span>
+
+<span class="cmt">-- Save changes permanently</span>
+<span class="kw">COMMIT</span>;
+
+<span class="cmt">-- OR undo if something went wrong</span>
+<span class="kw">ROLLBACK</span>;
+
+<span class="cmt">-- Re-enable AutoCommit</span>
+<span class="kw">SET</span> autocommit = <span class="num">1</span>;
+
+<span class="cmt">-- SAVEPOINT: partial rollback</span>
+<span class="kw">SAVEPOINT</span> sp1;
+<span class="cmt">-- ... more operations ...</span>
+<span class="kw">ROLLBACK TO</span> sp1;  <span class="cmt">-- undo only to savepoint</span></code></pre>
+  </div>
+
+  <!-- Concurrency Control -->
+  <h2 id="unit5-concurrency">5.2 Concurrency Control</h2>
+
+  <p>When multiple transactions execute concurrently, problems can arise:</p>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>Problem</th><th>Description</th><th>Example</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Dirty Read</strong></td><td>Reading uncommitted data from another transaction</td><td>T1 reads T2's update before T2 commits; T2 rolls back</td></tr>
+        <tr><td><strong>Lost Update</strong></td><td>Two transactions update same data; one update is lost</td><td>T1 and T2 both read X=100; T1 sets X=150, T2 sets X=120 — T1's update lost</td></tr>
+        <tr><td><strong>Non-repeatable Read</strong></td><td>Read same row twice, get different values</td><td>T1 reads salary=50K; T2 updates to 60K; T1 reads again: 60K</td></tr>
+        <tr><td><strong>Phantom Read</strong></td><td>Same query returns different rows (rows added/deleted)</td><td>T1 counts 10 rows; T2 inserts 5; T1 counts again: 15</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Locking Protocols</h3>
+  <div class="def-grid">
+    <div class="def-card">
+      <div class="def-term">Shared Lock (S-Lock)</div>
+      <div class="def-desc">Read lock. Multiple transactions can hold shared locks on same data simultaneously.</div>
+    </div>
+    <div class="def-card red">
+      <div class="def-term">Exclusive Lock (X-Lock)</div>
+      <div class="def-desc">Write lock. Only one transaction can hold an exclusive lock. No other lock (shared or exclusive) allowed.</div>
+    </div>
+    <div class="def-card amber">
+      <div class="def-term">Two-Phase Locking (2PL)</div>
+      <div class="def-desc">Growing phase: acquire locks. Shrinking phase: release locks. Never acquire new locks after releasing one. Guarantees serializability.</div>
+    </div>
+    <div class="def-card purple">
+      <div class="def-term">Deadlock</div>
+      <div class="def-desc">Two transactions each wait for the other to release a lock. Resolved by: detection + rollback, prevention, or timeout.</div>
+    </div>
+  </div>
+
+  <!-- NoSQL & MongoDB -->
+  <h2 id="unit5-nosql">5.3 NoSQL & MongoDB</h2>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>Feature</th><th>SQL (RDBMS)</th><th>NoSQL (MongoDB)</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Data Model</td><td>Structured tables with fixed schema</td><td>Flexible JSON-like documents</td></tr>
+        <tr><td>Schema</td><td>Fixed schema (schema-on-write)</td><td>Dynamic schema (schema-on-read)</td></tr>
+        <tr><td>Query Language</td><td>SQL</td><td>MongoDB Query Language (MQL)</td></tr>
+        <tr><td>Relationships</td><td>Foreign keys, JOINs</td><td>Embedded documents or $lookup</td></tr>
+        <tr><td>Scalability</td><td>Vertical (scale up)</td><td>Horizontal (scale out / sharding)</td></tr>
+        <tr><td>ACID</td><td>Full ACID support</td><td>Limited (base consistency, multi-doc since v4.0)</td></tr>
+        <tr><td>Best For</td><td>Complex queries, transactions</td><td>Large-scale, flexible, unstructured data</td></tr>
+        <tr><td>Examples</td><td>MySQL, PostgreSQL, Oracle</td><td>MongoDB, CouchDB, DynamoDB</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>MongoDB Key Concepts</h3>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>SQL Term</th><th>MongoDB Equivalent</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Database</td><td>Database</td></tr>
+        <tr><td>Table</td><td>Collection</td></tr>
+        <tr><td>Row / Record</td><td>Document (BSON/JSON)</td></tr>
+        <tr><td>Column</td><td>Field</td></tr>
+        <tr><td>Primary Key</td><td>_id (auto-generated ObjectId)</td></tr>
+        <tr><td>JOIN</td><td>$lookup (aggregation) or embedded documents</td></tr>
+        <tr><td>SELECT</td><td>find()</td></tr>
+        <tr><td>INSERT</td><td>insertOne() / insertMany()</td></tr>
+        <tr><td>UPDATE</td><td>updateOne() / updateMany()</td></tr>
+        <tr><td>DELETE</td><td>deleteOne() / deleteMany()</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- MongoDB CRUD -->
+  <h2 id="unit5-crud">5.4 MongoDB CRUD Operations</h2>
+
+  <div class="code-wrapper">
+    <div class="code-header">
+      <span class="code-lang">MongoDB Shell — Basic Commands</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    </div>
+    <pre><code><span class="cmt">// Show all databases</span>
+show dbs
+
+<span class="cmt">// Use / create a database</span>
+use ecommerce
+
+<span class="cmt">// Show collections</span>
+show collections
+
+<span class="cmt">// Drop database</span>
+db.dropDatabase()</code></pre>
+  </div>
+
+  <div class="code-wrapper">
+    <div class="code-header">
+      <span class="code-lang">MongoDB — INSERT (Create)</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    </div>
+    <pre><code><span class="cmt">// Insert one document</span>
+db.products.insertOne({
+    name: <span class="str">"Wireless Mouse"</span>,
+    price: <span class="num">799</span>,
+    category: <span class="str">"Electronics"</span>,
+    stock: <span class="num">120</span>,
+    ratings: <span class="num">4.5</span>,
+    tags: [<span class="str">"computer"</span>, <span class="str">"accessory"</span>, <span class="str">"wireless"</span>],
+    createdAt: <span class="kw">new</span> <span class="fn">Date</span>()
+})
+
+<span class="cmt">// Insert many documents</span>
+db.products.insertMany([
+    { name: <span class="str">"Mechanical Keyboard"</span>, price: <span class="num">2499</span>, category: <span class="str">"Electronics"</span> },
+    { name: <span class="str">"Gaming Laptop"</span>, price: <span class="num">85999</span>, category: <span class="str">"Computers"</span> }
+])</code></pre>
+  </div>
+
+  <div class="code-wrapper">
+    <div class="code-header">
+      <span class="code-lang">MongoDB — FIND (Read)</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    </div>
+    <pre><code><span class="cmt">// Find all documents</span>
+db.products.find()
+db.products.find().pretty()
+
+<span class="cmt">// Filter by field</span>
+db.products.find({ category: <span class="str">"Electronics"</span> })
+
+<span class="cmt">// Comparison operators</span>
+db.products.find({ price: { $gt: <span class="num">1000</span> } })          <span class="cmt">// greater than</span>
+db.products.find({ price: { $gte: <span class="num">1000</span>, $lte: <span class="num">50000</span> } }) <span class="cmt">// range</span>
+db.products.find({ stock: { $lt: <span class="num">50</span> } })            <span class="cmt">// less than</span>
+
+<span class="cmt">// Logical operators</span>
+db.products.find({ $or: [
+    { category: <span class="str">"Electronics"</span> },
+    { stock: { $lt: <span class="num">50</span> } }
+]})
+
+<span class="cmt">// Projection: select specific fields</span>
+db.products.find({}, { name: <span class="num">1</span>, price: <span class="num">1</span>, _id: <span class="num">0</span> })  <span class="cmt">// 1=show, 0=hide</span>
+
+<span class="cmt">// Sort and Limit</span>
+db.products.find().sort({ price: <span class="num">-1</span> }).limit(<span class="num">5</span>)     <span class="cmt">// top 5 expensive</span>
+db.products.find().sort({ name: <span class="num">1</span> })                <span class="cmt">// sort alphabetically</span></code></pre>
+  </div>
+
+  <div class="code-wrapper">
+    <div class="code-header">
+      <span class="code-lang">MongoDB — UPDATE</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    </div>
+    <pre><code><span class="cmt">// Update one document — $set changes a field</span>
+db.products.updateOne(
+    { name: <span class="str">"Wireless Mouse"</span> },
+    { $set: { price: <span class="num">899</span> } }
+)
+
+<span class="cmt">// Update many — $inc increments a value</span>
+db.products.updateMany(
+    { category: <span class="str">"Electronics"</span> },
+    { $inc: { stock: <span class="num">10</span> } }
+)
+
+<span class="cmt">// $push: add element to an array</span>
+db.products.updateOne(
+    { name: <span class="str">"Wireless Mouse"</span> },
+    { $push: { tags: <span class="str">"new"</span> } }
+)
+
+<span class="cmt">// Common update operators:</span>
+<span class="cmt">// $set    — set a field value</span>
+<span class="cmt">// $unset  — remove a field</span>
+<span class="cmt">// $inc    — increment a number</span>
+<span class="cmt">// $push   — add to array</span>
+<span class="cmt">// $pull   — remove from array</span></code></pre>
+  </div>
+
+  <div class="code-wrapper">
+    <div class="code-header">
+      <span class="code-lang">MongoDB — DELETE</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    </div>
+    <pre><code><span class="cmt">// Delete one document</span>
+db.contacts.deleteOne({ name: <span class="str">"Alice"</span> })
+
+<span class="cmt">// Delete many documents</span>
+db.orders.deleteMany({ status: <span class="str">"Delivered"</span> })
+
+<span class="cmt">// Delete all documents in a collection</span>
+db.products.deleteMany({})
+
+<span class="cmt">// Drop the collection entirely</span>
+db.products.drop()</code></pre>
+  </div>
+
+  <!-- Aggregation Pipeline -->
+  <h2 id="unit5-aggregation">5.5 MongoDB Aggregation Pipeline</h2>
+
+  <div class="callout info">
+    <span class="callout-icon">ℹ️</span>
+    <div class="callout-body">
+      <div class="callout-title">What is Aggregation?</div>
+      Like an assembly line: data passes through multiple stages, each stage transforms it and passes to the next. Similar to GROUP BY + aggregate functions in SQL.
+    </div>
+  </div>
+
+  <div class="diagram-wrapper">
+    <div class="diagram-title">Aggregation Pipeline Flow</div>
+    <div class="mermaid">
+graph LR
+    A["📦 Collection<br/>Input Documents"] --> B["$match<br/>Filter"]
+    B --> C["$group<br/>Group & Aggregate"]
+    C --> D["$sort<br/>Sort Results"]
+    D --> E["$limit<br/>Limit Rows"]
+    E --> F["📊 Final<br/>Output"]
+
+    style A fill:#374151,color:#fff,stroke:none
+    style B fill:#dc2626,color:#fff,stroke:none
+    style C fill:#2563eb,color:#fff,stroke:none
+    style D fill:#059669,color:#fff,stroke:none
+    style E fill:#d97706,color:#fff,stroke:none
+    style F fill:#7c3aed,color:#fff,stroke:none
+    </div>
+  </div>
+
+  <div class="code-wrapper">
+    <div class="code-header">
+      <span class="code-lang">MongoDB — Aggregation Pipeline Examples</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    </div>
+    <pre><code><span class="cmt">// Sample sales collection used below</span>
+
+<span class="cmt">// 1. $match — Filter (like WHERE in SQL)</span>
+db.sales.aggregate([
+    { $match: { category: <span class="str">"Fruit"</span> } }
+])
+
+<span class="cmt">// 2. $project — Select/reshape fields (like SELECT in SQL)</span>
+db.sales.aggregate([
+    { $project: { _id: <span class="num">0</span>, item: <span class="num">1</span>, price: <span class="num">1</span> } }
+])
+
+<span class="cmt">// 3. $group — Group and calculate (like GROUP BY)</span>
+db.sales.aggregate([{
+    $group: {
+        _id: <span class="str">"$category"</span>,
+        totalSales: { $sum: { $multiply: [<span class="str">"$price"</span>, <span class="str">"$quantity"</span>] } },
+        avgPrice:   { $avg: <span class="str">"$price"</span> },
+        count:      { $sum: <span class="num">1</span> }
+    }
+}])
+
+<span class="cmt">// 4. $sort — Sort (like ORDER BY)</span>
+db.sales.aggregate([
+    { $group: { _id: <span class="str">"$category"</span>, total: { $sum: <span class="str">"$price"</span> } } },
+    { $sort: { total: <span class="num">-1</span> } }  <span class="cmt">// -1 = descending</span>
+])
+
+<span class="cmt">// 5. Complete pipeline: match + group + sort + limit</span>
+db.sales.aggregate([
+    { $match: { category: <span class="str">"Fruit"</span> } },
+    { $group: { _id: <span class="str">"$category"</span>, totalFruitSales: { $sum: { $multiply: [<span class="str">"$price"</span>, <span class="str">"$quantity"</span>] } } } },
+    { $sort: { totalFruitSales: <span class="num">-1</span> } },
+    { $limit: <span class="num">5</span> }
+])
+
+<span class="cmt">// 6. $lookup — JOIN orders with products</span>
+db.orders.aggregate([{
+    $lookup: {
+        from:         <span class="str">"products"</span>,
+        localField:   <span class="str">"products.name"</span>,
+        foreignField: <span class="str">"name"</span>,
+        as:           <span class="str">"productDetails"</span>
+    }
+}])
+
+<span class="cmt">// 7. Total revenue from all orders</span>
+db.orders.aggregate([
+    { $group: { _id: <span class="kw">null</span>, totalRevenue: { $sum: <span class="str">"$total"</span> } } }
+])</code></pre>
+  </div>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>Stage</th><th>SQL Equivalent</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>$match</code></td><td>WHERE</td><td>Filter documents</td></tr>
+        <tr><td><code>$project</code></td><td>SELECT columns</td><td>Include/exclude/add fields</td></tr>
+        <tr><td><code>$group</code></td><td>GROUP BY + aggregates</td><td>Group and compute totals, averages</td></tr>
+        <tr><td><code>$sort</code></td><td>ORDER BY</td><td>Sort results (1=asc, -1=desc)</td></tr>
+        <tr><td><code>$limit</code></td><td>LIMIT</td><td>Restrict number of output documents</td></tr>
+        <tr><td><code>$skip</code></td><td>OFFSET</td><td>Skip N documents</td></tr>
+        <tr><td><code>$lookup</code></td><td>JOIN</td><td>Join with another collection</td></tr>
+        <tr><td><code>$unwind</code></td><td>—</td><td>Deconstruct an array field into multiple documents</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>MongoDB Indexes</h3>
+
+  <div class="code-wrapper">
+    <div class="code-header">
+      <span class="code-lang">MongoDB — Indexes</span>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    </div>
+    <pre><code><span class="cmt">// Create ascending index on 'name' field</span>
+db.products.createIndex({ name: <span class="num">1</span> })
+
+<span class="cmt">// Create compound index</span>
+db.products.createIndex({ category: <span class="num">1</span>, price: <span class="num">-1</span> })
+
+<span class="cmt">// View all indexes</span>
+db.products.getIndexes()
+
+<span class="cmt">// Check query performance</span>
+db.products.find({ price: { $gt: <span class="num">5000</span> } }).explain(<span class="str">"executionStats"</span>)</code></pre>
+  </div>
+
+  <div class="exam-box">
+    <div class="exam-box-title">📝 Unit 5 — Important Exam Questions</div>
+    <div class="exam-q"><strong>Q1.</strong> Explain ACID properties with examples (use bank transfer as scenario).</div>
+    <div class="exam-q"><strong>Q2.</strong> Draw and explain the Transaction State Diagram.</div>
+    <div class="exam-q"><strong>Q3.</strong> What are the concurrency problems? Explain dirty read, lost update, phantom read.</div>
+    <div class="exam-q"><strong>Q4.</strong> Compare SQL and NoSQL databases with at least 8 differences.</div>
+    <div class="exam-q"><strong>Q5.</strong> Write MongoDB queries for: find all products above ₹1000, update stock by 10, delete delivered orders.</div>
+    <div class="exam-q"><strong>Q6.</strong> Explain the MongoDB Aggregation Pipeline with a diagram and example.</div>
+    <div class="exam-q"><strong>Q7.</strong> What is $lookup in MongoDB? Compare with SQL JOIN.</div>
+    <div class="exam-q"><strong>Q8.</strong> What is Two-Phase Locking? How does it prevent concurrency problems?</div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SQL CHEAT SHEET
+     ============================================================ -->
+<section id="cheatsheet-sql">
+  <div class="section-header">
+    <div class="section-number" style="background:var(--amber)">⚡</div>
+    <h1>SQL Cheat Sheet</h1>
+  </div>
+
+  <div class="cheat-grid">
+    <div class="cheat-card">
+      <div class="cheat-card-header">DDL Commands</div>
+      <div class="cheat-card-body">
+        <div class="cheat-item"><span class="cheat-key">Create DB</span><span class="cheat-val">CREATE DATABASE db;</span></div>
+        <div class="cheat-item"><span class="cheat-key">Create Table</span><span class="cheat-val">CREATE TABLE t (...);</span></div>
+        <div class="cheat-item"><span class="cheat-key">Add Column</span><span class="cheat-val">ALTER TABLE t ADD col type;</span></div>
+        <div class="cheat-item"><span class="cheat-key">Drop Column</span><span class="cheat-val">ALTER TABLE t DROP col;</span></div>
+        <div class="cheat-item"><span class="cheat-key">Rename Table</span><span class="cheat-val">RENAME TABLE t TO t2;</span></div>
+        <div class="cheat-item"><span class="cheat-key">Drop Table</span><span class="cheat-val">DROP TABLE t;</span></div>
+        <div class="cheat-item"><span class="cheat-key">Truncate</span><span class="cheat-val">TRUNCATE TABLE t;</span></div>
+      </div>
+    </div>
+
+    <div class="cheat-card">
+      <div class="cheat-card-header">DML Commands</div>
+      <div class="cheat-card-body">
+        <div class="cheat-item"><span class="cheat-key">Insert</span><span class="cheat-val">INSERT INTO t (c) VALUES (v);</span></div>
+        <div class="cheat-item"><span class="cheat-key">Insert Many</span><span class="cheat-val">INSERT INTO t VALUES (...),(...);</span></div>
+        <div class="cheat-item"><span class="cheat-key">Update</span><span class="cheat-val">UPDATE t SET c=v WHERE cond;</span></div>
+        <div class="cheat-item"><span class="cheat-key">Delete Row</span><span class="cheat-val">DELETE FROM t WHERE cond;</span></div>
+        <div class="cheat-item"><span class="cheat-key">Delete All</span><span class="cheat-val">DELETE FROM t;</span></div>
+      </div>
+    </div>
+
+    <div class="cheat-card">
+      <div class="cheat-card-header">SELECT / DQL</div>
+      <div class="cheat-card-body">
+        <div class="cheat-item"><span class="cheat-key">Select All</span><span class="cheat-val">SELECT * FROM t;</span></div>
+        <div class="cheat-item"><span class="cheat-key">Distinct</span><span class="cheat-val">SELECT DISTINCT c FROM t;</span></div>
+        <div class="cheat-item"><span class="cheat-key">Where</span><span class="cheat-val">SELECT * FROM t WHERE c=v;</span></div>
+        <div class="cheat-item"><span class="cheat-key">Order</span><span class="cheat-val">ORDER BY col ASC/DESC;</span></div>
+        <div class="cheat-item"><span class="cheat-key">Limit</span><span class="cheat-val">LIMIT 10 OFFSET 5;</span></div>
+        <div class="cheat-item"><span class="cheat-key">Like</span><span class="cheat-val">WHERE name LIKE 'A%';</span></div>
+        <div class="cheat-item"><span class="cheat-key">Between</span><span class="cheat-val">WHERE id BETWEEN 1 AND 10;</span></div>
+        <div class="cheat-item"><span class="cheat-key">In</span><span class="cheat-val">WHERE id IN (1,2,3);</span></div>
+        <div class="cheat-item"><span class="cheat-key">Null Check</span><span class="cheat-val">WHERE c IS NULL;</span></div>
+      </div>
+    </div>
+
+    <div class="cheat-card">
+      <div class="cheat-card-header">Aggregate Functions</div>
+      <div class="cheat-card-body">
+        <div class="cheat-item"><span class="cheat-key">Count</span><span class="cheat-val">COUNT(*) / COUNT(col)</span></div>
+        <div class="cheat-item"><span class="cheat-key">Sum</span><span class="cheat-val">SUM(salary)</span></div>
+        <div class="cheat-item"><span class="cheat-key">Average</span><span class="cheat-val">AVG(salary)</span></div>
+        <div class="cheat-item"><span class="cheat-key">Min/Max</span><span class="cheat-val">MIN(salary) / MAX(salary)</span></div>
+        <div class="cheat-item"><span class="cheat-key">Group By</span><span class="cheat-val">GROUP BY gender;</span></div>
+        <div class="cheat-item"><span class="cheat-key">Having</span><span class="cheat-val">HAVING AVG(sal) > 50000;</span></div>
+      </div>
+    </div>
+
+    <div class="cheat-card">
+      <div class="cheat-card-header">JOINs</div>
+      <div class="cheat-card-body">
+        <div class="cheat-item"><span class="cheat-key">Inner</span><span class="cheat-val">INNER JOIN t2 ON t1.id=t2.fk</span></div>
+        <div class="cheat-item"><span class="cheat-key">Left</span><span class="cheat-val">LEFT JOIN t2 ON t1.id=t2.fk</span></div>
+        <div class="cheat-item"><span class="cheat-key">Right</span><span class="cheat-val">RIGHT JOIN t2 ON t1.id=t2.fk</span></div>
+        <div class="cheat-item"><span class="cheat-key">Self</span><span class="cheat-val">t1 a JOIN t1 b ON a.id=b.ref</span></div>
+        <div class="cheat-item"><span class="cheat-key">Union</span><span class="cheat-val">SELECT... UNION SELECT...</span></div>
+        <div class="cheat-item"><span class="cheat-key">Union All</span><span class="cheat-val">SELECT... UNION ALL SELECT...</span></div>
+      </div>
+    </div>
+
+    <div class="cheat-card">
+      <div class="cheat-card-header">Constraints</div>
+      <div class="cheat-card-body">
+        <div class="cheat-item"><span class="cheat-key">Primary Key</span><span class="cheat-val">PRIMARY KEY</span></div>
+        <div class="cheat-item"><span class="cheat-key">Foreign Key</span><span class="cheat-val">FOREIGN KEY... REFERENCES</span></div>
+        <div class="cheat-item"><span class="cheat-key">Unique</span><span class="cheat-val">UNIQUE</span></div>
+        <div class="cheat-item"><span class="cheat-key">Not Null</span><span class="cheat-val">NOT NULL</span></div>
+        <div class="cheat-item"><span class="cheat-key">Check</span><span class="cheat-val">CHECK (age > 18)</span></div>
+        <div class="cheat-item"><span class="cheat-key">Default</span><span class="cheat-val">DEFAULT TRUE / DEFAULT 0</span></div>
+        <div class="cheat-item"><span class="cheat-key">Auto Inc</span><span class="cheat-val">AUTO_INCREMENT</span></div>
+      </div>
+    </div>
+
+    <div class="cheat-card">
+      <div class="cheat-card-header">String Functions</div>
+      <div class="cheat-card-body">
+        <div class="cheat-item"><span class="cheat-key">Length</span><span class="cheat-val">LENGTH(name)</span></div>
+        <div class="cheat-item"><span class="cheat-key">Upper/Lower</span><span class="cheat-val">UPPER(name) / LOWER(name)</span></div>
+        <div class="cheat-item"><span class="cheat-key">Concat</span><span class="cheat-val">CONCAT(first,' ',last)</span></div>
+        <div class="cheat-item"><span class="cheat-key">Substring</span><span class="cheat-val">SUBSTRING(str,1,5)</span></div>
+        <div class="cheat-item"><span class="cheat-key">Trim</span><span class="cheat-val">TRIM(name)</span></div>
+      </div>
+    </div>
+
+    <div class="cheat-card">
+      <div class="cheat-card-header">Date Functions</div>
+      <div class="cheat-card-body">
+        <div class="cheat-item"><span class="cheat-key">Now</span><span class="cheat-val">NOW() / CURDATE()</span></div>
+        <div class="cheat-item"><span class="cheat-key">Year/Month</span><span class="cheat-val">YEAR(dob) / MONTH(dob)</span></div>
+        <div class="cheat-item"><span class="cheat-key">Diff</span><span class="cheat-val">DATEDIFF(d1, d2)</span></div>
+        <div class="cheat-item"><span class="cheat-key">Age</span><span class="cheat-val">TIMESTAMPDIFF(YEAR,dob,NOW())</span></div>
+      </div>
+    </div>
+
+    <div class="cheat-card">
+      <div class="cheat-card-header">Views & Indexes</div>
+      <div class="cheat-card-body">
+        <div class="cheat-item"><span class="cheat-key">Create View</span><span class="cheat-val">CREATE VIEW v AS SELECT...;</span></div>
+        <div class="cheat-item"><span class="cheat-key">Drop View</span><span class="cheat-val">DROP VIEW v;</span></div>
+        <div class="cheat-item"><span class="cheat-key">Create Index</span><span class="cheat-val">CREATE INDEX i ON t(col);</span></div>
+        <div class="cheat-item"><span class="cheat-key">Drop Index</span><span class="cheat-val">DROP INDEX i ON t;</span></div>
+        <div class="cheat-item"><span class="cheat-key">Show Indexes</span><span class="cheat-val">SHOW INDEXES FROM t;</span></div>
+      </div>
+    </div>
+
+    <div class="cheat-card">
+      <div class="cheat-card-header">Transactions</div>
+      <div class="cheat-card-body">
+        <div class="cheat-item"><span class="cheat-key">No AutoCommit</span><span class="cheat-val">SET autocommit = 0;</span></div>
+        <div class="cheat-item"><span class="cheat-key">Commit</span><span class="cheat-val">COMMIT;</span></div>
+        <div class="cheat-item"><span class="cheat-key">Rollback</span><span class="cheat-val">ROLLBACK;</span></div>
+        <div class="cheat-item"><span class="cheat-key">Savepoint</span><span class="cheat-val">SAVEPOINT sp1;</span></div>
+        <div class="cheat-item"><span class="cheat-key">Rollback To</span><span class="cheat-val">ROLLBACK TO sp1;</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     MONGODB CHEAT SHEET
+     ============================================================ -->
+<section id="cheatsheet-mongo">
+  <div class="section-header">
+    <div class="section-number" style="background:#4db33d">🍃</div>
+    <h1>MongoDB Cheat Sheet</h1>
+  </div>
+
+  <div class="cheat-grid">
+    <div class="cheat-card">
+      <div class="cheat-card-header">Basic Commands</div>
+      <div class="cheat-card-body">
+        <div class="cheat-item"><span class="cheat-key">Show DBs</span><span class="cheat-val">show dbs</span></div>
+        <div class="cheat-item"><span class="cheat-key">Use DB</span><span class="cheat-val">use dbname</span></div>
+        <div class="cheat-item"><span class="cheat-key">Show Collections</span><span class="cheat-val">show collections</span></div>
+        <div class="cheat-item"><span class="cheat-key">Drop DB</span><span class="cheat-val">db.dropDatabase()</span></div>
+        <div class="cheat-item"><span class="cheat-key">Count Docs</span><span class="cheat-val">db.col.countDocuments()</span></div>
+      </div>
+    </div>
+
+    <div class="cheat-card">
+      <div class="cheat-card-header">INSERT</div>
+      <div class="cheat-card-body">
+        <div class="cheat-item"><span class="cheat-key">Insert One</span><span class="cheat-val">db.col.insertOne({...})</span></div>
+        <div class="cheat-item"><span class="cheat-key">Insert Many</span><span class="cheat-val">db.col.insertMany([{...},{...}])</span></div>
+      </div>
+    </div>
+
+    <div class="cheat-card">
+      <div class="cheat-card-header">FIND (Read)</div>
+      <div class="cheat-card-body">
+        <div class="cheat-item"><span class="cheat-key">All</span><span class="cheat-val">db.col.find()</span></div>
+        <div class="cheat-item"><span class="cheat-key">Filter</span><span class="cheat-val">db.col.find({field:val})</span></div>
+        <div class="cheat-item"><span class="cheat-key">gt / lt</span><span class="cheat-val">{price:{$gt:100}}</span></div>
+        <div class="cheat-item"><span class="cheat-key">OR</span><span class="cheat-val">{$or:[{},{}]}</span></div>
+        <div class="cheat-item"><span class="cheat-key">AND</span><span class="cheat-val">{$and:[{},{}]}</span></div>
+        <div class="cheat-item"><span class="cheat-key">Project</span><span class="cheat-val">find({},{name:1,_id:0})</span></div>
+        <div class="cheat-item"><span class="cheat-key">Sort</span><span class="cheat-val">.sort({price:-1})</span></div>
+        <div class="cheat-item"><span class="cheat-key">Limit</span><span class="cheat-val">.limit(5)</span></div>
+      </div>
+    </div>
+
+    <div class="cheat-card">
+      <div class="cheat-card-header">UPDATE</div>
+      <div class="cheat-card-body">
+        <div class="cheat-item"><span class="cheat-key">Update One</span><span class="cheat-val">db.col.updateOne(f,{$set:u})</span></div>
+        <div class="cheat-item"><span class="cheat-key">Update Many</span><span class="cheat-val">db.col.updateMany(f,{$set:u})</span></div>
+        <div class="cheat-item"><span class="cheat-key">$set</span><span class="cheat-val">Set a field value</span></div>
+        <div class="cheat-item"><span class="cheat-key">$inc</span><span class="cheat-val">Increment: {$inc:{stock:10}}</span></div>
+        <div class="cheat-item"><span class="cheat-key">$push</span><span class="cheat-val">Add to array</span></div>
+        <div class="cheat-item"><span class="cheat-key">$pull</span><span class="cheat-val">Remove from array</span></div>
+        <div class="cheat-item"><span class="cheat-key">$unset</span><span class="cheat-val">Remove a field</span></div>
+      </div>
+    </div>
+
+    <div class="cheat-card">
+      <div class="cheat-card-header">DELETE</div>
+      <div class="cheat-card-body">
+        <div class="cheat-item"><span class="cheat-key">Delete One</span><span class="cheat-val">db.col.deleteOne({name:"x"})</span></div>
+        <div class="cheat-item"><span class="cheat-key">Delete Many</span><span class="cheat-val">db.col.deleteMany({status:"D"})</span></div>
+        <div class="cheat-item"><span class="cheat-key">Drop Collection</span><span class="cheat-val">db.col.drop()</span></div>
+      </div>
+    </div>
+
+    <div class="cheat-card">
+      <div class="cheat-card-header">Aggregation Stages</div>
+      <div class="cheat-card-body">
+        <div class="cheat-item"><span class="cheat-key">$match</span><span class="cheat-val">Filter (like WHERE)</span></div>
+        <div class="cheat-item"><span class="cheat-key">$project</span><span class="cheat-val">Select fields</span></div>
+        <div class="cheat-item"><span class="cheat-key">$group</span><span class="cheat-val">Group + aggregate</span></div>
+        <div class="cheat-item"><span class="cheat-key">$sort</span><span class="cheat-val">Sort: {field:1/-1}</span></div>
+        <div class="cheat-item"><span class="cheat-key">$limit</span><span class="cheat-val">Limit docs</span></div>
+        <div class="cheat-item"><span class="cheat-key">$lookup</span><span class="cheat-val">Join another collection</span></div>
+        <div class="cheat-item"><span class="cheat-key">$unwind</span><span class="cheat-val">Flatten array field</span></div>
+      </div>
+    </div>
+
+    <div class="cheat-card">
+      <div class="cheat-card-header">Comparison Operators</div>
+      <div class="cheat-card-body">
+        <div class="cheat-item"><span class="cheat-key">Equal</span><span class="cheat-val">{field: value} / $eq</span></div>
+        <div class="cheat-item"><span class="cheat-key">Not Equal</span><span class="cheat-val">$ne</span></div>
+        <div class="cheat-item"><span class="cheat-key">Greater Than</span><span class="cheat-val">$gt / $gte</span></div>
+        <div class="cheat-item"><span class="cheat-key">Less Than</span><span class="cheat-val">$lt / $lte</span></div>
+        <div class="cheat-item"><span class="cheat-key">In Array</span><span class="cheat-val">$in: [val1, val2]</span></div>
+        <div class="cheat-item"><span class="cheat-key">Not In</span><span class="cheat-val">$nin</span></div>
+      </div>
+    </div>
+
+    <div class="cheat-card">
+      <div class="cheat-card-header">Indexes</div>
+      <div class="cheat-card-body">
+        <div class="cheat-item"><span class="cheat-key">Create</span><span class="cheat-val">db.col.createIndex({name:1})</span></div>
+        <div class="cheat-item"><span class="cheat-key">List</span><span class="cheat-val">db.col.getIndexes()</span></div>
+        <div class="cheat-item"><span class="cheat-key">Explain</span><span class="cheat-val">.find().explain("executionStats")</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     50 EXAM QUESTIONS
+     ============================================================ -->
+<section id="exam-questions">
+  <div class="section-header">
+    <div class="section-number" style="background:var(--red)">📝</div>
+    <h1>50 Important Exam Questions</h1>
+  </div>
+
+  <div class="collapsible open">
+    <div class="collapsible-header" onclick="toggleCollapsible(this)">
+      <div class="collapsible-title">📖 Unit 1 — DBMS Fundamentals (Q1–Q10)</div>
+      <span class="collapsible-icon">▶</span>
+    </div>
+    <div class="collapsible-body">
+      <div class="exam-box" style="background:var(--bg-secondary);border:1px solid var(--border)">
+        <div class="exam-q"><strong>Q1.</strong> Define DBMS. What are its objectives and characteristics?</div>
+        <div class="exam-q"><strong>Q2.</strong> Distinguish between Data and Information with examples.</div>
+        <div class="exam-q"><strong>Q3.</strong> Explain the Three-Level Schema Architecture with a neat diagram.</div>
+        <div class="exam-q"><strong>Q4.</strong> What is data independence? Explain logical and physical data independence.</div>
+        <div class="exam-q"><strong>Q5.</strong> Compare DBMS with traditional File System — list 5 differences.</div>
+        <div class="exam-q"><strong>Q6.</strong> What are the advantages and disadvantages of DBMS?</div>
+        <div class="exam-q"><strong>Q7.</strong> Explain the different types of database users and their roles.</div>
+        <div class="exam-q"><strong>Q8.</strong> Write DDL commands to create a Student table with appropriate constraints.</div>
+        <div class="exam-q"><strong>Q9.</strong> Explain LIMIT, ORDER BY, DISTINCT with queries and outputs.</div>
+        <div class="exam-q"><strong>Q10.</strong> What is the difference between DROP, DELETE, and TRUNCATE?</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="collapsible">
+    <div class="collapsible-header" onclick="toggleCollapsible(this)">
+      <div class="collapsible-title">🔗 Unit 2 — Relational Model & ER (Q11–Q20)</div>
+      <span class="collapsible-icon">▶</span>
+    </div>
+    <div class="collapsible-body">
+      <div class="exam-box" style="background:var(--bg-secondary);border:1px solid var(--border)">
+        <div class="exam-q"><strong>Q11.</strong> Define: Relation, Tuple, Attribute, Domain, Degree, Cardinality.</div>
+        <div class="exam-q"><strong>Q12.</strong> Explain all types of keys: Super, Candidate, Primary, Alternate, Foreign, Composite.</div>
+        <div class="exam-q"><strong>Q13.</strong> What are integrity constraints? Explain domain, entity, and referential integrity.</div>
+        <div class="exam-q"><strong>Q14.</strong> Draw and explain an ER diagram for a Hospital Management System.</div>
+        <div class="exam-q"><strong>Q15.</strong> What are the different types of attributes in ER modeling?</div>
+        <div class="exam-q"><strong>Q16.</strong> Explain Weak Entity Set with an example and ER symbol.</div>
+        <div class="exam-q"><strong>Q17.</strong> What is cardinality? Explain 1:1, 1:N, M:N relationships with examples.</div>
+        <div class="exam-q"><strong>Q18.</strong> Explain Specialization and Generalization in EER. How do they differ?</div>
+        <div class="exam-q"><strong>Q19.</strong> What is Aggregation in EER? When is it used?</div>
+        <div class="exam-q"><strong>Q20.</strong> Convert an ER diagram to a relational schema — list the rules.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="collapsible">
+    <div class="collapsible-header" onclick="toggleCollapsible(this)">
+      <div class="collapsible-title">📐 Unit 3 — Normalization (Q21–Q30)</div>
+      <span class="collapsible-icon">▶</span>
+    </div>
+    <div class="collapsible-body">
+      <div class="exam-box" style="background:var(--bg-secondary);border:1px solid var(--border)">
+        <div class="exam-q"><strong>Q21.</strong> What is normalization? Why is it needed? Explain the three anomalies.</div>
+        <div class="exam-q"><strong>Q22.</strong> Define Functional Dependency. Explain all types with examples.</div>
+        <div class="exam-q"><strong>Q23.</strong> Explain 1NF with a before and after example table.</div>
+        <div class="exam-q"><strong>Q24.</strong> Explain 2NF. What is a partial dependency? Give an example.</div>
+        <div class="exam-q"><strong>Q25.</strong> Explain 3NF. What is a transitive dependency? Give an example.</div>
+        <div class="exam-q"><strong>Q26.</strong> What is BCNF? How does it differ from 3NF? Give a counterexample.</div>
+        <div class="exam-q"><strong>Q27.</strong> Normalize the following table to BCNF: <em>EMP(EmpID, EmpName, DeptID, DeptName, MgrID, MgrName)</em></div>
+        <div class="exam-q"><strong>Q28.</strong> What is denormalization? When is it preferred over normalization?</div>
+        <div class="exam-q"><strong>Q29.</strong> Explain Armstrong's Axioms for functional dependencies.</div>
+        <div class="exam-q"><strong>Q30.</strong> What is a lossless decomposition? What is a dependency-preserving decomposition?</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="collapsible">
+    <div class="collapsible-header" onclick="toggleCollapsible(this)">
+      <div class="collapsible-title">💾 Unit 4 — SQL (Q31–Q40)</div>
+      <span class="collapsible-icon">▶</span>
+    </div>
+    <div class="collapsible-body">
+      <div class="exam-box" style="background:var(--bg-secondary);border:1px solid var(--border)">
+        <div class="exam-q"><strong>Q31.</strong> Explain the categories of SQL: DDL, DML, DQL, DCL, TCL with commands.</div>
+        <div class="exam-q"><strong>Q32.</strong> What is the difference between WHERE and HAVING? Give an example where HAVING is needed.</div>
+        <div class="exam-q"><strong>Q33.</strong> Explain all types of SQL JOINs with examples and expected outputs.</div>
+        <div class="exam-q"><strong>Q34.</strong> Write SQL to find the Nth highest salary from an Employee table.</div>
+        <div class="exam-q"><strong>Q35.</strong> Explain aggregate functions: COUNT, SUM, AVG, MIN, MAX with GROUP BY.</div>
+        <div class="exam-q"><strong>Q36.</strong> What is a View in SQL? How does it differ from a Table? What are the benefits?</div>
+        <div class="exam-q"><strong>Q37.</strong> Explain SQL Indexes. When should you create one? What are the trade-offs?</div>
+        <div class="exam-q"><strong>Q38.</strong> What is a Stored Procedure? Why do we change the DELIMITER? Write an example.</div>
+        <div class="exam-q"><strong>Q39.</strong> What is a Trigger? Explain BEFORE/AFTER and NEW/OLD. Write a trigger example.</div>
+        <div class="exam-q"><strong>Q40.</strong> Explain subqueries. What is a correlated subquery? What is a scalar subquery?</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="collapsible">
+    <div class="collapsible-header" onclick="toggleCollapsible(this)">
+      <div class="collapsible-title">🔄 Unit 5 — Transactions & NoSQL (Q41–Q50)</div>
+      <span class="collapsible-icon">▶</span>
+    </div>
+    <div class="collapsible-body">
+      <div class="exam-box" style="background:var(--bg-secondary);border:1px solid var(--border)">
+        <div class="exam-q"><strong>Q41.</strong> Explain ACID properties with a bank transfer example.</div>
+        <div class="exam-q"><strong>Q42.</strong> Draw and explain the Transaction State Diagram with all states.</div>
+        <div class="exam-q"><strong>Q43.</strong> What problems arise in concurrent execution? Explain dirty read, lost update, phantom read.</div>
+        <div class="exam-q"><strong>Q44.</strong> Explain Two-Phase Locking (2PL) protocol. How does it ensure serializability?</div>
+        <div class="exam-q"><strong>Q45.</strong> What is Deadlock? How can it be detected and resolved?</div>
+        <div class="exam-q"><strong>Q46.</strong> Compare SQL and NoSQL databases on: schema, scalability, ACID, use cases.</div>
+        <div class="exam-q"><strong>Q47.</strong> Write MongoDB queries for basic CRUD operations on a products collection.</div>
+        <div class="exam-q"><strong>Q48.</strong> Explain the MongoDB Aggregation Pipeline. Write a pipeline to group sales by category.</div>
+        <div class="exam-q"><strong>Q49.</strong> Compare MongoDB $lookup with SQL JOIN. Write an example of each.</div>
+        <div class="exam-q"><strong>Q50.</strong> What are MongoDB indexes? How do they differ from SQL indexes? When should you avoid them?</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     VIVA QUESTIONS
+     ============================================================ -->
+<section id="viva">
+  <div class="section-header">
+    <div class="section-number" style="background:var(--purple)">🎤</div>
+    <h1>Viva Questions & Model Answers</h1>
+  </div>
+
+  <div class="collapsible open">
+    <div class="collapsible-header" onclick="toggleCollapsible(this)">
+      <div class="collapsible-title">💡 Common Viva Questions</div>
+      <span class="collapsible-icon">▶</span>
+    </div>
+    <div class="collapsible-body">
+      <div class="exam-box" style="background:var(--bg-secondary);border:1px solid var(--border)">
+        <div class="exam-q"><strong>Q.</strong> What is the difference between Primary Key and Unique Key?
+          <br><em>A: Both enforce uniqueness. PK cannot be NULL, only one per table. UNIQUE allows NULL (one), can have multiple per table.</em></div>
+        <div class="exam-q"><strong>Q.</strong> What is the difference between DELETE and TRUNCATE?
+          <br><em>A: DELETE removes rows one at a time, is logged, can have WHERE, and is rollback-able. TRUNCATE removes all rows at once, faster, resets AUTO_INCREMENT, usually not rollback-able.</em></div>
+        <div class="exam-q"><strong>Q.</strong> Can a table have multiple candidate keys?
+          <br><em>A: Yes! A table can have multiple candidate keys. The DBA chooses one as the Primary Key; the rest become Alternate Keys.</em></div>
+        <div class="exam-q"><strong>Q.</strong> What is a NULL value? Can PK be NULL?
+          <br><em>A: NULL means "unknown" or "not applicable" — it is not zero or empty string. Primary Key cannot be NULL (Entity Integrity Constraint).</em></div>
+        <div class="exam-q"><strong>Q.</strong> What is the difference between WHERE and HAVING?
+          <br><em>A: WHERE filters rows before grouping; cannot use aggregate functions. HAVING filters after GROUP BY; can use aggregate functions.</em></div>
+        <div class="exam-q"><strong>Q.</strong> What is a View? Can you update data through a view?
+          <br><em>A: A view is a virtual table (stored query). Yes, simple views on a single table without aggregates/DISTINCT can be updated. Complex views usually cannot.</em></div>
+        <div class="exam-q"><strong>Q.</strong> What is the difference between UNION and UNION ALL?
+          <br><em>A: UNION removes duplicate rows; UNION ALL keeps all rows including duplicates. UNION ALL is faster since it skips deduplication.</em></div>
+        <div class="exam-q"><strong>Q.</strong> Explain ON DELETE CASCADE.
+          <br><em>A: When a parent row is deleted, all child rows referencing it are automatically deleted. Prevents orphaned records.</em></div>
+        <div class="exam-q"><strong>Q.</strong> What is Normalization? Is it always good?
+          <br><em>A: Normalization reduces redundancy and anomalies. But high normalization causes more JOINs, which can hurt query performance. Sometimes denormalization is used for speed.</em></div>
+        <div class="exam-q"><strong>Q.</strong> What is a stored procedure vs a function?
+          <br><em>A: Stored Procedure: can return multiple results, uses OUT/INOUT parameters, called with CALL. Function: must return a single value, can be used in SELECT/WHERE.</em></div>
+        <div class="exam-q"><strong>Q.</strong> What is a Deadlock? Give a real-world example.
+          <br><em>A: Two transactions each hold a lock and wait for the other to release. Example: T1 locks Account A, waits for B; T2 locks Account B, waits for A. Neither can proceed.</em></div>
+        <div class="exam-q"><strong>Q.</strong> What is _id in MongoDB?
+          <br><em>A: _id is the primary key in MongoDB, automatically generated as an ObjectId (24-char hex string) if not provided. It is always unique within a collection.</em></div>
+        <div class="exam-q"><strong>Q.</strong> What is BSON?
+          <br><em>A: Binary JSON — the binary-encoded format MongoDB uses internally to store documents. Extends JSON with additional types like Date, ObjectId, and Binary.</em></div>
+        <div class="exam-q"><strong>Q.</strong> What is the aggregation pipeline?
+          <br><em>A: A multi-stage data processing pipeline in MongoDB. Each stage transforms documents and passes them to the next stage, similar to Unix pipes.</em></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     LAST MINUTE REVISION / ONE-NIGHT NOTES
+     ============================================================ -->
+<section id="last-minute">
+  <div class="section-header">
+    <div class="section-number" style="background:var(--red)">⏰</div>
+    <h1>Last Minute Revision — One Night Before Exam</h1>
+  </div>
+
+  <div class="callout danger">
+    <span class="callout-icon">🚨</span>
+    <div class="callout-body">
+      <div class="callout-title">Read This If You Have Only 1 Hour!</div>
+      Focus on: ACID, Keys, Normalization rules, JOIN types, Transaction states, MongoDB CRUD operators. Everything else is explanation — memorize these core facts first.
+    </div>
+  </div>
+
+  <div class="collapsible open">
+    <div class="collapsible-header" onclick="toggleCollapsible(this)">
+      <div class="collapsible-title">⚡ Super Quick Revision — Must Know!</div>
+      <span class="collapsible-icon">▶</span>
+    </div>
+    <div class="collapsible-body">
+      <div class="def-grid">
+        <div class="def-card red">
+          <div class="def-term">ACID</div>
+          <div class="def-desc"><strong>A</strong>tomicity, <strong>C</strong>onsistency, <strong>I</strong>solation, <strong>D</strong>urability. All or nothing, valid state, isolated, permanent.</div>
+        </div>
+        <div class="def-card">
+          <div class="def-term">3-Schema</div>
+          <div class="def-desc">External (user views) → Conceptual (tables/logic) → Internal (physical storage). Provides data independence.</div>
+        </div>
+        <div class="def-card green">
+          <div class="def-term">1NF Rule</div>
+          <div class="def-desc">Atomic values only. No multivalued attrs, no repeating groups.</div>
+        </div>
+        <div class="def-card amber">
+          <div class="def-term">2NF Rule</div>
+          <div class="def-desc">1NF + No partial dependencies on composite PK.</div>
+        </div>
+        <div class="def-card purple">
+          <div class="def-term">3NF Rule</div>
+          <div class="def-desc">2NF + No transitive dependencies (non-key → non-key).</div>
+        </div>
+        <div class="def-card red">
+          <div class="def-term">BCNF Rule</div>
+          <div class="def-desc">Every determinant must be a superkey. Stricter than 3NF.</div>
+        </div>
+        <div class="def-card">
+          <div class="def-term">INNER JOIN</div>
+          <div class="def-desc">Only matching rows from both tables. Excludes non-matching rows.</div>
+        </div>
+        <div class="def-card green">
+          <div class="def-term">LEFT JOIN</div>
+          <div class="def-desc">All from left + matching from right. Non-matching right = NULL.</div>
+        </div>
+        <div class="def-card amber">
+          <div class="def-term">Transaction States</div>
+          <div class="def-desc">Active → Partially Committed → Committed (or Failed → Aborted).</div>
+        </div>
+        <div class="def-card purple">
+          <div class="def-term">WHERE vs HAVING</div>
+          <div class="def-desc">WHERE before GROUP BY (no aggregates). HAVING after GROUP BY (uses aggregates).</div>
+        </div>
+        <div class="def-card red">
+          <div class="def-term">Primary Key vs UNIQUE</div>
+          <div class="def-desc">PK: NOT NULL, only one per table. UNIQUE: allows NULL, multiple per table.</div>
+        </div>
+        <div class="def-card">
+          <div class="def-term">MongoDB vs SQL</div>
+          <div class="def-desc">Table→Collection, Row→Document, Column→Field, JOIN→$lookup, SELECT→find().</div>
+        </div>
+      </div>
+
+      <h3 style="margin-top:1.5rem">Key SQL Queries to Remember</h3>
+      <div class="code-wrapper">
+        <div class="code-header">
+          <span class="code-lang">SQL — Must-Know Queries</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="cmt">-- 2nd highest salary</span>
+<span class="kw">SELECT</span> <span class="fn">MAX</span>(salary) <span class="kw">FROM</span> emp <span class="kw">WHERE</span> salary &lt; (<span class="kw">SELECT</span> <span class="fn">MAX</span>(salary) <span class="kw">FROM</span> emp);
+
+<span class="cmt">-- Nth highest salary (replace N with number)</span>
+<span class="kw">SELECT</span> salary <span class="kw">FROM</span> emp <span class="kw">ORDER BY</span> salary <span class="kw">DESC</span> <span class="kw">LIMIT</span> N-<span class="num">1</span>, <span class="num">1</span>;
+
+<span class="cmt">-- Duplicate records</span>
+<span class="kw">SELECT</span> name, <span class="fn">COUNT</span>(*) <span class="kw">FROM</span> emp <span class="kw">GROUP BY</span> name <span class="kw">HAVING</span> <span class="fn">COUNT</span>(*) &gt; <span class="num">1</span>;
+
+<span class="cmt">-- Employees earning above average</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> emp <span class="kw">WHERE</span> salary &gt; (<span class="kw">SELECT</span> <span class="fn">AVG</span>(salary) <span class="kw">FROM</span> emp);
+
+<span class="cmt">-- Department wise max salary</span>
+<span class="kw">SELECT</span> dept, <span class="fn">MAX</span>(salary) <span class="kw">FROM</span> emp <span class="kw">GROUP BY</span> dept;
+
+<span class="cmt">-- All students with no address (LEFT JOIN + NULL)</span>
+<span class="kw">SELECT</span> s.* <span class="kw">FROM</span> students s <span class="kw">LEFT JOIN</span> addresses a <span class="kw">ON</span> s.id = a.student_id
+<span class="kw">WHERE</span> a.id <span class="kw">IS NULL</span>;</code></pre>
+      </div>
+
+      <h3 style="margin-top:1.5rem">MongoDB Quick Queries</h3>
+      <div class="code-wrapper">
+        <div class="code-header">
+          <span class="code-lang">MongoDB — Must-Know Queries</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="cmt">// Find expensive products (>1000) sorted by price desc</span>
+db.products.find({ price: { $gt: <span class="num">1000</span> } }).sort({ price: <span class="num">-1</span> })
+
+<span class="cmt">// Update stock for all Electronics</span>
+db.products.updateMany({ category: <span class="str">"Electronics"</span> }, { $inc: { stock: <span class="num">5</span> } })
+
+<span class="cmt">// Total revenue</span>
+db.orders.aggregate([{ $group: { _id: <span class="kw">null</span>, total: { $sum: <span class="str">"$total"</span> } } }])
+
+<span class="cmt">// Group by status</span>
+db.orders.aggregate([{ $group: { _id: <span class="str">"$status"</span>, count: { $sum: <span class="num">1</span> } } }])
+
+<span class="cmt">// Find by array element</span>
+db.products.find({ tags: <span class="str">"wireless"</span> })</code></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     KEY DIFFERENCES
+     ============================================================ -->
+<section id="key-differences">
+  <div class="section-header">
+    <div class="section-number" style="background:var(--green)">📊</div>
+    <h1>Key Differences Tables</h1>
+  </div>
+
+  <h2>DBMS vs File System</h2>
+  <div class="table-wrapper">
+    <table>
+      <thead><tr><th>Aspect</th><th>File System</th><th>DBMS</th></tr></thead>
+      <tbody>
+        <tr><td>Data Storage</td><td>OS files (unstructured)</td><td>Tables with defined schema</td></tr>
+        <tr><td>Redundancy</td><td>High (data duplicated in files)</td><td>Controlled (normalized)</td></tr>
+        <tr><td>Security</td><td>OS-level only</td><td>Fine-grained access control</td></tr>
+        <tr><td>Concurrent Access</td><td>Not supported natively</td><td>Full concurrency control</td></tr>
+        <tr><td>Query Language</td><td>None (program code)</td><td>SQL</td></tr>
+        <tr><td>Backup/Recovery</td><td>Manual</td><td>Automated</td></tr>
+        <tr><td>Data Independence</td><td>No</td><td>Yes (3-schema)</td></tr>
+        <tr><td>Integrity</td><td>Enforced by application</td><td>Enforced by DBMS constraints</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>DELETE vs TRUNCATE vs DROP</h2>
+  <div class="table-wrapper">
+    <table>
+      <thead><tr><th>Aspect</th><th>DELETE</th><th>TRUNCATE</th><th>DROP</th></tr></thead>
+      <tbody>
+        <tr><td>Type</td><td>DML</td><td>DDL</td><td>DDL</td></tr>
+        <tr><td>WHERE clause</td><td>Yes</td><td>No</td><td>No</td></tr>
+        <tr><td>Speed</td><td>Slow (row by row)</td><td>Fast</td><td>Fastest</td></tr>
+        <tr><td>Rollback</td><td>Yes</td><td>Usually No</td><td>No</td></tr>
+        <tr><td>Removes structure</td><td>No</td><td>No</td><td>Yes</td></tr>
+        <tr><td>AUTO_INCREMENT reset</td><td>No</td><td>Yes</td><td>N/A</td></tr>
+        <tr><td>Triggers</td><td>Fires</td><td>Doesn't fire</td><td>N/A</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>SQL vs NoSQL</h2>
+  <div class="table-wrapper">
+    <table>
+      <thead><tr><th>Feature</th><th>SQL (MySQL)</th><th>NoSQL (MongoDB)</th></tr></thead>
+      <tbody>
+        <tr><td>Data Model</td><td>Tables (rows and columns)</td><td>Documents (JSON/BSON)</td></tr>
+        <tr><td>Schema</td><td>Fixed, predefined schema</td><td>Dynamic, flexible schema</td></tr>
+        <tr><td>Query Language</td><td>SQL</td><td>MQL (MongoDB Query Language)</td></tr>
+        <tr><td>Joins</td><td>Native JOIN operations</td><td>$lookup or embedded documents</td></tr>
+        <tr><td>Scalability</td><td>Vertical</td><td>Horizontal (sharding)</td></tr>
+        <tr><td>ACID</td><td>Full support</td><td>Limited (single-doc by default)</td></tr>
+        <tr><td>Use Case</td><td>Structured data, complex queries</td><td>Large-scale, fast, unstructured</td></tr>
+        <tr><td>Examples</td><td>MySQL, PostgreSQL, Oracle</td><td>MongoDB, CouchDB, Cassandra</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Normalization Quick Reference</h2>
+  <div class="table-wrapper">
+    <table>
+      <thead><tr><th>Normal Form</th><th>Requirement</th><th>Violation Example</th></tr></thead>
+      <tbody>
+        <tr><td><strong>1NF</strong></td><td>Atomic values only</td><td>Phone: "9876, 8765" in one cell</td></tr>
+        <tr><td><strong>2NF</strong></td><td>No partial FD</td><td>(SID,CID)→Grade OK, but SID→Name is partial</td></tr>
+        <tr><td><strong>3NF</strong></td><td>No transitive FD</td><td>EmpID→DeptID→DeptName</td></tr>
+        <tr><td><strong>BCNF</strong></td><td>All determinants are superkeys</td><td>Non-key determines prime attribute</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============================================================
+     LAB PROGRAMS
+     ============================================================ -->
+<section id="lab-programs">
+  <div class="section-header">
+    <div class="section-number" style="background:var(--green)">🧪</div>
+    <h1>Lab Programs</h1>
+  </div>
+
+  <div class="collapsible open">
+    <div class="collapsible-header" onclick="toggleCollapsible(this)">
+      <div class="collapsible-title">Lab 1 — Create and Manipulate Tables</div>
+      <span class="collapsible-icon">▶</span>
+    </div>
+    <div class="collapsible-body">
+      <div class="code-wrapper">
+        <div class="code-header">
+          <span class="code-lang">SQL — Lab 1: DDL + DML</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="cmt">-- Create database and table</span>
+<span class="kw">CREATE DATABASE</span> college_db;
+<span class="kw">USE</span> college_db;
+
+<span class="kw">CREATE TABLE</span> students (
+    roll_no   <span class="type">INT</span> <span class="kw">AUTO_INCREMENT PRIMARY KEY</span>,
+    name      <span class="type">VARCHAR</span>(<span class="num">100</span>) <span class="kw">NOT NULL</span>,
+    email     <span class="type">VARCHAR</span>(<span class="num">150</span>) <span class="kw">UNIQUE NOT NULL</span>,
+    branch    <span class="type">ENUM</span>(<span class="str">'CS'</span>, <span class="str">'IT'</span>, <span class="str">'EC'</span>, <span class="str">'ME'</span>) <span class="kw">NOT NULL</span>,
+    marks     <span class="type">DECIMAL</span>(<span class="num">5</span>,<span class="num">2</span>) <span class="kw">CHECK</span> (marks &gt;= <span class="num">0</span> <span class="kw">AND</span> marks &lt;= <span class="num">100</span>),
+    dob       <span class="type">DATE</span>,
+    joined_at <span class="type">TIMESTAMP</span> <span class="kw">DEFAULT CURRENT_TIMESTAMP</span>
+);
+
+<span class="cmt">-- Insert data</span>
+<span class="kw">INSERT INTO</span> students (name, email, branch, marks, dob) <span class="kw">VALUES</span>
+    (<span class="str">'Aarav Sharma'</span>, <span class="str">'aarav@college.edu'</span>, <span class="str">'CS'</span>, <span class="num">88.5</span>, <span class="str">'2003-04-12'</span>),
+    (<span class="str">'Priya Patel'</span>, <span class="str">'priya@college.edu'</span>, <span class="str">'IT'</span>, <span class="num">92.0</span>, <span class="str">'2002-11-05'</span>),
+    (<span class="str">'Ravi Kumar'</span>, <span class="str">'ravi@college.edu'</span>, <span class="str">'CS'</span>, <span class="num">76.5</span>, <span class="str">'2003-07-18'</span>),
+    (<span class="str">'Sneha Joshi'</span>, <span class="str">'sneha@college.edu'</span>, <span class="str">'EC'</span>, <span class="num">85.0</span>, <span class="str">'2002-09-22'</span>);
+
+<span class="cmt">-- Query with filtering and sorting</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> students <span class="kw">WHERE</span> branch = <span class="str">'CS'</span> <span class="kw">ORDER BY</span> marks <span class="kw">DESC</span>;
+<span class="kw">SELECT</span> name, marks <span class="kw">FROM</span> students <span class="kw">WHERE</span> marks &gt; <span class="num">80</span> <span class="kw">ORDER BY</span> marks <span class="kw">DESC</span> <span class="kw">LIMIT</span> <span class="num">3</span>;
+
+<span class="cmt">-- Update</span>
+<span class="kw">UPDATE</span> students <span class="kw">SET</span> marks = <span class="num">90.0</span> <span class="kw">WHERE</span> name = <span class="str">'Ravi Kumar'</span>;
+
+<span class="cmt">-- Delete</span>
+<span class="kw">DELETE FROM</span> students <span class="kw">WHERE</span> marks &lt; <span class="num">70</span>;</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="collapsible">
+    <div class="collapsible-header" onclick="toggleCollapsible(this)">
+      <div class="collapsible-title">Lab 2 — Foreign Keys and JOINs</div>
+      <span class="collapsible-icon">▶</span>
+    </div>
+    <div class="collapsible-body">
+      <div class="code-wrapper">
+        <div class="code-header">
+          <span class="code-lang">SQL — Lab 2: Foreign Keys and JOINs</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="cmt">-- Parent table</span>
+<span class="kw">CREATE TABLE</span> departments (
+    dept_id   <span class="type">VARCHAR</span>(<span class="num">5</span>) <span class="kw">PRIMARY KEY</span>,
+    dept_name <span class="type">VARCHAR</span>(<span class="num">100</span>) <span class="kw">NOT NULL</span>,
+    hod       <span class="type">VARCHAR</span>(<span class="num">100</span>)
+);
+
+<span class="kw">INSERT INTO</span> departments <span class="kw">VALUES</span>
+    (<span class="str">'CS'</span>, <span class="str">'Computer Science'</span>, <span class="str">'Dr. Sharma'</span>),
+    (<span class="str">'IT'</span>, <span class="str">'Information Technology'</span>, <span class="str">'Dr. Patel'</span>),
+    (<span class="str">'EC'</span>, <span class="str">'Electronics'</span>, <span class="str">'Dr. Verma'</span>);
+
+<span class="cmt">-- Child table with FK</span>
+<span class="kw">CREATE TABLE</span> employees (
+    emp_id   <span class="type">INT</span> <span class="kw">AUTO_INCREMENT PRIMARY KEY</span>,
+    emp_name <span class="type">VARCHAR</span>(<span class="num">100</span>),
+    salary   <span class="type">DECIMAL</span>(<span class="num">10</span>,<span class="num">2</span>),
+    dept_id  <span class="type">VARCHAR</span>(<span class="num">5</span>),
+    <span class="kw">FOREIGN KEY</span> (dept_id) <span class="kw">REFERENCES</span> departments(dept_id) <span class="kw">ON DELETE SET NULL</span>
+);
+
+<span class="kw">INSERT INTO</span> employees (emp_name, salary, dept_id) <span class="kw">VALUES</span>
+    (<span class="str">'Alice'</span>, <span class="num">75000</span>, <span class="str">'CS'</span>),
+    (<span class="str">'Bob'</span>, <span class="num">65000</span>, <span class="str">'IT'</span>),
+    (<span class="str">'Carol'</span>, <span class="num">80000</span>, <span class="str">'CS'</span>),
+    (<span class="str">'Dave'</span>, <span class="num">60000</span>, <span class="str">'EC'</span>);
+
+<span class="cmt">-- INNER JOIN: employees with their department names</span>
+<span class="kw">SELECT</span> e.emp_name, e.salary, d.dept_name, d.hod
+<span class="kw">FROM</span> employees e
+<span class="kw">INNER JOIN</span> departments d <span class="kw">ON</span> e.dept_id = d.dept_id;
+
+<span class="cmt">-- Department-wise average salary</span>
+<span class="kw">SELECT</span> d.dept_name, <span class="fn">AVG</span>(e.salary) <span class="kw">AS</span> avg_salary
+<span class="kw">FROM</span> departments d
+<span class="kw">LEFT JOIN</span> employees e <span class="kw">ON</span> d.dept_id = e.dept_id
+<span class="kw">GROUP BY</span> d.dept_name;
+
+<span class="cmt">-- Employees earning above average</span>
+<span class="kw">SELECT</span> emp_name, salary
+<span class="kw">FROM</span> employees
+<span class="kw">WHERE</span> salary &gt; (<span class="kw">SELECT</span> <span class="fn">AVG</span>(salary) <span class="kw">FROM</span> employees);</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="collapsible">
+    <div class="collapsible-header" onclick="toggleCollapsible(this)">
+      <div class="collapsible-title">Lab 3 — Views, Indexes, Procedures, Triggers</div>
+      <span class="collapsible-icon">▶</span>
+    </div>
+    <div class="collapsible-body">
+      <div class="code-wrapper">
+        <div class="code-header">
+          <span class="code-lang">SQL — Lab 3: Views, Indexes, Procedures, Triggers</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="cmt">-- Create a view for high-salary employees</span>
+<span class="kw">CREATE VIEW</span> senior_employees <span class="kw">AS</span>
+    <span class="kw">SELECT</span> emp_name, salary, dept_id
+    <span class="kw">FROM</span> employees
+    <span class="kw">WHERE</span> salary &gt; <span class="num">70000</span>;
+
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> senior_employees;
+
+<span class="cmt">-- Create index on emp_name for faster search</span>
+<span class="kw">CREATE INDEX</span> idx_emp_name <span class="kw">ON</span> employees(emp_name);
+
+<span class="cmt">-- Stored Procedure: Insert new employee</span>
+<span class="kw">DELIMITER</span> $$
+<span class="kw">CREATE PROCEDURE</span> InsertEmployee(
+    <span class="kw">IN</span> p_name   <span class="type">VARCHAR</span>(<span class="num">100</span>),
+    <span class="kw">IN</span> p_salary <span class="type">DECIMAL</span>(<span class="num">10</span>,<span class="num">2</span>),
+    <span class="kw">IN</span> p_dept   <span class="type">VARCHAR</span>(<span class="num">5</span>)
+)
+<span class="kw">BEGIN</span>
+    <span class="kw">INSERT INTO</span> employees (emp_name, salary, dept_id)
+    <span class="kw">VALUES</span> (p_name, p_salary, p_dept);
+    <span class="kw">SELECT</span> <span class="str">'Employee inserted successfully'</span> <span class="kw">AS</span> message;
+<span class="kw">END</span>$$
+<span class="kw">DELIMITER</span> ;
+
+<span class="kw">CALL</span> InsertEmployee(<span class="str">'Eve Singh'</span>, <span class="num">72000</span>, <span class="str">'IT'</span>);
+
+<span class="cmt">-- Trigger: Log salary changes</span>
+<span class="kw">CREATE TABLE</span> salary_log (
+    id         <span class="type">INT</span> <span class="kw">AUTO_INCREMENT PRIMARY KEY</span>,
+    emp_id     <span class="type">INT</span>,
+    old_salary <span class="type">DECIMAL</span>(<span class="num">10</span>,<span class="num">2</span>),
+    new_salary <span class="type">DECIMAL</span>(<span class="num">10</span>,<span class="num">2</span>),
+    changed_at <span class="type">TIMESTAMP</span> <span class="kw">DEFAULT CURRENT_TIMESTAMP</span>
+);
+
+<span class="kw">DELIMITER</span> $$
+<span class="kw">CREATE TRIGGER</span> after_salary_update
+<span class="kw">AFTER UPDATE ON</span> employees
+<span class="kw">FOR EACH ROW</span>
+<span class="kw">BEGIN</span>
+    <span class="kw">IF</span> <span class="kw">OLD</span>.salary != <span class="kw">NEW</span>.salary <span class="kw">THEN</span>
+        <span class="kw">INSERT INTO</span> salary_log (emp_id, old_salary, new_salary)
+        <span class="kw">VALUES</span> (<span class="kw">OLD</span>.emp_id, <span class="kw">OLD</span>.salary, <span class="kw">NEW</span>.salary);
+    <span class="kw">END IF</span>;
+<span class="kw">END</span>$$
+<span class="kw">DELIMITER</span> ;</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="collapsible">
+    <div class="collapsible-header" onclick="toggleCollapsible(this)">
+      <div class="collapsible-title">Lab 4 — MongoDB CRUD + Aggregation</div>
+      <span class="collapsible-icon">▶</span>
+    </div>
+    <div class="collapsible-body">
+      <div class="code-wrapper">
+        <div class="code-header">
+          <span class="code-lang">MongoDB — Lab 4: Full CRUD + Aggregation</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code><span class="cmt">// Switch to database</span>
+use college_db
+
+<span class="cmt">// INSERT students</span>
+db.students.insertMany([
+    { roll: <span class="num">1</span>, name: <span class="str">"Aarav"</span>, branch: <span class="str">"CS"</span>, marks: <span class="num">88</span>, city: <span class="str">"Mumbai"</span> },
+    { roll: <span class="num">2</span>, name: <span class="str">"Priya"</span>, branch: <span class="str">"IT"</span>, marks: <span class="num">92</span>, city: <span class="str">"Delhi"</span> },
+    { roll: <span class="num">3</span>, name: <span class="str">"Ravi"</span>, branch: <span class="str">"CS"</span>, marks: <span class="num">76</span>, city: <span class="str">"Pune"</span> },
+    { roll: <span class="num">4</span>, name: <span class="str">"Sneha"</span>, branch: <span class="str">"EC"</span>, marks: <span class="num">85</span>, city: <span class="str">"Mumbai"</span> },
+    { roll: <span class="num">5</span>, name: <span class="str">"Rohan"</span>, branch: <span class="str">"IT"</span>, marks: <span class="num">91</span>, city: <span class="str">"Chennai"</span> }
+])
+
+<span class="cmt">// FIND all CS students sorted by marks</span>
+db.students.find({ branch: <span class="str">"CS"</span> }).sort({ marks: <span class="num">-1</span> })
+
+<span class="cmt">// FIND: marks between 80 and 95</span>
+db.students.find({ marks: { $gte: <span class="num">80</span>, $lte: <span class="num">95</span> } }, { name: <span class="num">1</span>, marks: <span class="num">1</span>, _id: <span class="num">0</span> })
+
+<span class="cmt">// UPDATE: Give 5 bonus marks to all IT students</span>
+db.students.updateMany({ branch: <span class="str">"IT"</span> }, { $inc: { marks: <span class="num">5</span> } })
+
+<span class="cmt">// DELETE: Remove students with marks below 70</span>
+db.students.deleteMany({ marks: { $lt: <span class="num">70</span> } })
+
+<span class="cmt">// AGGREGATION: Average marks per branch</span>
+db.students.aggregate([
+    {
+        $group: {
+            _id: <span class="str">"$branch"</span>,
+            avgMarks: { $avg: <span class="str">"$marks"</span> },
+            count:    { $sum: <span class="num">1</span> }
+        }
+    },
+    { $sort: { avgMarks: <span class="num">-1</span> } }
+])
+
+<span class="cmt">// AGGREGATION: Students from Mumbai with marks > 80</span>
+db.students.aggregate([
+    { $match: { city: <span class="str">"Mumbai"</span>, marks: { $gt: <span class="num">80</span> } } },
+    { $project: { name: <span class="num">1</span>, marks: <span class="num">1</span>, _id: <span class="num">0</span> } }
+])</code></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+</div>
+
+<!-- Back to Top -->
+<button id="back-to-top" onclick="scrollToTop()" title="Back to top">↑</button>
+
+<!-- ============================================================
+     JAVASCRIPT
+     ============================================================ -->
+<script>
+// ============================================================
+// MERMAID INITIALIZATION
+// ============================================================
+mermaid.initialize({
+  startOnLoad: true,
+  theme: document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default',
+  securityLevel: 'loose',
+  fontFamily: 'Georgia, serif'
+});
+
+// ============================================================
+// DARK / LIGHT MODE TOGGLE
+// ============================================================
+function toggleTheme() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  document.getElementById('theme-btn').textContent = isDark ? '🌙' : '☀️';
+}
+
+// ============================================================
+// SIDEBAR TOGGLE (MOBILE)
+// ============================================================
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  sidebar.classList.toggle('open');
+}
+
+// Close sidebar when clicking outside on mobile
+document.addEventListener('click', function(e) {
+  const sidebar = document.getElementById('sidebar');
+  const menuToggle = document.getElementById('menu-toggle');
+  if (sidebar.classList.contains('open') && !sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
+    sidebar.classList.remove('open');
+  }
+});
+
+// ============================================================
+// COLLAPSIBLE SECTIONS
+// ============================================================
+function toggleCollapsible(header) {
+  const collapsible = header.closest('.collapsible');
+  collapsible.classList.toggle('open');
+}
+
+// ============================================================
+// COPY CODE BUTTON
+// ============================================================
+function copyCode(btn) {
+  const pre = btn.closest('.code-wrapper').querySelector('pre');
+  const text = pre.innerText || pre.textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = 'Copy';
+      btn.classList.remove('copied');
+    }, 2000);
+  }).catch(() => {
+    // Fallback
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = 'Copy';
+      btn.classList.remove('copied');
+    }, 2000);
+  });
+}
+
+// ============================================================
+// SCROLL PROGRESS BAR
+// ============================================================
+window.addEventListener('scroll', () => {
+  const scrollTop = window.scrollY;
+  const docHeight = document.body.scrollHeight - window.innerHeight;
+  const progress = (scrollTop / docHeight) * 100;
+  document.getElementById('progress-bar').style.width = progress + '%';
+
+  // Back to top button
+  const btn = document.getElementById('back-to-top');
+  if (scrollTop > 400) btn.classList.add('visible');
+  else btn.classList.remove('visible');
+
+  // Active sidebar link
+  updateActiveSidebarLink();
+});
+
+// ============================================================
+// ACTIVE SIDEBAR HIGHLIGHTING
+// ============================================================
+function updateActiveSidebarLink() {
+  const sections = document.querySelectorAll('section[id], h2[id], div[id]');
+  const navLinks = document.querySelectorAll('.nav-link');
+  let currentId = '';
+
+  sections.forEach(section => {
+    const rect = section.getBoundingClientRect();
+    if (rect.top <= 100 && rect.bottom >= 100) {
+      currentId = section.id;
+    }
+  });
+
+  navLinks.forEach(link => {
+    link.classList.remove('active');
+    const href = link.getAttribute('href');
+    if (href && href === '#' + currentId) {
+      link.classList.add('active');
+    }
+  });
+}
+
+// ============================================================
+// BACK TO TOP
+// ============================================================
+function scrollToTop() {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ============================================================
+// SEARCH FUNCTIONALITY
+// ============================================================
+let searchTimeout;
+
+function searchContent(query) {
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(() => {
+    // Remove old highlights
+    document.querySelectorAll('.search-highlight').forEach(el => {
+      el.outerHTML = el.innerHTML;
+    });
+
+    if (!query || query.length < 2) return;
+
+    const main = document.getElementById('main-content');
+    highlightText(main, query);
+  }, 300);
+}
+
+function highlightText(element, query) {
+  if (element.nodeType === Node.TEXT_NODE) {
+    const text = element.nodeValue;
+    const idx = text.toLowerCase().indexOf(query.toLowerCase());
+    if (idx !== -1) {
+      const span = document.createElement('span');
+      span.innerHTML =
+        escapeHtml(text.substring(0, idx)) +
+        '<span class="search-highlight">' + escapeHtml(text.substring(idx, idx + query.length)) + '</span>' +
+        escapeHtml(text.substring(idx + query.length));
+      element.parentNode.replaceChild(span, element);
+    }
+  } else if (element.nodeType === Node.ELEMENT_NODE &&
+             !['SCRIPT', 'STYLE', 'INPUT', 'BUTTON'].includes(element.tagName)) {
+    Array.from(element.childNodes).forEach(child => highlightText(child, query));
+  }
+}
+
+function escapeHtml(text) {
+  return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+// ============================================================
+// SMOOTH SCROLL FOR ALL NAV LINKS
+// ============================================================
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+  anchor.addEventListener('click', function(e) {
+    e.preventDefault();
+    const target = document.querySelector(this.getAttribute('href'));
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth' });
+      // Close sidebar on mobile
+      if (window.innerWidth <= 900) {
+        document.getElementById('sidebar').classList.remove('open');
+      }
+    }
+  });
+});
+
+// ============================================================
+// PRINT: Expand all collapsibles
+// ============================================================
+window.addEventListener('beforeprint', () => {
+  document.querySelectorAll('.collapsible').forEach(c => c.classList.add('open'));
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>NoteNova — Investor Brief</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+/* ── TOKENS ─────────────────────────────────────────── */
+:root {
+  --ink:      #0d0d0d;
+  --ink2:     #1a1a1a;
+  --paper:    #f5f2ec;
+  --paper2:   #ede9e0;
+  --cream:    #faf8f3;
+  --gold:     #c9a84c;
+  --gold-pale:#f5edda;
+  --red:      #c0392b;
+  --green:    #1a6b3a;
+  --green-pale:#dff0e7;
+  --muted:    #666;
+  --border:   rgba(0,0,0,0.10);
+  --display:  'DM Serif Display', Georgia, serif;
+  --sans:     'Syne', sans-serif;
+  --mono:     'DM Mono', monospace;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{font-size:15px;}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  line-height: 1.6;
+}
+
+/* ── PRINT ───────────────────────────────────────────── */
+@media print {
+  @page { size: A4; margin: 12mm 14mm; }
+  html { font-size: 10.5pt; }
+  body { background: #fff; }
+  .page-break { page-break-before: always; }
+  .no-print { display: none !important; }
+  section { page-break-inside: avoid; }
+  .hero { page-break-after: always; min-height: auto !important; }
+  .stat-strip { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .dark-block { background: #0d0d0d !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .accent-bar { background: var(--gold) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .badge { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .problem-row { page-break-inside: avoid; }
+  .solution-card { page-break-inside: avoid; }
+  .traction-row { page-break-inside: avoid; }
+}
+
+/* ── PRINT BUTTON ────────────────────────────────────── */
+.print-btn {
+  position: fixed;
+  bottom: 24px; right: 24px;
+  background: var(--ink);
+  color: #fff;
+  border: none;
+  padding: 10px 22px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  z-index: 999;
+  transition: background .15s;
+}
+.print-btn:hover { background: var(--gold); color: var(--ink); }
+
+/* ── WRAPPER ─────────────────────────────────────────── */
+.doc {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 0 40px 80px;
+}
+
+/* ══════════════════════════════════════════
+   PAGE 1 — HERO
+══════════════════════════════════════════ */
+.hero {
+  min-height: 92vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 56px 0 40px;
+  border-bottom: 2px solid var(--ink);
+}
+
+.hero-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.logo-block .wordmark {
+  font-family: var(--display);
+  font-size: 28px;
+  color: var(--ink);
+  letter-spacing: -0.5px;
+}
+.logo-block .tagline {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+.doc-badge {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  border: 1px solid var(--ink);
+  padding: 6px 12px;
+  color: var(--ink);
+}
+
+.hero-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 60px 0 40px;
+}
+
+.hero-eyebrow {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.hero-eyebrow::after {
+  content: '';
+  width: 48px; height: 1px;
+  background: var(--gold);
+}
+
+.hero-headline {
+  font-family: var(--display);
+  font-size: clamp(42px, 6vw, 64px);
+  line-height: 1.08;
+  letter-spacing: -1.5px;
+  color: var(--ink);
+  max-width: 740px;
+  margin-bottom: 28px;
+}
+.hero-headline em {
+  font-style: italic;
+  color: var(--gold);
+}
+
+.hero-sub {
+  font-family: var(--sans);
+  font-size: 16px;
+  color: var(--muted);
+  max-width: 560px;
+  line-height: 1.7;
+  font-weight: 400;
+}
+
+/* stat strip */
+.stat-strip {
+  display: grid;
+  grid-template-columns: repeat(4,1fr);
+  border-top: 1px solid var(--border);
+  border-left: 1px solid var(--border);
+}
+.stat-cell {
+  padding: 20px 18px;
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.stat-num {
+  font-family: var(--display);
+  font-size: 36px;
+  color: var(--ink);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.stat-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* ══════════════════════════════════════════
+   SECTION CHROME
+══════════════════════════════════════════ */
+section {
+  padding: 64px 0 0;
+}
+
+.section-hd {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  margin-bottom: 36px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+.section-n {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 1.5px;
+  flex-shrink: 0;
+}
+.section-title {
+  font-family: var(--display);
+  font-size: 30px;
+  letter-spacing: -0.6px;
+  color: var(--ink);
+}
+.accent-bar {
+  width: 32px; height: 3px;
+  background: var(--gold);
+  margin-bottom: 28px;
+}
+
+/* ══════════════════════════════════════════
+   PROBLEM
+══════════════════════════════════════════ */
+.problem-intro {
+  font-family: var(--display);
+  font-size: 20px;
+  font-style: italic;
+  color: var(--ink);
+  line-height: 1.5;
+  margin-bottom: 36px;
+  padding-left: 20px;
+  border-left: 3px solid var(--gold);
+}
+
+.problem-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin-bottom: 32px;
+}
+.problem-row {
+  display: contents;
+}
+.problem-num {
+  background: var(--ink);
+  color: #fff;
+  padding: 22px 20px;
+  font-family: var(--display);
+  font-size: 32px;
+  line-height: 1;
+  display: flex;
+  align-items: flex-start;
+}
+.problem-body {
+  background: var(--cream);
+  padding: 22px 24px;
+}
+.problem-body h4 {
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+.problem-body p {
+  font-family: var(--sans);
+  font-size: 13.5px;
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.callout-dark {
+  background: var(--ink);
+  color: #fff;
+  padding: 28px 32px;
+  margin-top: 8px;
+}
+.callout-dark .cd-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 10px;
+  display: block;
+}
+.callout-dark p {
+  font-family: var(--display);
+  font-size: 18px;
+  font-style: italic;
+  line-height: 1.55;
+  color: rgba(255,255,255,0.9);
+}
+
+/* ══════════════════════════════════════════
+   SOLUTION
+══════════════════════════════════════════ */
+.solution-intro {
+  font-size: 15px;
+  color: var(--muted);
+  line-height: 1.75;
+  margin-bottom: 32px;
+  max-width: 680px;
+}
+
+.solution-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 36px;
+}
+.solution-card {
+  border: 1px solid var(--border);
+  background: var(--cream);
+  padding: 22px 20px;
+}
+.sc-num {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--gold);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  display: block;
+}
+.sc-title {
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 8px;
+  line-height: 1.3;
+}
+.sc-body {
+  font-family: var(--sans);
+  font-size: 12.5px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.flow-strip {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  flex-wrap: wrap;
+  margin-bottom: 36px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+.flow-step {
+  flex: 1;
+  padding: 14px 16px;
+  background: var(--cream);
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--ink);
+  text-align: center;
+  letter-spacing: 0.3px;
+  border-right: 1px solid var(--border);
+  white-space: nowrap;
+}
+.flow-step:last-child { border-right: none; }
+.flow-step.dark {
+  background: var(--ink);
+  color: #fff;
+}
+.flow-step.gold {
+  background: var(--gold);
+  color: var(--ink);
+  font-weight: 500;
+}
+
+/* ══════════════════════════════════════════
+   PRODUCT
+══════════════════════════════════════════ */
+.module-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 28px;
+  font-size: 13px;
+}
+.module-table thead tr { background: var(--ink); }
+.module-table thead th {
+  padding: 10px 14px;
+  text-align: left;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.8);
+  font-weight: 500;
+}
+.module-table tbody tr { border-bottom: 1px solid var(--border); }
+.module-table tbody tr:nth-child(even) { background: var(--paper2); }
+.module-table tbody td {
+  padding: 10px 14px;
+  color: var(--muted);
+  font-family: var(--sans);
+  font-size: 13px;
+  vertical-align: top;
+}
+.module-table tbody td:first-child { font-family: var(--mono); font-size: 11px; color: var(--ink); font-weight: 500; white-space: nowrap; }
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  border: 1px solid;
+}
+.badge-gold  { background: var(--gold-pale); color: #7a5c00; border-color: var(--gold); }
+.badge-green { background: var(--green-pale); color: var(--green); border-color: var(--green); }
+.badge-ink   { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+/* ══════════════════════════════════════════
+   DIFFERENTIATION
+══════════════════════════════════════════ */
+.diff-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+  margin-bottom: 28px;
+}
+.diff-table thead tr { background: var(--ink); }
+.diff-table thead th {
+  padding: 10px 12px;
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.8);
+}
+.diff-table thead th:first-child { text-align: left; }
+.diff-table tbody tr { border-bottom: 1px solid var(--border); }
+.diff-table tbody tr:nth-child(even) { background: var(--paper2); }
+.diff-table tbody td {
+  padding: 9px 12px;
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--muted);
+}
+.diff-table tbody td:first-child {
+  text-align: left;
+  font-family: var(--sans);
+  font-size: 12.5px;
+  color: var(--ink);
+  font-weight: 600;
+}
+.yes  { color: var(--green); font-weight: 700; }
+.no   { color: #bbb; }
+.part { color: var(--gold); }
+
+/* ══════════════════════════════════════════
+   MARKET
+══════════════════════════════════════════ */
+.market-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 2px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin-bottom: 28px;
+}
+.market-cell {
+  background: var(--cream);
+  padding: 28px 22px;
+  text-align: center;
+}
+.market-cell.dark {
+  background: var(--ink);
+}
+.mc-num {
+  font-family: var(--display);
+  font-size: 38px;
+  font-weight: 400;
+  line-height: 1;
+  margin-bottom: 6px;
+  color: var(--ink);
+}
+.market-cell.dark .mc-num { color: var(--gold); }
+.mc-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.market-cell.dark .mc-label { color: rgba(255,255,255,0.45); }
+.mc-sub {
+  font-family: var(--sans);
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 8px;
+  line-height: 1.5;
+}
+.market-cell.dark .mc-sub { color: rgba(255,255,255,0.55); }
+
+/* ══════════════════════════════════════════
+   BUSINESS MODEL
+══════════════════════════════════════════ */
+.pricing-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 28px;
+}
+.price-card {
+  border: 1px solid var(--border);
+  background: var(--cream);
+  overflow: hidden;
+}
+.price-card.featured {
+  background: var(--ink);
+  border-color: var(--ink);
+}
+.price-header {
+  padding: 16px 20px 12px;
+  border-bottom: 1px solid var(--border);
+}
+.price-card.featured .price-header { border-color: rgba(255,255,255,0.1); }
+.price-tier {
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 4px;
+  display: block;
+}
+.price-card.featured .price-tier { color: var(--gold); }
+.price-name {
+  font-family: var(--display);
+  font-size: 22px;
+  color: var(--ink);
+}
+.price-card.featured .price-name { color: #fff; }
+.price-body {
+  padding: 16px 20px;
+}
+.price-body ul {
+  list-style: none;
+  padding: 0;
+}
+.price-body li {
+  font-family: var(--sans);
+  font-size: 12.5px;
+  color: var(--muted);
+  margin-bottom: 7px;
+  padding-left: 16px;
+  position: relative;
+  line-height: 1.5;
+}
+.price-card.featured .price-body li { color: rgba(255,255,255,0.65); }
+.price-body li::before {
+  content: '—';
+  position: absolute;
+  left: 0;
+  color: var(--gold);
+  font-size: 10px;
+}
+
+/* ══════════════════════════════════════════
+   ROADMAP
+══════════════════════════════════════════ */
+.roadmap-row {
+  display: grid;
+  grid-template-columns: 90px 1fr;
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 0;
+}
+.roadmap-row:last-child { border-bottom: none; }
+.rm-phase {
+  background: var(--ink);
+  color: var(--gold);
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 18px 14px;
+  display: flex;
+  align-items: flex-start;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  transform: rotate(180deg);
+  justify-content: center;
+  border-right: 1px solid rgba(255,255,255,0.08);
+}
+.rm-content {
+  padding: 18px 20px;
+  background: var(--cream);
+}
+.rm-title {
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+.rm-items {
+  font-family: var(--sans);
+  font-size: 12.5px;
+  color: var(--muted);
+  line-height: 1.65;
+}
+.rm-items span {
+  display: inline-block;
+  background: var(--paper2);
+  border: 1px solid var(--border);
+  padding: 2px 8px;
+  font-family: var(--mono);
+  font-size: 10px;
+  margin: 2px 3px 2px 0;
+  color: var(--ink);
+}
+.roadmap-wrap {
+  border: 1px solid var(--border);
+  overflow: hidden;
+  margin-bottom: 28px;
+}
+
+/* ══════════════════════════════════════════
+   TEAM / ASK
+══════════════════════════════════════════ */
+.ask-block {
+  background: var(--ink);
+  padding: 48px 44px;
+  margin-bottom: 0;
+}
+.ask-block .ask-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 16px;
+  display: block;
+}
+.ask-headline {
+  font-family: var(--display);
+  font-size: 36px;
+  color: #fff;
+  line-height: 1.15;
+  letter-spacing: -0.8px;
+  margin-bottom: 28px;
+}
+.ask-headline em { color: var(--gold); font-style: italic; }
+.ask-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 32px;
+}
+.ask-card {
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 20px;
+}
+.ask-card-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 8px;
+  display: block;
+}
+.ask-card-val {
+  font-family: var(--display);
+  font-size: 28px;
+  color: #fff;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.ask-card-desc {
+  font-family: var(--sans);
+  font-size: 12px;
+  color: rgba(255,255,255,0.45);
+  line-height: 1.5;
+}
+.use-of-funds {
+  border-top: 1px solid rgba(255,255,255,0.08);
+  padding-top: 24px;
+}
+.uof-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 14px;
+  display: block;
+}
+.uof-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 10px;
+}
+.uof-pct {
+  font-family: var(--display);
+  font-size: 20px;
+  color: #fff;
+  width: 56px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+.uof-bar-wrap {
+  flex: 1;
+  height: 4px;
+  background: rgba(255,255,255,0.08);
+}
+.uof-bar {
+  height: 100%;
+  background: var(--gold);
+}
+.uof-desc {
+  font-family: var(--sans);
+  font-size: 12px;
+  color: rgba(255,255,255,0.55);
+  width: 200px;
+  flex-shrink: 0;
+}
+
+/* ══════════════════════════════════════════
+   FOOTER
+══════════════════════════════════════════ */
+.doc-footer {
+  padding: 24px 0 0;
+  border-top: 1px solid var(--border);
+  margin-top: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--mono);
+  font-size: 9.5px;
+  color: var(--muted);
+  letter-spacing: 0.5px;
+}
+
+/* two-col util */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+p.body { font-size: 13.5px; color: var(--muted); line-height: 1.75; margin-bottom: 14px; }
+</style>
+</head>
+<body>
+
+<button class="print-btn no-print" onclick="window.print()">Save as PDF</button>
+
+<div class="doc">
+
+  <!-- ════════════════════════════════════════
+       PAGE 1 — HERO
+  ════════════════════════════════════════ -->
+  <div class="hero">
+    <div class="hero-top">
+      <div class="logo-block">
+        <div class="wordmark">NoteNova</div>
+        <div class="tagline">Academic Operating System</div>
+      </div>
+      <div class="doc-badge">Investor Brief &nbsp;·&nbsp; 2026</div>
+    </div>
+
+    <div class="hero-body">
+      <div class="hero-eyebrow">The Problem with Higher Education Today</div>
+      <h1 class="hero-headline">
+        50,000 colleges.<br/>
+        Zero institutional<br/>
+        <em>memory.</em>
+      </h1>
+      <p class="hero-sub">
+        Every semester, students and faculty rebuild from scratch — notes scattered, knowledge lost, workflows broken across a dozen disconnected tools. NoteNova ends that.
+      </p>
+    </div>
+
+    <div class="stat-strip">
+      <div class="stat-cell">
+        <div class="stat-num">50K+</div>
+        <div class="stat-label">Colleges in India Alone</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-num">$15B</div>
+        <div class="stat-label">Global LMS Market</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-num">52</div>
+        <div class="stat-label">Platform Modules</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-num">0</div>
+        <div class="stat-label">True Competitors in India</div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ════════════════════════════════════════
+       PAGE 2 — THE PROBLEM
+  ════════════════════════════════════════ -->
+  <section>
+    <div class="section-hd">
+      <span class="section-n">01</span>
+      <h2 class="section-title">The Problem</h2>
+    </div>
+    <div class="accent-bar"></div>
+
+    <p class="problem-intro">
+      Higher education runs on infrastructure built in the 1990s. Students use WhatsApp. Faculty use email. Institutions use five different tools that never talk to each other. Every semester, knowledge is lost.
+    </p>
+
+    <div class="problem-grid">
+      <div class="problem-num">01</div>
+      <div class="problem-body">
+        <h4>Fragmentation</h4>
+        <p>The average Indian college uses 6–8 disconnected tools for notes, assignments, announcements, grades, and communication. No single source of truth. Students waste hours aggregating information that should be instant.</p>
+      </div>
+
+      <div class="problem-num">02</div>
+      <div class="problem-body">
+        <h4>Knowledge Loss Every Semester</h4>
+        <p>When a semester ends, everything disappears — notes, discussions, exemplary work, faculty annotations. The next cohort starts from zero. An institution with 20 years of teaching has effectively zero structured knowledge from it.</p>
+      </div>
+
+      <div class="problem-num">03</div>
+      <div class="problem-body">
+        <h4>No Engagement Loop</h4>
+        <p>LMS platforms are filing cabinets. Students log in to submit. Then leave. There is no reason to return. No daily value. No hook. Adoption rates crash after week 2 of every semester.</p>
+      </div>
+
+      <div class="problem-num">04</div>
+      <div class="problem-body">
+        <h4>Zero AI Infrastructure</h4>
+        <p>Google Classroom, Canvas, Moodle — none of them have meaningful AI built in. Students use ChatGPT outside the platform. There is no academically grounded, course-specific AI assistance anywhere in the market.</p>
+      </div>
+    </div>
+
+    <div class="callout-dark">
+      <span class="cd-label">The Real Cost</span>
+      <p>"A student who studies for 4 years leaves with a degree and a WhatsApp group archive. The institution they attended retains nothing of what was learned, taught, or discovered."</p>
+    </div>
+  </section>
+
+
+  <!-- ════════════════════════════════════════
+       PAGE 3 — THE SOLUTION
+  ════════════════════════════════════════ -->
+  <section class="page-break">
+    <div class="section-hd">
+      <span class="section-n">02</span>
+      <h2 class="section-title">The Solution</h2>
+    </div>
+    <div class="accent-bar"></div>
+
+    <p class="body">NoteNova is not another LMS. It is the <strong>academic operating system</strong> — a unified platform where notes, courses, assignments, AI assistance, and institutional knowledge all live together and compound over time.</p>
+
+    <div class="solution-grid">
+      <div class="solution-card">
+        <span class="sc-num">Layer 01</span>
+        <div class="sc-title">Unified Workflow</div>
+        <p class="sc-body">Notes, assignments, submissions, grading, and feedback in one place. No tool-switching. No data loss between steps. Every action leaves a durable record.</p>
+      </div>
+      <div class="solution-card">
+        <span class="sc-num">Layer 02</span>
+        <div class="sc-title">AI Built Into the Core</div>
+        <p class="sc-body">Course-scoped AI Tutor answers student questions using actual lecture notes. AI Study Planner builds personalized daily plans. AI Summarizer condenses hours of reading into minutes.</p>
+      </div>
+      <div class="solution-card">
+        <span class="sc-num">Layer 03</span>
+        <div class="sc-title">Institutional Memory</div>
+        <p class="sc-body">Exemplary work, faculty annotations, and key insights are preserved across cohorts in the Knowledge Vault. Each new batch inherits the intelligence of every previous one.</p>
+      </div>
+      <div class="solution-card">
+        <span class="sc-num">Layer 04</span>
+        <div class="sc-title">Daily Engagement Hooks</div>
+        <p class="sc-body">The Action Center and Announcement Feed give students a reason to open NoteNova every morning. Not to submit. Not to check a deadline. But because it surfaces what they need, before they ask.</p>
+      </div>
+      <div class="solution-card">
+        <span class="sc-num">Layer 05</span>
+        <div class="sc-title">Assessment Engine</div>
+        <p class="sc-body">Quizzes, timed exams, auto-grading, question banks, anti-cheat logic, and gradebook UI — the full assessment stack that Canvas charges extra for, built natively into the platform.</p>
+      </div>
+      <div class="solution-card">
+        <span class="sc-num">Layer 06</span>
+        <div class="sc-title">Extensible Platform</div>
+        <p class="sc-body">A plugin system lets universities connect their ERP, attendance, and research tools without custom development. NoteNova becomes the hub everything integrates into — not one more spoke.</p>
+      </div>
+    </div>
+
+    <div class="flow-strip">
+      <div class="flow-step dark">Student Opens App</div>
+      <div class="flow-step">Action Center</div>
+      <div class="flow-step">Studies with AI Tutor</div>
+      <div class="flow-step">Submits Assignment</div>
+      <div class="flow-step">Gets Feedback</div>
+      <div class="flow-step gold">Knowledge Persists</div>
+    </div>
+
+    <p class="body" style="font-size:12.5px; color:var(--muted);">
+      Every step of this flow happens inside NoteNova — no external tools, no data loss, no friction. The knowledge created at the last step feeds the next cohort's first step.
+    </p>
+  </section>
+
+
+  <!-- ════════════════════════════════════════
+       PAGE 4 — PRODUCT
+  ════════════════════════════════════════ -->
+  <section class="page-break">
+    <div class="section-hd">
+      <span class="section-n">03</span>
+      <h2 class="section-title">The Product</h2>
+    </div>
+    <div class="accent-bar"></div>
+
+    <p class="body">52 production-specified modules across 8 capability domains. Fully architected with multi-tenant isolation, AI pipeline, real-time collaboration, and offline support.</p>
+
+    <table class="module-table">
+      <thead>
+        <tr>
+          <th>Domain</th>
+          <th>Key Modules</th>
+          <th>Status</th>
+          <th>Differentiator</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Knowledge Core</td>
+          <td>Note Editor, Knowledge Graph, Version Control, Rich Media</td>
+          <td><span class="badge badge-gold">MVP Priority</span></td>
+          <td>Backlinked notes + graph — no LMS has this</td>
+        </tr>
+        <tr>
+          <td>AI System</td>
+          <td>AI Tutor, AI Study Planner, Summarizer, Smart Flashcards</td>
+          <td><span class="badge badge-gold">MVP Priority</span></td>
+          <td>Course-scoped RAG — not generic ChatGPT</td>
+        </tr>
+        <tr>
+          <td>Engagement</td>
+          <td>Action Center, Announcement Feed, Contextual Chat</td>
+          <td><span class="badge badge-gold">MVP Priority</span></td>
+          <td>Daily return loop — no existing LMS has one</td>
+        </tr>
+        <tr>
+          <td>Assessment</td>
+          <td>Quiz Engine, Gradebook UI, Submission Portal, Grading</td>
+          <td><span class="badge badge-gold">MVP Priority</span></td>
+          <td>Full stack — quiz to grade release in one flow</td>
+        </tr>
+        <tr>
+          <td>LMS Workflow</td>
+          <td>Course Manager, Assignment Engine, Feedback Loop, Peer Review</td>
+          <td><span class="badge badge-green">V1 Complete Spec</span></td>
+          <td>Better workflow than Canvas at 1/10th the price</td>
+        </tr>
+        <tr>
+          <td>Collaboration</td>
+          <td>Real-Time Co-Edit, Study Groups, File Distribution</td>
+          <td><span class="badge badge-green">V1 Complete Spec</span></td>
+          <td>CRDT offline-first — works without WiFi</td>
+        </tr>
+        <tr>
+          <td>Analytics</td>
+          <td>Student Analytics, Faculty Dashboard, Admin Analytics, Progress</td>
+          <td><span class="badge badge-green">V1 Complete Spec</span></td>
+          <td>Role-aware — each actor sees what matters to them</td>
+        </tr>
+        <tr>
+          <td>Institutional Memory</td>
+          <td>Knowledge Reuse Layer, Knowledge Vault, Template Library</td>
+          <td><span class="badge badge-ink">Unique to NoteNova</span></td>
+          <td>No competitor has this. Solves the core problem.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout-dark">
+      <span class="cd-label">Architecture Note</span>
+      <p>Multi-tenant SaaS. PostgreSQL with Row-Level Security for data isolation. pgvector for AI embeddings. Yjs CRDT for real-time collaboration. Fully specified at engineering depth — not a mockup.</p>
+    </div>
+  </section>
+
+
+  <!-- ════════════════════════════════════════
+       PAGE 5 — WHY WE WIN
+  ════════════════════════════════════════ -->
+  <section class="page-break">
+    <div class="section-hd">
+      <span class="section-n">04</span>
+      <h2 class="section-title">Why NoteNova Wins</h2>
+    </div>
+    <div class="accent-bar"></div>
+
+    <p class="body">The existing platforms are either too expensive, too generic, or too old. NoteNova is purpose-built for the Indian higher education market, with AI baked in from day one.</p>
+
+    <table class="diff-table">
+      <thead>
+        <tr>
+          <th>Capability</th>
+          <th>Google Classroom</th>
+          <th>Canvas</th>
+          <th>Moodle</th>
+          <th>NoteNova</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>AI Tutor (course-grounded)</td><td class="no">✗</td><td class="no">✗</td><td class="no">✗</td><td class="yes">✓</td></tr>
+        <tr><td>AI Study Planner</td><td class="no">✗</td><td class="no">✗</td><td class="no">✗</td><td class="yes">✓</td></tr>
+        <tr><td>Knowledge Graph</td><td class="no">✗</td><td class="no">✗</td><td class="no">✗</td><td class="yes">✓</td></tr>
+        <tr><td>Knowledge Reuse Across Cohorts</td><td class="no">✗</td><td class="no">✗</td><td class="no">✗</td><td class="yes">✓</td></tr>
+        <tr><td>Daily Return Loop (Action Center)</td><td class="no">✗</td><td class="part">Partial</td><td class="no">✗</td><td class="yes">✓</td></tr>
+        <tr><td>Integrated Note-Taking</td><td class="no">✗</td><td class="no">✗</td><td class="no">✗</td><td class="yes">✓</td></tr>
+        <tr><td>Offline-First (CRDT)</td><td class="no">✗</td><td class="no">✗</td><td class="no">✗</td><td class="yes">✓</td></tr>
+        <tr><td>Quiz + Exam Engine</td><td class="part">Basic</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓ + AI generation</td></tr>
+        <tr><td>Assignment + Grading Workflow</td><td class="part">Basic</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓ + AI assist</td></tr>
+        <tr><td>India-First Pricing</td><td class="yes">Free (limits)</td><td class="no">$5–15/user</td><td class="part">Self-hosted</td><td class="yes">✓ Built for ₹</td></tr>
+        <tr><td>Plugin / Extension System</td><td class="no">✗</td><td class="part">LTI only</td><td class="part">Plugins</td><td class="yes">✓ Full SDK</td></tr>
+      </tbody>
+    </table>
+
+    <div class="two-col">
+      <div style="border:1px solid var(--border); background:var(--cream); padding:22px 20px;">
+        <span style="font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:10px;display:block;">Our Moats</span>
+        <ul style="list-style:none;padding:0;">
+          <li style="font-size:13px;color:var(--muted);margin-bottom:9px;padding-left:16px;position:relative;line-height:1.5;"><span style="position:absolute;left:0;color:var(--gold);">—</span> <strong style="color:var(--ink);">Knowledge Vault:</strong> Switching means losing years of accumulated institutional knowledge. Unrecoverable.</li>
+          <li style="font-size:13px;color:var(--muted);margin-bottom:9px;padding-left:16px;position:relative;line-height:1.5;"><span style="position:absolute;left:0;color:var(--gold);">—</span> <strong style="color:var(--ink);">AI Pipeline:</strong> The RAG system improves as more content is indexed. More usage = better AI = better retention.</li>
+          <li style="font-size:13px;color:var(--muted);margin-bottom:9px;padding-left:16px;position:relative;line-height:1.5;"><span style="position:absolute;left:0;color:var(--gold);">—</span> <strong style="color:var(--ink);">Plugin Ecosystem:</strong> Once institutions build integrations on top of NoteNova, NoteNova becomes infrastructure.</li>
+          <li style="font-size:13px;color:var(--muted);margin-bottom:0px;padding-left:16px;position:relative;line-height:1.5;"><span style="position:absolute;left:0;color:var(--gold);">—</span> <strong style="color:var(--ink);">Daily Habit:</strong> Action Center + Study Planner = opens every morning. Habit-formed platforms don't get replaced.</li>
+        </ul>
+      </div>
+      <div style="border:1px solid var(--border); background:var(--cream); padding:22px 20px;">
+        <span style="font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:10px;display:block;">Why Now</span>
+        <ul style="list-style:none;padding:0;">
+          <li style="font-size:13px;color:var(--muted);margin-bottom:9px;padding-left:16px;position:relative;line-height:1.5;"><span style="position:absolute;left:0;color:var(--gold);">—</span> NEP 2020 mandates digital-first education infrastructure across Indian universities.</li>
+          <li style="font-size:13px;color:var(--muted);margin-bottom:9px;padding-left:16px;position:relative;line-height:1.5;"><span style="position:absolute;left:0;color:var(--gold);">—</span> LLM costs dropped 97% in 3 years — AI features at scale are now economically viable for SaaS.</li>
+          <li style="font-size:13px;color:var(--muted);margin-bottom:9px;padding-left:16px;position:relative;line-height:1.5;"><span style="position:absolute;left:0;color:var(--gold);">—</span> Google Classroom is free but shallow. Canvas is powerful but priced for US budgets. The gap is real and growing.</li>
+          <li style="font-size:13px;color:var(--muted);margin-bottom:0;padding-left:16px;position:relative;line-height:1.5;"><span style="position:absolute;left:0;color:var(--gold);">—</span> Post-COVID, institutions are now willing to invest in digital infrastructure. The buyer is ready.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ════════════════════════════════════════
+       PAGE 6 — MARKET
+  ════════════════════════════════════════ -->
+  <section class="page-break">
+    <div class="section-hd">
+      <span class="section-n">05</span>
+      <h2 class="section-title">Market Opportunity</h2>
+    </div>
+    <div class="accent-bar"></div>
+
+    <div class="market-grid">
+      <div class="market-cell">
+        <div class="mc-num">1,113</div>
+        <div class="mc-label">Universities in India</div>
+        <p class="mc-sub">Plus 43,000+ affiliated colleges — the most underserved higher education market in the world</p>
+      </div>
+      <div class="market-cell dark">
+        <div class="mc-num">$2.8B</div>
+        <div class="mc-label">India EdTech SaaS TAM</div>
+        <p class="mc-sub">Institutional SaaS — not consumer EdTech. B2B, recurring, defensible.</p>
+      </div>
+      <div class="market-cell">
+        <div class="mc-num">40M+</div>
+        <div class="mc-label">Higher Ed Students — India</div>
+        <p class="mc-sub">Each one a daily active user if the platform hooks them in week 1</p>
+      </div>
+    </div>
+
+    <div class="market-grid" style="margin-bottom:28px;">
+      <div class="market-cell">
+        <div class="mc-num">$500</div>
+        <div class="mc-label">Avg. Annual Revenue per Institution</div>
+        <p class="mc-sub">Conservative. Entry pricing for small colleges. Scales to ₹10L+ for large universities.</p>
+      </div>
+      <div class="market-cell">
+        <div class="mc-num">5,000</div>
+        <div class="mc-label">Reachable Institutions — 3 Years</div>
+        <p class="mc-sub">10% of addressable market. Focused on Tier 2 and Tier 3 cities first.</p>
+      </div>
+      <div class="market-cell dark">
+        <div class="mc-num">$2.5M</div>
+        <div class="mc-label">ARR at 5,000 Institutions</div>
+        <p class="mc-sub">Conservative case. Upsell on AI features, storage, and advanced modules.</p>
+      </div>
+    </div>
+
+    <p class="body">After India, the playbook replicates across Southeast Asia (Indonesia, Philippines, Vietnam), MENA, and Africa — all markets where Canvas pricing is prohibitive and Google Classroom is insufficient. This is a $100M ARR opportunity within a decade, not a local product.</p>
+  </section>
+
+
+  <!-- ════════════════════════════════════════
+       PAGE 7 — BUSINESS MODEL
+  ════════════════════════════════════════ -->
+  <section class="page-break">
+    <div class="section-hd">
+      <span class="section-n">06</span>
+      <h2 class="section-title">Business Model</h2>
+    </div>
+    <div class="accent-bar"></div>
+
+    <p class="body">Institution-level SaaS subscription. Sold to the college or university — not to individual students or faculty. Annual contracts. Pricing in INR, scaled to institution size.</p>
+
+    <div class="pricing-grid">
+      <div class="price-card">
+        <div class="price-header">
+          <span class="price-tier">Starter</span>
+          <div class="price-name">Small College</div>
+        </div>
+        <div class="price-body">
+          <ul>
+            <li>Up to 2,000 students</li>
+            <li>All core modules</li>
+            <li>AI Tutor + Summarizer</li>
+            <li>SSO integration</li>
+            <li>Email support</li>
+            <li style="color:var(--ink);font-weight:600;">₹1.5L – ₹3L / year</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="price-card featured">
+        <div class="price-header">
+          <span class="price-tier">Growth</span>
+          <div class="price-name">Mid University</div>
+        </div>
+        <div class="price-body">
+          <ul>
+            <li>Up to 15,000 students</li>
+            <li>All 52 modules</li>
+            <li>AI Study Planner</li>
+            <li>Knowledge Vault</li>
+            <li>Plugin system access</li>
+            <li>Dedicated CS manager</li>
+            <li style="color:var(--gold);font-weight:600;">₹6L – ₹15L / year</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="price-card">
+        <div class="price-header">
+          <span class="price-tier">Enterprise</span>
+          <div class="price-name">Large University</div>
+        </div>
+        <div class="price-body">
+          <ul>
+            <li>50,000+ students</li>
+            <li>Custom SLA</li>
+            <li>Dedicated infrastructure</li>
+            <li>Custom integrations</li>
+            <li>On-site training</li>
+            <li style="color:var(--ink);font-weight:600;">Custom — ₹25L+</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div style="border:1px solid var(--border);background:var(--cream);padding:20px;">
+        <span style="font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:10px;display:block;">Revenue Drivers</span>
+        <ul style="list-style:none;padding:0;">
+          <li style="font-size:13px;color:var(--muted);margin-bottom:8px;padding-left:16px;position:relative;line-height:1.5;"><span style="position:absolute;left:0;color:var(--gold);">—</span> Base subscription (institution size-based)</li>
+          <li style="font-size:13px;color:var(--muted);margin-bottom:8px;padding-left:16px;position:relative;line-height:1.5;"><span style="position:absolute;left:0;color:var(--gold);">—</span> AI token overage (Study Planner, Tutor usage above quota)</li>
+          <li style="font-size:13px;color:var(--muted);margin-bottom:8px;padding-left:16px;position:relative;line-height:1.5;"><span style="position:absolute;left:0;color:var(--gold);">—</span> Storage expansion (large file archives, vault)</li>
+          <li style="font-size:13px;color:var(--muted);margin-bottom:8px;padding-left:16px;position:relative;line-height:1.5;"><span style="position:absolute;left:0;color:var(--gold);">—</span> Plugin marketplace (revenue share on paid plugins)</li>
+          <li style="font-size:13px;color:var(--muted);margin-bottom:0;padding-left:16px;position:relative;line-height:1.5;"><span style="position:absolute;left:0;color:var(--gold);">—</span> Implementation + onboarding services (one-time)</li>
+        </ul>
+      </div>
+      <div style="border:1px solid var(--border);background:var(--cream);padding:20px;">
+        <span style="font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:10px;display:block;">Unit Economics (Target)</span>
+        <ul style="list-style:none;padding:0;">
+          <li style="font-size:13px;color:var(--muted);margin-bottom:8px;padding-left:16px;position:relative;line-height:1.5;"><span style="position:absolute;left:0;color:var(--gold);">—</span> <strong style="color:var(--ink);">Gross Margin:</strong> 75–80% at scale (cloud infra + AI cost)</li>
+          <li style="font-size:13px;color:var(--muted);margin-bottom:8px;padding-left:16px;position:relative;line-height:1.5;"><span style="position:absolute;left:0;color:var(--gold);">—</span> <strong style="color:var(--ink);">CAC:</strong> ₹30K–80K per institution (direct sales + referral)</li>
+          <li style="font-size:13px;color:var(--muted);margin-bottom:8px;padding-left:16px;position:relative;line-height:1.5;"><span style="position:absolute;left:0;color:var(--gold);">—</span> <strong style="color:var(--ink);">LTV:</strong> ₹15L–50L (5+ year avg. contract, knowledge vault lock-in)</li>
+          <li style="font-size:13px;color:var(--muted);margin-bottom:8px;padding-left:16px;position:relative;line-height:1.5;"><span style="position:absolute;left:0;color:var(--gold);">—</span> <strong style="color:var(--ink);">LTV:CAC:</strong> Target 10:1 at steady state</li>
+          <li style="font-size:13px;color:var(--muted);margin-bottom:0;padding-left:16px;position:relative;line-height:1.5;"><span style="position:absolute;left:0;color:var(--gold);">—</span> <strong style="color:var(--ink);">Churn:</strong> Target &lt;5% annually (vault + plugin lock-in)</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ════════════════════════════════════════
+       PAGE 8 — ROADMAP
+  ════════════════════════════════════════ -->
+  <section class="page-break">
+    <div class="section-hd">
+      <span class="section-n">07</span>
+      <h2 class="section-title">Roadmap</h2>
+    </div>
+    <div class="accent-bar"></div>
+
+    <div class="roadmap-wrap">
+      <div class="roadmap-row">
+        <div class="rm-phase">Q3 2026</div>
+        <div class="rm-content">
+          <div class="rm-title">MVP — Core 20 Modules</div>
+          <div class="rm-items">
+            <span>Note Editor</span>
+            <span>Course Manager</span>
+            <span>Assignment Engine</span>
+            <span>Submission Portal</span>
+            <span>AI Tutor</span>
+            <span>Action Center</span>
+            <span>Announcement Feed</span>
+            <span>Quiz Engine</span>
+            <span>Gradebook UI</span>
+            <span>SSO + Auth</span>
+            <p style="margin-top:10px;font-size:12.5px;color:var(--muted);">Target: 2 pilot institutions. 500 active students. Prove daily return rate &gt;40%.</p>
+          </div>
+        </div>
+      </div>
+      <div class="roadmap-row">
+        <div class="rm-phase">Q1 2027</div>
+        <div class="rm-content">
+          <div class="rm-title">V1 — Full Platform Launch</div>
+          <div class="rm-items">
+            <span>AI Study Planner</span>
+            <span>Knowledge Vault</span>
+            <span>Smart Flashcards</span>
+            <span>Peer Review</span>
+            <span>Real-Time Collab</span>
+            <span>File Distribution</span>
+            <span>LTI Integration</span>
+            <span>Mobile App</span>
+            <p style="margin-top:10px;font-size:12.5px;color:var(--muted);">Target: 50 institutions. ₹25L ARR. Series A readiness. Prove retention + knowledge vault stickiness.</p>
+          </div>
+        </div>
+      </div>
+      <div class="roadmap-row">
+        <div class="rm-phase">Q3 2027</div>
+        <div class="rm-content">
+          <div class="rm-title">V2 — Ecosystem + Scale</div>
+          <div class="rm-items">
+            <span>Plugin System Launch</span>
+            <span>Plugin Marketplace</span>
+            <span>Dept. Curriculum Map</span>
+            <span>Video Lecture AI</span>
+            <span>CBE Engine</span>
+            <span>SE Asia Expansion</span>
+            <p style="margin-top:10px;font-size:12.5px;color:var(--muted);">Target: 500 institutions. ₹3Cr+ ARR. Third-party developer ecosystem. Series A / B.</p>
+          </div>
+        </div>
+      </div>
+      <div class="roadmap-row">
+        <div class="rm-phase">2028+</div>
+        <div class="rm-content">
+          <div class="rm-title">Platform Phase — Academic OS</div>
+          <div class="rm-items">
+            <span>5,000+ Institutions</span>
+            <span>MENA + Africa Expansion</span>
+            <span>Research Management</span>
+            <span>Outcome Analytics</span>
+            <span>Accreditation Suite</span>
+            <p style="margin-top:10px;font-size:12.5px;color:var(--muted);">NoteNova becomes the platform that institutional vendors build on. Network effects compound. Category defined.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ════════════════════════════════════════
+       PAGE 9 — THE ASK
+  ════════════════════════════════════════ -->
+  <section class="page-break">
+    <div class="section-hd">
+      <span class="section-n">08</span>
+      <h2 class="section-title">The Ask</h2>
+    </div>
+    <div class="accent-bar"></div>
+
+    <div class="ask-block">
+      <span class="ask-label">Pre-Seed Round</span>
+      <h2 class="ask-headline">
+        We are raising <em>₹1.5 Crore</em><br/>
+        to build the MVP and<br/>
+        land the first 5 institutions.
+      </h2>
+
+      <div class="ask-grid">
+        <div class="ask-card">
+          <span class="ask-card-label">Round Size</span>
+          <div class="ask-card-val">₹1.5 Cr</div>
+          <p class="ask-card-desc">Pre-seed. Convertible note or SAFE at agreed cap. 18-month runway to first revenue.</p>
+        </div>
+        <div class="ask-card">
+          <span class="ask-card-label">Target Milestone</span>
+          <div class="ask-card-val">5 Pilots</div>
+          <p class="ask-card-desc">5 paying institutions before Series Seed. Proves: product-market fit, sales motion, and retention signal.</p>
+        </div>
+        <div class="ask-card">
+          <span class="ask-card-label">Team to Hire</span>
+          <div class="ask-card-val">4 FTEs</div>
+          <p class="ask-card-desc">2 engineers (full-stack + AI), 1 designer, 1 institution sales. Founder-led with domain expertise.</p>
+        </div>
+        <div class="ask-card">
+          <span class="ask-card-label">Time to MVP</span>
+          <div class="ask-card-val">6 Months</div>
+          <p class="ask-card-desc">Architecture is complete. PRD covers 52 modules at engineering depth. We are building, not designing.</p>
+        </div>
+      </div>
+
+      <div class="use-of-funds">
+        <span class="uof-label">Use of Funds</span>
+        <div class="uof-row">
+          <div class="uof-pct">50%</div>
+          <div class="uof-bar-wrap"><div class="uof-bar" style="width:50%"></div></div>
+          <div class="uof-desc">Engineering (salaries + tools)</div>
+        </div>
+        <div class="uof-row">
+          <div class="uof-pct">20%</div>
+          <div class="uof-bar-wrap"><div class="uof-bar" style="width:20%"></div></div>
+          <div class="uof-desc">AI infrastructure (cloud + LLM API)</div>
+        </div>
+        <div class="uof-row">
+          <div class="uof-pct">20%</div>
+          <div class="uof-bar-wrap"><div class="uof-bar" style="width:20%"></div></div>
+          <div class="uof-desc">Institution sales and pilots</div>
+        </div>
+        <div class="uof-row">
+          <div class="uof-pct">10%</div>
+          <div class="uof-bar-wrap"><div class="uof-bar" style="width:10%"></div></div>
+          <div class="uof-desc">Legal, compliance, operations</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ════════════════════════════════════════
+       PAGE 10 — CLOSING
+  ════════════════════════════════════════ -->
+  <section class="page-break">
+    <div class="section-hd">
+      <span class="section-n">09</span>
+      <h2 class="section-title">Why This. Why Now.</h2>
+    </div>
+    <div class="accent-bar"></div>
+
+    <p class="body" style="font-size:16px;color:var(--ink);font-family:var(--display);font-style:italic;line-height:1.65;max-width:640px;margin-bottom:32px;">
+      "Every year, 10 million Indian students graduate carrying knowledge in their heads and their phones — and the institutions that educated them retain nothing. NoteNova fixes that."
+    </p>
+
+    <div class="two-col" style="margin-bottom:32px;">
+      <div>
+        <p class="body"><strong>The window is open.</strong> NEP 2020, post-COVID digital adoption, and collapsing AI costs have created a 3-year window to own this category before a well-funded global player notices the opportunity and prices in.</p>
+        <p class="body"><strong>The product is real.</strong> This is not a deck about a concept. The architecture is fully specified at engineering depth — 52 modules, multi-tenant SaaS, AI pipeline, real-time collaboration. We are 6 months from MVP, not 18.</p>
+      </div>
+      <div>
+        <p class="body"><strong>The market is enormous and ignored.</strong> 50,000 Indian colleges. Most using WhatsApp and email. The buyer is the institution — annual contract, low churn, compounding revenue. This is not consumer EdTech.</p>
+        <p class="body"><strong>The moat is the vault.</strong> Once NoteNova has 3 years of an institution's knowledge, they cannot leave. Every semester they stay makes the vault more valuable. The switching cost compounds with time.</p>
+      </div>
+    </div>
+
+    <div style="border:1px solid var(--ink);padding:32px;display:flex;justify-content:space-between;align-items:center;gap:24px;flex-wrap:wrap;">
+      <div>
+        <div style="font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Next Step</div>
+        <div style="font-family:var(--display);font-size:22px;color:var(--ink);line-height:1.2;">30-minute call to walk through<br/>the full technical architecture.</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">Contact</div>
+        <div style="font-family:var(--sans);font-size:14px;color:var(--ink);font-weight:600;">founders@notenova.in</div>
+        <div style="font-family:var(--sans);font-size:13px;color:var(--muted);margin-top:4px;">notenova.in</div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- FOOTER -->
+  <div class="doc-footer">
+    <span>NoteNova &nbsp;·&nbsp; Investor Brief 2026 &nbsp;·&nbsp; Confidential</span>
+    <span>Not for external distribution without founder consent</span>
+  </div>
+
+</div><!-- /doc -->
+</body>
+</html>
