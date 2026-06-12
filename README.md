@@ -80,20 +80,20 @@ NoteNova aims to:
 
 | Feature | Description |
 |---------|-------------|
-| 📚 **Resource Library** | Upload/download notes, PDFs, images with full metadata tagging |
-| 🤖 **Ask Nova** | AI academic assistant powered by Meta Llama 3 via Groq |
-| ✨ **Smart Notes** | AI-generated summaries, flashcards, MCQs, mind maps, and exam questions per resource |
-| 🧪 **Mock Exam Simulator** | Auto-generated 20-question exams (MCQ, True/False, Short Answer) with grading |
-| 🃏 **SRS Flashcards** | Spaced-repetition system with learning buckets (new → learning → review → mastered) |
-| 🎙️ **Audio Overview** | Text-to-speech playback of resource content via Bytez AI |
-| 💬 **Live Doubt Chat** | Real-time doubt rooms per resource via Socket.io |
-| 📨 **Direct Messages** | Full DM system with read receipts, typing indicators, and online presence |
-| 🏆 **Bounty Board** | Post and solve academic bounties with Nova Points or INR rewards |
-| 📊 **Leaderboard** | College-wide points ranking to surface top contributors |
-| 🔔 **Notifications** | Real-time follow and upload notifications |
-| 👤 **User Profiles** | Social follow graph, upload history, points display |
-| 🎨 **Multi-Theme** | Three switchable themes: Ion (dark blue), Galaxy (violet), White (minimal) |
-| 📱 **Android App** | Capacitor-wrapped PWA pointing at the Vercel deployment |
+| **Resource Library** | Upload/download notes, PDFs, images with full metadata tagging |
+| **Ask Nova** | AI academic assistant powered by Meta Llama 3 via Groq |
+| **Smart Notes** | AI-generated summaries, flashcards, MCQs, mind maps, and exam questions per resource |
+| **Mock Exam Simulator** | Auto-generated 20-question exams (MCQ, True/False, Short Answer) with grading |
+| **SRS Flashcards** | Spaced-repetition system with learning buckets (new to learning to review to mastered) |
+| **Audio Overview** | Text-to-speech playback of resource content via Bytez AI |
+| **Live Doubt Chat** | Real-time doubt rooms per resource via Socket.io |
+| **Direct Messages** | Full DM system with read receipts, typing indicators, and online presence |
+| **Bounty Board** | Post and solve academic bounties with Nova Points or INR rewards |
+| **Leaderboard** | College-wide points ranking to surface top contributors |
+| **Notifications** | Real-time follow and upload notifications |
+| **User Profiles** | Social follow graph, upload history, points display |
+| **Multi-Theme** | Three switchable themes: Ion (dark blue), Galaxy (violet), White (minimal) |
+| **Android App** | Capacitor-wrapped PWA pointing at the Vercel deployment |
 
 ---
 
@@ -143,43 +143,45 @@ NoteNova is a **monorepo** that runs two concurrent servers:
 ### System Flow
 
 ```mermaid
+%%{init: {'theme': 'dark', 'themeVariables': {'primaryColor': '#1e3a5f', 'primaryTextColor': '#e2e8f0', 'primaryBorderColor': '#3b82f6', 'lineColor': '#60a5fa', 'secondaryColor': '#1e293b', 'tertiaryColor': '#0f172a', 'edgeLabelBackground': '#1e293b', 'nodeTextColor': '#f1f5f9'}}}%%
 flowchart TD
     A[Student visits NoteNova] --> B{Logged in?}
     B -- No --> C[Browse public resources / Ask Nova]
     B -- Yes --> D[Full platform access]
     D --> E[Upload Resource]
-    D --> F[Discover & Filter Resources]
+    D --> F[Discover and Filter Resources]
     D --> G[AI Study Tools]
     D --> H[Social Features]
 
     E --> E1[UploadThing CDN stores file]
-    E1 --> E2[POST /api/resources — save metadata]
+    E1 --> E2[POST /api/resources - save metadata]
     E2 --> E3[User awarded +10 Nova Points]
 
     F --> F1[GET /api/resources with filters]
-    F1 --> F2[Trending score = downloads×2 + rating×5]
+    F1 --> F2[Trending score = downloads x2 + rating x5]
 
     G --> G1[POST /api/generate-smart-notes]
-    G1 --> G2[Groq Llama 3.1 → JSON output]
+    G1 --> G2[Groq Llama 3.1 - JSON output]
     G2 --> G3[Cached in resource.smartNotes]
     G3 --> G4[SRS Flashcards, Mock Exam, Audio]
 
-    H --> H1[Follow users → Notification created]
-    H --> H2[Post Bounty → Points deducted]
-    H --> H3[Socket.io DMs → Saved to MongoDB]
+    H --> H1[Follow users - Notification created]
+    H --> H2[Post Bounty - Points deducted]
+    H --> H3[Socket.io DMs - Saved to MongoDB]
 ```
 
 ### Data Flow Diagram
 
 ```mermaid
+%%{init: {'theme': 'dark', 'themeVariables': {'primaryColor': '#1e3a5f', 'primaryTextColor': '#e2e8f0', 'primaryBorderColor': '#3b82f6', 'lineColor': '#60a5fa', 'secondaryColor': '#1e293b', 'tertiaryColor': '#0f172a', 'edgeLabelBackground': '#1e293b', 'nodeTextColor': '#f1f5f9'}}}%%
 flowchart LR
-    Browser -- "JWT Bearer token\n+ request body" --> NextAPI["Next.js API Routes\n/app/api/**"]
-    NextAPI -- "mongoose queries" --> MongoDB[(MongoDB)]
-    NextAPI -- "Groq REST API" --> Groq["Groq\nLlama 3.1-8b"]
-    NextAPI -- "Bytez SDK" --> Bytez["Bytez.js\nLlama 3-8B / TTS / OCR"]
-    NextAPI -- "UploadThing SDK" --> UT["UploadThing CDN\n(PDF, PNG, JPEG)"]
-    Browser -- "socket events\ndm:join / dm:message" --> SocketServer["Socket.io\nserver.js :3001"]
-    SocketServer -- "Conversation/Message\nmodels" --> MongoDB
+    Browser["Browser"] -- "JWT Bearer token + request body" --> NextAPI["Next.js API Routes /app/api/**"]
+    NextAPI -- "mongoose queries" --> MongoDB[("MongoDB")]
+    NextAPI -- "Groq REST API" --> Groq["Groq Llama 3.1-8b"]
+    NextAPI -- "Bytez SDK" --> Bytez["Bytez.js - Llama 3-8B / TTS / OCR"]
+    NextAPI -- "UploadThing SDK" --> UT["UploadThing CDN - PDF, PNG, JPEG"]
+    Browser -- "socket events - dm:join / dm:message" --> SocketServer["Socket.io server.js port 3001"]
+    SocketServer -- "Conversation/Message models" --> MongoDB
 ```
 
 ### Application Lifecycle
@@ -733,6 +735,7 @@ NoteNova uses **MongoDB** (document model) via **Mongoose** ODM. All schemas are
 ### Entity Relationship Diagram
 
 ```mermaid
+%%{init: {'theme': 'dark', 'themeVariables': {'primaryColor': '#1e3a5f', 'primaryTextColor': '#e2e8f0', 'primaryBorderColor': '#3b82f6', 'lineColor': '#60a5fa', 'secondaryColor': '#1e293b', 'tertiaryColor': '#0f172a', 'attributeBackgroundColorEven': '#0f172a', 'attributeBackgroundColorOdd': '#1e293b'}}}%%
 erDiagram
     USER {
         ObjectId _id PK
@@ -756,7 +759,7 @@ erDiagram
         String department
         String resourceType
         String yearBatch
-        String[] tags
+        String tags
         Boolean isPublic
         String fileUrl
         String fileType
@@ -790,7 +793,7 @@ erDiagram
 
     CONVERSATION {
         ObjectId _id PK
-        ObjectId[] participants FK
+        ObjectId participants FK
         Object lastMessage
         Date createdAt
         Date updatedAt
@@ -801,7 +804,7 @@ erDiagram
         ObjectId conversationId FK
         ObjectId sender FK
         String text
-        ObjectId[] readBy FK
+        ObjectId readBy FK
         Date createdAt
     }
 
@@ -843,7 +846,7 @@ erDiagram
         ObjectId _id PK
         ObjectId userId FK
         ObjectId resourceId FK
-        CardState[] cards
+        Object cards
         Object stats
         Date updatedAt
     }
@@ -1193,21 +1196,22 @@ Returns bounties filtered by status and department.
 ### Login Flow
 
 ```mermaid
+%%{init: {'theme': 'dark', 'themeVariables': {'primaryColor': '#1e3a5f', 'primaryTextColor': '#e2e8f0', 'primaryBorderColor': '#3b82f6', 'lineColor': '#60a5fa', 'secondaryColor': '#1e293b', 'activationBkgColor': '#1e3a5f', 'activationBorderColor': '#3b82f6', 'actorBkg': '#1e293b', 'actorBorder': '#3b82f6', 'actorTextColor': '#f1f5f9', 'noteBkgColor': '#0f172a', 'noteTextColor': '#94a3b8', 'signalColor': '#60a5fa', 'signalTextColor': '#f1f5f9'}}}%%
 sequenceDiagram
     participant Browser
     participant API as /api/login
     participant DB as MongoDB
     participant LS as localStorage
 
-    Browser->>API: POST { email, password }
-    API->>DB: runSeed() — ensure demo data
-    API->>DB: User.findOne({ email })
+    Browser->>API: POST email and password
+    API->>DB: runSeed() - ensure demo data
+    API->>DB: User.findOne by email
     DB-->>API: User document
-    API->>API: bcrypt.compare(password, hash)
-    API->>API: jwt.sign({ userId, email, role }, JWT_SECRET, 7d)
-    API-->>Browser: { token, user }
-    Browser->>LS: localStorage.setItem("token", token)
-    Browser->>LS: localStorage.setItem("user", JSON.stringify(user))
+    API->>API: bcrypt.compare password with hash
+    API->>API: jwt.sign userId, email, role with JWT_SECRET 7d expiry
+    API-->>Browser: token and user object
+    Browser->>LS: localStorage.setItem token
+    Browser->>LS: localStorage.setItem user JSON
 ```
 
 ### JWT Strategy
@@ -1537,13 +1541,14 @@ Use **Playwright** or **Cypress** for critical user journeys:
 ### Vercel Deployment Flow
 
 ```mermaid
+%%{init: {'theme': 'dark', 'themeVariables': {'primaryColor': '#1e3a5f', 'primaryTextColor': '#e2e8f0', 'primaryBorderColor': '#3b82f6', 'lineColor': '#60a5fa', 'secondaryColor': '#1e293b', 'tertiaryColor': '#0f172a', 'edgeLabelBackground': '#1e293b', 'nodeTextColor': '#f1f5f9'}}}%%
 flowchart LR
     A[git push to main] --> B[Vercel detects push]
     B --> C[npm run build]
     C --> D{Build successful?}
     D -- Yes --> E[Deploy to Production]
-    D -- No --> F[Notify via email/Slack]
-    E --> G[https://note-nova-khaki.vercel.app]
+    D -- No --> F[Notify via email or Slack]
+    E --> G[note-nova-khaki.vercel.app]
 ```
 
 ### Socket Server CI/CD
