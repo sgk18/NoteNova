@@ -52,9 +52,15 @@ export default function AdminPage() {
     useEffect(() => {
         const stored = localStorage.getItem("user");
         if (!stored) { router.push("/login"); return; }
-        const parsed = JSON.parse(stored);
-        if (parsed.role !== "admin") { router.push("/dashboard"); return; }
-        setUser(parsed);
+        try {
+            const parsed = JSON.parse(stored);
+            if (!parsed || parsed.role !== "admin") { router.push("/dashboard"); return; }
+            setUser(parsed);
+        } catch {
+            localStorage.removeItem("user");
+            localStorage.removeItem("token");
+            router.push("/login");
+        }
     }, [router]);
 
     const fetchDocuments = useCallback(async () => {

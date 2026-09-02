@@ -22,8 +22,18 @@ export default function DashboardPage() {
     const token = localStorage.getItem("token");
     const stored = localStorage.getItem("user");
     if (!token || !stored) return router.push("/login");
-    setUser(JSON.parse(stored));
-    fetchMyResources(JSON.parse(stored).id);
+    try {
+      const u = JSON.parse(stored);
+      if (!u) return router.push("/login");
+      setUser(u);
+      const uid = u.id || u._id || u.userId;
+      if (uid) fetchMyResources(uid);
+      else setLoading(false);
+    } catch {
+      localStorage.removeItem("user");
+      localStorage.removeItem("token");
+      router.push("/login");
+    }
   }, []);
 
   const fetchMyResources = async (userId) => {

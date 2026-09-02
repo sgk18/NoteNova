@@ -33,7 +33,9 @@ export default function BountyBoardPage() {
 
   useEffect(() => {
     const stored = localStorage.getItem("user");
-    if (stored) setUser(JSON.parse(stored));
+    if (stored) {
+      try { setUser(JSON.parse(stored)); } catch {}
+    }
     fetchBounties();
   }, [filter]);
 

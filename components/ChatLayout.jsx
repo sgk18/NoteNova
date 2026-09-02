@@ -89,7 +89,9 @@ export default function ChatLayout() {
   useEffect(() => {
     const stored = localStorage.getItem("user");
     const t = localStorage.getItem("token");
-    if (stored) setUser(JSON.parse(stored));
+    if (stored) {
+      try { setUser(JSON.parse(stored)); } catch {}
+    }
     if (t) setToken(t);
   }, []);
 

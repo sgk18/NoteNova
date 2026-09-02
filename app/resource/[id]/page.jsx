@@ -116,14 +116,20 @@ export default function ResourceDetailPage() {
 
   // --- URL helper functions ---
 
-  const getFileExtension = (url) => {
-    if (!url) return "";
+  const getFileExtension = (str) => {
+    if (!str) return "";
     try {
-      // Handle base64 or blob URLs gracefully
-      if (url.startsWith("data:") || url.startsWith("blob:")) return "";
-
-      const pathname = new URL(url).pathname;
-      const parts = pathname.split(".");
+      if (str.startsWith("data:") || str.startsWith("blob:")) return "";
+      let path = str;
+      if (str.includes("://")) {
+        try {
+          path = new URL(str).pathname;
+        } catch {
+          path = str;
+        }
+      }
+      const cleanPath = path.split("?")[0].split("#")[0];
+      const parts = cleanPath.split(".");
       if (parts.length > 1) {
         return parts.pop().toLowerCase();
       }
@@ -139,7 +145,7 @@ export default function ResourceDetailPage() {
 
   const getImageDisplayUrl = (url) => url;
 
-  // Google Docs Viewer URL — works for any publicly accessible PDF/doc URL
+  // Google Docs Viewer URL
   const getGoogleViewerUrl = (url) => {
     return `https://docs.google.com/gview?url=${encodeURIComponent(url)}&embedded=true`;
   };
@@ -149,13 +155,11 @@ export default function ResourceDetailPage() {
     return `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(url)}`;
   };
 
-  // For "Open in New Tab": PDFs use Google Docs Viewer, images use direct URL
   const getOpenInTabUrl = (url) => {
     if (!url) return url;
     const ext = getFileExtension(resource?.fileName || url);
     if (isPdfExt(ext)) {
-      // Google Docs Viewer renders PDFs
-      return `https://docs.google.com/gview?url=${encodeURIComponent(url)}&embedded=true`;
+      return url;
     }
     if (isOfficeExt(ext)) {
       return `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(url)}`;
@@ -200,7 +204,7 @@ export default function ResourceDetailPage() {
       );
     }
 
-    // Image preview — direct <img> tag
+    // Image preview
     if (isImageExt(ext)) {
       const displayUrl = getImageDisplayUrl(fileUrl);
       return (
@@ -221,7 +225,7 @@ export default function ResourceDetailPage() {
       );
     }
 
-    // PDF preview — Google Docs Viewer
+    // PDF preview — Native iframe with Google Docs fallback
     if (isPdfExt(ext)) {
       return (
         <div className="relative">
@@ -234,27 +238,26 @@ export default function ResourceDetailPage() {
             </div>
           )}
           <iframe
-            src={getGoogleViewerUrl(fileUrl)}
+            src={fileUrl.startsWith("http") && !fileUrl.includes(window?.location?.hostname || "") ? getGoogleViewerUrl(fileUrl) : `${fileUrl}#toolbar=0`}
             className="w-full rounded-xl border border-white/10 bg-white"
-            style={{ height: "600px" }}
+            style={{ height: "650px" }}
             frameBorder="0"
             allow="autoplay"
             onLoad={() => setPreviewLoading(false)}
             onError={() => { setPreviewLoading(false); setPreviewError(true); }}
             title="PDF Preview"
           />
-          {!previewLoading && (
-            <div className="mt-3 flex justify-end">
-              <a
-                href={getOpenInTabUrl(fileUrl)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs text-cyan-400 hover:text-cyan-300 flex items-center gap-1 transition-colors"
-              >
-                <Eye className="h-3 w-3" /> Open in new tab
-              </a>
-            </div>
-          )}
+          <div className="mt-3 flex justify-between items-center text-xs">
+            <span className="text-neutral-400 font-medium">📄 {resource?.fileName || "PDF Document"}</span>
+            <a
+              href={fileUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-cyan-400 hover:text-cyan-300 flex items-center gap-1 transition-colors font-medium"
+            >
+              <Eye className="h-3.5 w-3.5" /> Open PDF in new tab
+            </a>
+          </div>
         </div>
       );
     }

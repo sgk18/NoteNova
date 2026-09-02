@@ -23,9 +23,16 @@ export default function ProfilePage() {
     const token = localStorage.getItem("token");
     const stored = localStorage.getItem("user");
     if (!token || !stored) return router.push("/login");
-    const u = JSON.parse(stored);
-    setUser(u);
-    fetchData(u.id, token);
+    try {
+      const u = JSON.parse(stored);
+      if (!u) return router.push("/login");
+      setUser(u);
+      fetchData(u.id || u._id, token);
+    } catch {
+      localStorage.removeItem("user");
+      localStorage.removeItem("token");
+      router.push("/login");
+    }
   }, []);
 
   const fetchData = async (userId, token) => {
