@@ -8,6 +8,7 @@ export function useTTS(chunks = [], resourceId = null) {
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
   const synthRef = useRef(null);
   const utteranceRef = useRef(null);
+  const playRef = useRef(null);
 
   // Load persisted state
   useEffect(() => {
@@ -86,7 +87,7 @@ export function useTTS(chunks = [], resourceId = null) {
 
     utterance.onend = () => {
       if (targetIndex + 1 < chunks.length) {
-        play(targetIndex + 1);
+        playRef.current?.(targetIndex + 1);
       } else {
         setIsPlaying(false);
         // Don't reset currentIndex here so user can restart or see where it finished
@@ -94,13 +95,19 @@ export function useTTS(chunks = [], resourceId = null) {
     };
 
     utterance.onerror = (event) => {
-      console.error("SpeechSynthesisUtterance error", event);
+      if (event.error !== "canceled" && event.error !== "interrupted") {
+        console.error("SpeechSynthesisUtterance error", event.error || event);
+      }
       setIsPlaying(false);
     };
 
     utteranceRef.current = utterance;
     synthRef.current.speak(utterance);
   }, [chunks, currentIndex, playbackSpeed, stop]);
+
+  useEffect(() => {
+    playRef.current = play;
+  }, [play]);
 
   const pause = useCallback(() => {
     if (synthRef.current) {

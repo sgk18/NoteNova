@@ -56,7 +56,7 @@ export default function AskNovaPage() {
     if (!answer) return;
     if (audioUrl) {
       const audio = new Audio(audioUrl);
-      audio.play();
+      audio.play().catch(() => {});
       return;
     }
     setAudioLoading(true);
@@ -78,12 +78,26 @@ export default function AskNovaPage() {
         }
         setAudioUrl(finalUrl);
         const audio = new Audio(finalUrl);
-        audio.play();
+        audio.play().catch(() => {});
       } else {
-        toast.error(result.error || "Failed to generate audio");
+        if (typeof window !== "undefined" && window.speechSynthesis) {
+          window.speechSynthesis.cancel();
+          const utterance = new SpeechSynthesisUtterance(answer.slice(0, 350));
+          window.speechSynthesis.speak(utterance);
+          toast.success("Playing response audio");
+        } else {
+          toast.error(result.error || "Failed to generate audio");
+        }
       }
     } catch {
-      toast.error("Failed to connect to audio service");
+      if (typeof window !== "undefined" && window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(answer.slice(0, 350));
+        window.speechSynthesis.speak(utterance);
+        toast.success("Playing response audio");
+      } else {
+        toast.error("Failed to connect to audio service");
+      }
     } finally {
       setAudioLoading(false);
     }

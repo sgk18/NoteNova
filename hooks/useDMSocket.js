@@ -3,7 +3,18 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import io from "socket.io-client";
 
-const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:3001";
+function getSocketUrl() {
+  if (process.env.NEXT_PUBLIC_SOCKET_URL) {
+    return process.env.NEXT_PUBLIC_SOCKET_URL;
+  }
+  if (typeof window !== "undefined") {
+    const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+    if (isLocal) {
+      return "http://localhost:3001";
+    }
+  }
+  return null;
+}
 
 export function useDMSocket(userId) {
   const socketRef = useRef(null);
@@ -18,13 +29,20 @@ export function useDMSocket(userId) {
   useEffect(() => {
     if (!userId) return;
 
-    const socket = io(SOCKET_URL, {
+    const targetUrl = getSocketUrl();
+    if (!targetUrl) return;
+
+    const socket = io(targetUrl, {
       transports: ["websocket", "polling"],
     });
 
     socket.on("connect", () => {
       setIsConnected(true);
       socket.emit("dm:join", userId);
+    });
+
+    socket.on("connect_error", () => {
+      setIsConnected(false);
     });
 
     socket.on("disconnect", () => {

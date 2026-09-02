@@ -1,16 +1,19 @@
 "use client";
 
 import { useEffect } from "react";
-import { StatusBar } from "@capacitor/status-bar";
 
 export default function StatusBarFix() {
   useEffect(() => {
     const fixStatusBar = async () => {
       try {
-        await StatusBar.setOverlaysWebView({ overlay: false });
-        await StatusBar.setBackgroundColor({ color: "#ffffff" }); // for white theme
+        const { Capacitor } = await import("@capacitor/core");
+        if (Capacitor.isNativePlatform()) {
+          const { StatusBar } = await import("@capacitor/status-bar");
+          await StatusBar.setOverlaysWebView({ overlay: false });
+          await StatusBar.setBackgroundColor({ color: "#ffffff" });
+        }
       } catch (e) {
-        console.log("Not running on mobile");
+        // Silently catch on non-native environments
       }
     };
 

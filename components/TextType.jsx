@@ -142,19 +142,27 @@ const TextType = ({
   const shouldHideCursor =
     hideCursorWhileTyping && (currentCharIndex < textArray[currentTextIndex].length || isDeleting);
 
-  return createElement(Component, {
-    ref: containerRef,
-    className: `inline-block whitespace-pre-wrap tracking-tight ${className}`,
-    ...props
-  }, <span className="inline" style={{ color: getCurrentTextColor() || 'inherit' }}>
-    {displayedText}
-  </span>, showCursor && (
-    <span
-      ref={cursorRef}
-      className={`ml-1 inline-block opacity-100 ${shouldHideCursor ? 'hidden' : ''} ${cursorClassName}`}>
-      {cursorCharacter}
-    </span>
-  ));
+  const Tag = Component;
+
+  return (
+    <Tag
+      ref={containerRef}
+      className={`inline-block whitespace-pre-wrap tracking-tight ${className}`}
+      {...props}
+    >
+      <span className="inline" style={{ color: getCurrentTextColor() || 'inherit' }}>
+        {displayedText}
+      </span>
+      {showCursor && (
+        <span
+          ref={cursorRef}
+          className={`ml-1 inline-block opacity-100 ${shouldHideCursor ? 'hidden' : ''} ${cursorClassName}`}
+        >
+          {cursorCharacter}
+        </span>
+      )}
+    </Tag>
+  );
 };
 
 export default TextType;

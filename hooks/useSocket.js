@@ -1,28 +1,50 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import io from "socket.io-client";
+
+function getSocketUrl() {
+  if (process.env.NEXT_PUBLIC_SOCKET_URL) {
+    return process.env.NEXT_PUBLIC_SOCKET_URL;
+  }
+  if (typeof window !== "undefined") {
+    const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+    if (isLocal) {
+      return "http://localhost:3001";
+    }
+  }
+  return null;
+}
 
 export function useSocket() {
   const socketRef = useRef(null);
+  const [socket, setSocket] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
-    // Initialize the socket server via the API route
-    fetch("/api/socket").finally(() => {
-      const socket = io();
+    const targetUrl = getSocketUrl();
+    if (!targetUrl) return;
 
-      socket.on("connect", () => {
+    fetch("/api/socket").catch(() => {}).finally(() => {
+      const s = io(targetUrl, {
+        transports: ["websocket", "polling"],
+        autoConnect: true,
+      });
+
+      s.on("connect", () => {
         setIsConnected(true);
-        console.log("Socket connected");
       });
 
-      socket.on("disconnect", () => {
+      s.on("connect_error", () => {
         setIsConnected(false);
-        console.log("Socket disconnected");
       });
 
-      socketRef.current = socket;
+      s.on("disconnect", () => {
+        setIsConnected(false);
+      });
+
+      socketRef.current = s;
+      setSocket(s);
     });
 
     return () => {
@@ -32,13 +54,13 @@ export function useSocket() {
     };
   }, []);
 
-  const joinRoom = (room) => {
+  const joinRoom = useCallback((room) => {
     if (socketRef.current) {
       socketRef.current.emit("join-room", room);
     }
-  };
+  }, []);
 
-  const sendMessage = (room, message, sender) => {
+  const sendMessage = useCallback((room, message, sender) => {
     if (socketRef.current) {
       socketRef.current.emit("send-message", {
         room,
@@ -47,9 +69,9 @@ export function useSocket() {
         timestamp: new Date().toISOString()
       });
     }
-  };
+  }, []);
 
-  const emitEscalation = (department, user, question, id) => {
+  const emitEscalation = useCallback((department, user, question, id) => {
     if (socketRef.current) {
       socketRef.current.emit("escalation-request", {
         department,
@@ -58,22 +80,22 @@ export function useSocket() {
         id
       });
     }
-  };
+  }, []);
 
-  const onMessage = (callback) => {
+  const onMessage = useCallback((callback) => {
     if (socketRef.current) {
       socketRef.current.on("receive-message", callback);
     }
-  };
+  }, []);
 
-  const onEscalation = (callback) => {
+  const onEscalation = useCallback((callback) => {
     if (socketRef.current) {
       socketRef.current.on("new-escalation", callback);
     }
-  };
+  }, []);
 
   return {
-    socket: socketRef.current,
+    socket,
     isConnected,
     joinRoom,
     sendMessage,

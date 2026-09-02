@@ -4,29 +4,50 @@ import { useEffect, useState, useRef } from "react";
 import { io } from "socket.io-client";
 import { Send, X, MessageCircle, Clock, HelpCircle } from "lucide-react";
 
-// Connect to the standalone Socket server (port 3001)
-const socket = io("http://localhost:3001");
+function getSocketUrl() {
+  if (process.env.NEXT_PUBLIC_SOCKET_URL) {
+    return process.env.NEXT_PUBLIC_SOCKET_URL;
+  }
+  if (typeof window !== "undefined") {
+    const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+    if (isLocal) {
+      return "http://localhost:3001";
+    }
+  }
+  return null;
+}
 
 export default function LiveDoubtChat({ doubtId, currentUser, onClose }) {
   const [currentMessage, setCurrentMessage] = useState("");
   const [messageList, setMessageList] = useState([]);
+  const socketRef = useRef(null);
   const scrollRef = useRef(null);
 
   useEffect(() => {
-    // 1. Join the specific room for this doubt
+    const targetUrl = getSocketUrl();
+    if (!targetUrl) return;
+
+    const socket = io(targetUrl, {
+      transports: ["websocket", "polling"],
+      autoConnect: true
+    });
+    socketRef.current = socket;
+
+    socket.on("connect_error", () => {});
+
     if (doubtId) {
       socket.emit("join_doubt_room", doubtId);
     }
 
-    // 2. Listen for incoming messages from peers
     const handler = (data) => {
       setMessageList((list) => [...list, data]);
     };
     socket.on("receive_message", handler);
 
-    // Cleanup when the user closes the chat
     return () => {
       socket.off("receive_message", handler);
+      socket.disconnect();
+      socketRef.current = null;
     };
   }, [doubtId]);
 
@@ -46,7 +67,7 @@ export default function LiveDoubtChat({ doubtId, currentUser, onClose }) {
     };
 
     // Emit to the Socket server
-    socket.emit("send_message", messageData);
+    socketRef.current?.emit("send_message", messageData);
 
     // Add to our own local UI immediately
     setMessageList((list) => [...list, messageData]);

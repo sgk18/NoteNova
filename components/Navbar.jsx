@@ -34,7 +34,14 @@ export default function Navbar() {
 
   useEffect(() => {
     const stored = localStorage.getItem("user");
-    if (stored) setUser(JSON.parse(stored));
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        setUser((prev) => (JSON.stringify(prev) !== JSON.stringify(parsed) ? parsed : prev));
+      } catch {
+        localStorage.removeItem("user");
+      }
+    }
   }, [pathname]);
 
   const { isConnected, joinRoom, onEscalation } = useSocket();

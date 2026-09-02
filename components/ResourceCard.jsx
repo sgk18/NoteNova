@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Download, Bookmark, BookmarkCheck, Lock, Globe, BadgeCheck, Award } from "lucide-react";
+import { Download, Bookmark, BookmarkCheck, Lock, Globe, BadgeCheck, Award, Sparkles } from "lucide-react";
 import StarRating from "./StarRating";
 import toast from "react-hot-toast";
 import { useTheme } from "@/context/ThemeContext";

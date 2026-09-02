@@ -49,7 +49,21 @@ export default function ResourceDetailPage() {
     updateSpeed
   } = useTTS(audioChunks, id);
 
-  useEffect(() => { if (id) fetchDetail(); }, [id]);
+  const fetchDetail = useCallback(async () => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      const res = await fetch(`/api/resource/${id}`, { headers });
+      if (res.status === 403) { setAccessDenied(true); toast.error("Access denied"); setLoading(false); return; }
+      const data = await res.json();
+      if (res.ok) { setResource(data.resource); setReviews(data.reviews || []); setAvgRating(data.avgRating || 0); }
+      else toast.error(data.error || "Resource not found");
+    } catch { toast.error("Failed to load resource"); }
+    finally { setLoading(false); }
+  }, [id]);
+
+  useEffect(() => { if (id) fetchDetail(); }, [id, fetchDetail]);
   
   useEffect(() => { 
     if (resource?.smartNotes) {
@@ -300,21 +314,7 @@ export default function ResourceDetailPage() {
     );
   };
 
-  // --- Data fetching & actions ---
-
-  const fetchDetail = async () => {
-    setLoading(true);
-    try {
-      const token = localStorage.getItem("token");
-      const headers = token ? { Authorization: `Bearer ${token}` } : {};
-      const res = await fetch(`/api/resource/${id}`, { headers });
-      if (res.status === 403) { setAccessDenied(true); toast.error("Access denied"); setLoading(false); return; }
-      const data = await res.json();
-      if (res.ok) { setResource(data.resource); setReviews(data.reviews || []); setAvgRating(data.avgRating || 0); }
-      else toast.error(data.error || "Resource not found");
-    } catch { toast.error("Failed to load resource"); }
-    finally { setLoading(false); }
-  };
+  // --- Actions ---
 
   const handleDownload = async () => {
     const token = localStorage.getItem("token");

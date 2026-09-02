@@ -8,8 +8,11 @@ import { useTheme } from "@/context/ThemeContext";
 const TYPE_ICONS = { follow: UserPlus, upload: Upload, like: Heart };
 
 function timeAgo(dateStr) {
+  if (!dateStr) return "";
+  const t = new Date(dateStr).getTime();
+  if (isNaN(t)) return "";
   const now = Date.now();
-  const diff = now - new Date(dateStr).getTime();
+  const diff = now - t;
   const mins = Math.floor(diff / 60000);
   if (mins < 1) return "just now";
   if (mins < 60) return `${mins}m`;

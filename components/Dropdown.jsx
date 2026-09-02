@@ -10,7 +10,8 @@ export default function Dropdown({
   onChange, 
   placeholder = "Select...", 
   isWhite = false,
-  className = "" 
+  className = "",
+  name = ""
 }) {
   const selectedOption = options.find(opt => 
     typeof opt === 'object' ? opt.value === value : opt === value
