@@ -173,9 +173,19 @@ const AntigravityInner = ({
 
 const Antigravity = props => {
   return (
-    <Canvas camera={{ position: [0, 0, 50], fov: 35 }}>
-      <AntigravityInner {...props} />
-    </Canvas>
+    <div className="w-full h-full min-h-[300px] relative">
+      <Canvas
+        camera={{ position: [0, 0, 50], fov: 35 }}
+        gl={{ powerPreference: "low-power", antialias: false }}
+        onCreated={({ gl }) => {
+          gl.domElement.addEventListener("webglcontextlost", (e) => {
+            e.preventDefault();
+          }, false);
+        }}
+      >
+        <AntigravityInner {...props} />
+      </Canvas>
+    </div>
   );
 };
 

@@ -30,10 +30,10 @@ export async function GET(request) {
 
     const unreadCount = await Notification.countDocuments({ userId, read: false });
 
-    return NextResponse.json({ notifications, unreadCount });
+    return NextResponse.json({ notifications: notifications || [], unreadCount: unreadCount || 0 });
   } catch (err) {
     console.error("Notifications GET error:", err.message);
-    return NextResponse.json({ error: "Failed to load notifications" }, { status: 500 });
+    return NextResponse.json({ notifications: [], unreadCount: 0 });
   }
 }
 
